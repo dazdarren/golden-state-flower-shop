@@ -173,10 +173,38 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       return errorResponse('Cart is empty', 400);
     }
 
-    // Calculate total from cart
-    const subtotal = products.reduce((sum, p) => sum + p.PRICE, 0);
-    const deliveryFee = 14.99; // Standard delivery fee
-    const orderTotal = subtotal + deliveryFee;
+    // Calculate order total by calling getTotal for each product
+    // Sum up subtotal + tax for each, then add delivery once
+    let subtotalSum = 0;
+    let taxSum = 0;
+    let deliveryCharge = 0;
+
+    for (const product of products) {
+      const totalResult = await client.getTotal(
+        product.CODE,
+        recipientResult.data!.zip,
+        dateResult.data!
+      );
+      console.log('getTotal for', product.CODE, ':', JSON.stringify(totalResult));
+
+      // Use API's SUBTOTAL if available, otherwise use product price
+      const productSubtotal = totalResult.SUBTOTAL || product.PRICE;
+      const productTax = totalResult.FLORISTONETAX || 0;
+
+      subtotalSum += productSubtotal;
+      taxSum += productTax;
+
+      // Capture delivery charge (same for all products to same address)
+      if (!deliveryCharge && totalResult.FLORISTONEDELIVERYCHARGE) {
+        deliveryCharge = totalResult.FLORISTONEDELIVERYCHARGE;
+      }
+    }
+
+    // Order total = sum of subtotals + one delivery charge + sum of taxes
+    const orderTotal = Math.round((subtotalSum + deliveryCharge + taxSum) * 100) / 100;
+
+    console.log('Products:', products.length, 'Subtotal:', subtotalSum,
+                'Delivery:', deliveryCharge, 'Tax:', taxSum, 'OrderTotal:', orderTotal);
 
     // Get client IP
     const clientIp = request.headers.get('cf-connecting-ip') ||
@@ -224,8 +252,13 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       ordertotal: orderTotal,
     });
 
+    // Log the full response for debugging
+    console.log('Florist One placeOrder response:', JSON.stringify(result));
+
     if (!result.ORDERID && !result.SUCCESS) {
-      return errorResponse(result.error || 'Failed to place order', 500);
+      // Return detailed error to help debug
+      const errorMsg = result.error || result.STATUS || (result as Record<string, unknown>).MESSAGE || (result as Record<string, unknown>).ERRORMESSAGE;
+      return errorResponse(errorMsg ? String(errorMsg) : `Order rejected. Response: ${JSON.stringify(result)}`, 500);
     }
 
     // Clear cart cookie on successful order
@@ -239,8 +272,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     return addCookieToResponse(response, clearCookie);
   } catch (error) {
     console.error('Florist One API error:', error);
-    return serverErrorResponse(
-      error instanceof Error ? error.message : 'Failed to place order'
-    );
+    const errorMessage = error instanceof Error ? error.message : 'Failed to place order';
+    // Return a more user-friendly message but log the full error
+    if (errorMessage.includes('500')) {
+      return errorResponse('Payment could not be processed. Please verify your card details and try again.', 500);
+    }
+    return serverErrorResponse(errorMessage);
   }
 };
