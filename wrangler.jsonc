@@ -1,25 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/cloudflare/workers-sdk/main/packages/wrangler/schemas/config.schema.json",
-  "name": "sf-flower-delivery",
-  "compatibility_date": "2024-01-15",
-  "compatibility_flags": ["nodejs_compat"],
+  "name": "golden-state-flower-shop",
   "pages_build_output_dir": "./out",
-
-  // Environment variables for local development
-  // For production, set these in Cloudflare Dashboard > Pages > Settings > Environment variables
-  //
-  // Required env vars:
-  // - FLORISTONE_AFFILIATE_ID: Your Florist One affiliate ID
-  // - FLORISTONE_API_TOKEN: Your Florist One API token
-  //
-  // Optional:
-  // - FLORISTONE_API_BASE_URL: Override API base URL (default: https://www.floristone.com/api)
-
-  // Uncomment to add KV namespace binding for future use
-  // "kv_namespaces": [
-  //   {
-  //     "binding": "FLOWER_DELIVERY_KV",
-  //     "id": "your-kv-namespace-id"
-  //   }
-  // ]
+  "compatibility_date": "2024-01-15",
+  "compatibility_flags": ["nodejs_compat"]
 }
