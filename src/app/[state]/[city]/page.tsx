@@ -51,33 +51,92 @@ export default function CityHomePage({ params }: CityPageProps) {
 
   return (
     <>
-      {/* JSON-LD Structured Data */}
+      {/* JSON-LD Structured Data - LocalBusiness/Florist */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'Florist',
-            name: `${cityConfig.cityName} Flower Delivery`,
-            description: `Same-day flower delivery in ${cityConfig.cityName}, ${cityConfig.stateName}`,
-            url: `${process.env.NEXT_PUBLIC_SITE_URL || ''}${basePath}/`,
-            areaServed: {
-              '@type': 'City',
-              name: cityConfig.cityName,
-              containedInPlace: {
-                '@type': 'State',
-                name: cityConfig.stateName,
-              },
+            '@id': `${process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com'}${basePath}/#florist`,
+            name: `Golden State Flower Shop - ${cityConfig.cityName}`,
+            alternateName: `${cityConfig.cityName} Flower Delivery`,
+            description: `Premium same-day flower delivery in ${cityConfig.cityName}, ${cityConfig.stateName}. Fresh, hand-arranged bouquets delivered to your door.`,
+            url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com'}${basePath}/`,
+            telephone: '(510) 485-9113',
+            email: 'support@goldenstateflowershop.com',
+            logo: {
+              '@type': 'ImageObject',
+              url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com'}/images/logo.png`,
             },
-            priceRange: '$$',
+            image: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com'}/images/hero-flowers.jpg`,
+            address: {
+              '@type': 'PostalAddress',
+              addressLocality: cityConfig.cityName,
+              addressRegion: cityConfig.stateAbbr,
+              addressCountry: 'US',
+            },
+            geo: {
+              '@type': 'GeoCoordinates',
+              latitude: '37.7749',
+              longitude: '-122.4194',
+            },
+            areaServed: [
+              {
+                '@type': 'City',
+                name: cityConfig.cityName,
+                containedInPlace: {
+                  '@type': 'State',
+                  name: cityConfig.stateName,
+                },
+              },
+              ...cityConfig.neighborhoods.slice(0, 5).map(n => ({
+                '@type': 'Place',
+                name: n,
+              })),
+            ],
+            priceRange: '$$-$$$',
+            currenciesAccepted: 'USD',
+            paymentAccepted: 'Cash, Credit Card',
+            openingHoursSpecification: [
+              {
+                '@type': 'OpeningHoursSpecification',
+                dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+                opens: '08:00',
+                closes: '18:00',
+              },
+              {
+                '@type': 'OpeningHoursSpecification',
+                dayOfWeek: 'Saturday',
+                opens: '09:00',
+                closes: '17:00',
+              },
+            ],
             hasOfferCatalog: {
               '@type': 'OfferCatalog',
               name: 'Flower Arrangements',
               itemListElement: occasionList.map((occasion) => ({
                 '@type': 'OfferCatalog',
                 name: occasion.title,
+                url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com'}${basePath}/flowers/${occasion.slug}`,
               })),
             },
+            potentialAction: {
+              '@type': 'OrderAction',
+              target: {
+                '@type': 'EntryPoint',
+                urlTemplate: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com'}${basePath}/flowers/birthday`,
+                actionPlatform: [
+                  'http://schema.org/DesktopWebPlatform',
+                  'http://schema.org/MobileWebPlatform',
+                ],
+              },
+              deliveryMethod: ['http://purl.org/goodrelations/v1#DeliveryModeOwnFleet'],
+            },
+            sameAs: [
+              'https://www.facebook.com/goldenstateflowershop',
+              'https://www.instagram.com/goldenstateflowershop',
+            ],
           }),
         }}
       />

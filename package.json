@@ -13,9 +13,12 @@
     "generate:sitemap": "npx ts-node --esm scripts/generate-sitemap.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.93.3",
     "next": "^14.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "resend": "^6.9.1",
+    "stripe": "^20.3.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {

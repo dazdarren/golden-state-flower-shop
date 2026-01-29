@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { CityConfig } from '@/types/city';
+import NewsletterSignup from './NewsletterSignup';
 
 interface FooterProps {
   cityConfig: CityConfig;
@@ -15,7 +16,7 @@ export default function Footer({ cityConfig }: FooterProps) {
       <div className="h-1 bg-gradient-to-r from-sage-600 via-sage-400 to-sage-600" />
 
       <div className="container-wide py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link href={basePath} className="flex items-center gap-3 mb-5 group">
@@ -118,6 +119,9 @@ export default function Footer({ cityConfig }: FooterProps) {
               ))}
             </ul>
           </div>
+
+          {/* Newsletter */}
+          <NewsletterSignup variant="footer" source="footer" />
         </div>
 
         {/* Bottom */}

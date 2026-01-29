@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { CityConfig } from '@/types/city';
+import { useAuth } from '@/context/AuthContext';
 
 interface HeaderProps {
   cityConfig: CityConfig;
@@ -11,7 +12,9 @@ interface HeaderProps {
 export default function Header({ cityConfig }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const basePath = `/${cityConfig.stateSlug}/${cityConfig.citySlug}`;
+  const { user, loading, signOut, isConfigured } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,6 +23,22 @@ export default function Header({ cityConfig }: HeaderProps) {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Close account menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (accountMenuOpen && !(e.target as Element).closest('.account-menu')) {
+        setAccountMenuOpen(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [accountMenuOpen]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    setAccountMenuOpen(false);
+  };
 
   return (
     <header
@@ -77,21 +96,100 @@ export default function Header({ cityConfig }: HeaderProps) {
               { href: `${basePath}/flowers/sympathy`, label: 'Sympathy' },
               { href: `${basePath}/flowers/anniversary`, label: 'Anniversary' },
               { href: `${basePath}/flowers/get-well`, label: 'Get Well' },
+              { href: `${basePath}/subscribe`, label: 'Subscribe' },
               { href: `${basePath}/delivery`, label: 'Delivery' },
             ].map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-4 py-2 font-body text-sm text-forest-800/80 hover:text-forest-900
-                         transition-colors duration-200 rounded-lg hover:bg-sage-100/50"
+                className={`px-4 py-2 font-body text-sm text-forest-800/80 hover:text-forest-900
+                         transition-colors duration-200 rounded-lg hover:bg-sage-100/50
+                         ${link.label === 'Subscribe' ? 'text-sage-600 font-medium' : ''}`}
               >
                 {link.label}
               </Link>
             ))}
           </nav>
 
-          {/* Cart Button */}
-          <div className="flex items-center gap-4">
+          {/* Right side buttons */}
+          <div className="flex items-center gap-3">
+            {/* Account / Sign In */}
+            {isConfigured && !loading && (
+              user ? (
+                <div className="relative account-menu hidden md:block">
+                  <button
+                    onClick={() => setAccountMenuOpen(!accountMenuOpen)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg
+                             text-forest-800/80 hover:text-forest-900 hover:bg-sage-100/50
+                             transition-colors duration-200"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span className="text-sm font-medium">Account</span>
+                    <svg className={`w-4 h-4 transition-transform ${accountMenuOpen ? 'rotate-180' : ''}`}
+                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {accountMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-cream-200 py-2 z-50">
+                      <div className="px-4 py-2 border-b border-cream-100">
+                        <p className="text-sm font-medium text-forest-900 truncate">
+                          {user.user_metadata?.firstName || 'Welcome'}
+                        </p>
+                        <p className="text-xs text-forest-800/50 truncate">{user.email}</p>
+                      </div>
+                      <Link
+                        href="/account"
+                        className="block px-4 py-2 text-sm text-forest-800/80 hover:bg-sage-50 hover:text-forest-900"
+                        onClick={() => setAccountMenuOpen(false)}
+                      >
+                        My Account
+                      </Link>
+                      <Link
+                        href="/account/orders"
+                        className="block px-4 py-2 text-sm text-forest-800/80 hover:bg-sage-50 hover:text-forest-900"
+                        onClick={() => setAccountMenuOpen(false)}
+                      >
+                        Order History
+                      </Link>
+                      <Link
+                        href="/account/subscriptions"
+                        className="block px-4 py-2 text-sm text-forest-800/80 hover:bg-sage-50 hover:text-forest-900"
+                        onClick={() => setAccountMenuOpen(false)}
+                      >
+                        Subscriptions
+                      </Link>
+                      <hr className="my-2 border-cream-100" />
+                      <button
+                        onClick={handleSignOut}
+                        className="block w-full text-left px-4 py-2 text-sm text-forest-800/80 hover:bg-sage-50 hover:text-forest-900"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  href={`/auth/login?redirect=${encodeURIComponent(basePath)}`}
+                  className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg
+                           text-forest-800/80 hover:text-forest-900 hover:bg-sage-100/50
+                           transition-colors duration-200"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  <span className="text-sm font-medium">Sign In</span>
+                </Link>
+              )
+            )}
+
+            {/* Cart Button */}
             <Link
               href={`${basePath}/cart`}
               className="hidden md:flex items-center gap-2 px-5 py-2.5 rounded-full
@@ -138,6 +236,7 @@ export default function Header({ cityConfig }: HeaderProps) {
                 { href: `${basePath}/flowers/anniversary`, label: 'Anniversary' },
                 { href: `${basePath}/flowers/get-well`, label: 'Get Well' },
                 { href: `${basePath}/flowers/thank-you`, label: 'Thank You' },
+                { href: `${basePath}/subscribe`, label: 'Subscribe & Save' },
                 { href: `${basePath}/delivery`, label: 'Delivery Info' },
               ].map((link, i) => (
                 <Link
@@ -145,13 +244,61 @@ export default function Header({ cityConfig }: HeaderProps) {
                   href={link.href}
                   className={`px-4 py-3 font-body text-forest-800 hover:text-forest-900
                            hover:bg-sage-100/50 rounded-xl transition-all duration-200
-                           opacity-0 animate-fade-up stagger-${i + 1}`}
+                           opacity-0 animate-fade-up stagger-${i + 1}
+                           ${link.label === 'Subscribe & Save' ? 'text-sage-600 font-medium' : ''}`}
                   style={{ animationFillMode: 'forwards' }}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {link.label}
                 </Link>
               ))}
+
+              {/* Mobile Account Links */}
+              {isConfigured && (
+                <div className="mt-4 pt-4 border-t border-cream-300/50 space-y-1">
+                  {user ? (
+                    <>
+                      <Link
+                        href="/account"
+                        className="flex items-center gap-3 px-4 py-3 text-forest-800 hover:bg-sage-100/50 rounded-xl"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        My Account
+                      </Link>
+                      <button
+                        onClick={() => {
+                          handleSignOut();
+                          setMobileMenuOpen(false);
+                        }}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-forest-800 hover:bg-sage-100/50 rounded-xl"
+                      >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Sign Out
+                      </button>
+                    </>
+                  ) : (
+                    <Link
+                      href={`/auth/login?redirect=${encodeURIComponent(basePath)}`}
+                      className="flex items-center gap-3 px-4 py-3 text-forest-800 hover:bg-sage-100/50 rounded-xl"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      Sign In / Create Account
+                    </Link>
+                  )}
+                </div>
+              )}
+
               <div className="mt-4 pt-4 border-t border-cream-300/50">
                 <Link
                   href={`${basePath}/cart`}

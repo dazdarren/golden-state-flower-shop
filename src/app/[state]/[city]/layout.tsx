@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import { getCityConfig, getAllCityPaths } from '@/data/cities';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import ExitIntentPopup from '@/components/ExitIntentPopup';
+import { AuthProvider } from '@/context/AuthContext';
 
 interface CityLayoutProps {
   children: React.ReactNode;
@@ -24,12 +26,13 @@ export default function CityLayout({ children, params }: CityLayoutProps) {
   }
 
   return (
-    <>
+    <AuthProvider>
       <Header cityConfig={cityConfig} />
       <main className="flex-1">
         {children}
       </main>
       <Footer cityConfig={cityConfig} />
-    </>
+      <ExitIntentPopup delay={10000} />
+    </AuthProvider>
   );
 }

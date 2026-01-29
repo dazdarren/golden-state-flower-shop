@@ -36,7 +36,7 @@ const faqs = [
     questions: [
       {
         q: 'How do I place an order?',
-        a: 'Simply browse our flower arrangements, add items to your cart, and proceed to checkout. You&apos;ll need to provide delivery details and your payment information.',
+        a: 'Simply browse our flower arrangements, add items to your cart, and proceed to checkout. You\'ll need to provide delivery details and your payment information.',
       },
       {
         q: 'Can I customize my order?',
@@ -61,11 +61,11 @@ const faqs = [
       },
       {
         q: 'Can you deliver to a hospital?',
-        a: 'Yes! We deliver to all major hospitals. Please include the patient&apos;s full name and room number for faster delivery.',
+        a: 'Yes! We deliver to all major hospitals. Please include the patient\'s full name and room number for faster delivery.',
       },
       {
         q: 'What if no one is home?',
-        a: 'For residential deliveries, our driver may leave the arrangement in a safe location. For sensitive locations, we&apos;ll attempt redelivery or contact you.',
+        a: 'For residential deliveries, our driver may leave the arrangement in a safe location. For sensitive locations, we\'ll attempt redelivery or contact you.',
       },
       {
         q: 'Do you deliver to businesses?',
@@ -95,7 +95,7 @@ const faqs = [
     questions: [
       {
         q: 'Can I change my order after placing it?',
-        a: 'Contact us as soon as possible. We can make changes if the order hasn&apos;t been sent to the florist yet.',
+        a: 'Contact us as soon as possible. We can make changes if the order hasn\'t been sent to the florist yet.',
       },
       {
         q: 'Can I cancel my order?',
@@ -103,11 +103,14 @@ const faqs = [
       },
       {
         q: 'What if my flowers arrive damaged?',
-        a: 'Please contact us within 24 hours with photos of the damage. We&apos;ll arrange a replacement or refund.',
+        a: 'Please contact us within 24 hours with photos of the damage. We\'ll arrange a replacement or refund.',
       },
     ],
   },
 ];
+
+// Flatten all FAQs for schema
+const allFaqs = faqs.flatMap(category => category.questions);
 
 export default function FAQPage({ params }: FAQPageProps) {
   const cityConfig = getCityConfig(params.state, params.city);
@@ -117,17 +120,87 @@ export default function FAQPage({ params }: FAQPageProps) {
   }
 
   const basePath = getCityPath(cityConfig);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com';
+
+  // FAQ Schema
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: allFaqs.map(faq => ({
+      '@type': 'Question',
+      name: faq.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.a,
+      },
+    })),
+  };
+
+  // Breadcrumb Schema
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: siteUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: cityConfig.cityName,
+        item: `${siteUrl}${basePath}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: 'FAQ',
+        item: `${siteUrl}${basePath}/faq`,
+      },
+    ],
+  };
 
   return (
     <>
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqSchema),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbSchema),
+        }}
+      />
+
+      {/* Breadcrumb Navigation */}
+      <nav className="bg-cream-50 border-b border-cream-200">
+        <div className="container-narrow py-3">
+          <ol className="flex items-center gap-2 text-sm text-forest-800/60">
+            <li>
+              <Link href={basePath} className="hover:text-forest-900 transition-colors">
+                Home
+              </Link>
+            </li>
+            <li>/</li>
+            <li className="text-forest-900 font-medium">FAQ</li>
+          </ol>
+        </div>
+      </nav>
+
       {/* Header */}
-      <section className="bg-gradient-to-br from-primary-50 to-white py-12">
+      <section className="bg-gradient-to-br from-cream-50 to-white py-12">
         <div className="container-narrow">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="font-display text-3xl md:text-4xl font-semibold text-forest-900 mb-4">
             Frequently Asked Questions
           </h1>
-          <p className="text-lg text-gray-600">
-            Find answers to common questions about ordering and delivery
+          <p className="text-lg text-forest-800/60">
+            Find answers to common questions about ordering and delivery in {cityConfig.cityName}
           </p>
         </div>
       </section>
@@ -137,19 +210,31 @@ export default function FAQPage({ params }: FAQPageProps) {
         <div className="container-narrow space-y-10">
           {faqs.map((category) => (
             <div key={category.category}>
-              <h2 className="text-xl font-bold text-gray-900 mb-4">
+              <h2 className="font-display text-xl font-semibold text-forest-900 mb-4">
                 {category.category}
               </h2>
               <div className="space-y-3">
                 {category.questions.map((faq, idx) => (
-                  <details key={idx} className="card p-4 group">
-                    <summary className="font-medium text-gray-900 cursor-pointer list-none flex justify-between items-center">
-                      {faq.q}
-                      <span className="text-primary-600 group-open:rotate-180 transition-transform ml-4">
-                        ▼
+                  <details
+                    key={idx}
+                    className="bg-white rounded-xl border border-cream-200 overflow-hidden
+                             hover:border-sage-200 hover:shadow-soft transition-all duration-300 group"
+                  >
+                    <summary className="p-5 font-medium text-forest-900 cursor-pointer list-none flex justify-between items-center">
+                      <span>{faq.q}</span>
+                      <span className="flex-shrink-0 w-8 h-8 rounded-full bg-cream-100
+                                     flex items-center justify-center text-sage-600
+                                     group-open:bg-sage-500 group-open:text-white
+                                     transition-colors duration-300 ml-4">
+                        <svg className="w-4 h-4 group-open:rotate-180 transition-transform duration-300"
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
                       </span>
                     </summary>
-                    <p className="text-gray-600 mt-3 text-sm">{faq.a}</p>
+                    <div className="px-5 pb-5">
+                      <p className="text-forest-800/70 leading-relaxed">{faq.a}</p>
+                    </div>
                   </details>
                 ))}
               </div>
@@ -157,15 +242,23 @@ export default function FAQPage({ params }: FAQPageProps) {
           ))}
 
           {/* Contact CTA */}
-          <div className="card p-6 text-center bg-primary-50 border-primary-100">
-            <h2 className="text-xl font-bold text-gray-900 mb-2">
+          <div className="bg-gradient-to-br from-sage-50 to-cream-50 rounded-2xl p-8 text-center border border-sage-100">
+            <h2 className="font-display text-xl font-semibold text-forest-900 mb-2">
               Still have questions?
             </h2>
-            <p className="text-gray-600 mb-4">
+            <p className="text-forest-800/60 mb-6">
               Our customer service team is happy to help
             </p>
-            <Link href={`${basePath}/contact`} className="btn-primary">
+            <Link
+              href={`${basePath}/contact`}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-forest-900 text-cream-100
+                       rounded-full font-medium transition-all duration-300
+                       hover:bg-forest-800 hover:shadow-soft-lg"
+            >
               Contact Us
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
             </Link>
           </div>
         </div>

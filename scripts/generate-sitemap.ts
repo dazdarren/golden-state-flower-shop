@@ -7,11 +7,21 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 // Configuration
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com';
 
-// City configurations
+// City configurations - all California cities
 const cities = [
   { state: 'ca', city: 'san-francisco' },
+  { state: 'ca', city: 'los-angeles' },
+  { state: 'ca', city: 'san-diego' },
+  { state: 'ca', city: 'san-jose' },
+  { state: 'ca', city: 'sacramento' },
+  { state: 'ca', city: 'oakland' },
+  { state: 'ca', city: 'fresno' },
+  { state: 'ca', city: 'long-beach' },
+  { state: 'ca', city: 'irvine' },
+  { state: 'ca', city: 'santa-barbara' },
+  { state: 'ca', city: 'palm-springs' },
 ];
 
 // Occasions
@@ -20,13 +30,14 @@ const occasions = ['birthday', 'sympathy', 'anniversary', 'get-well', 'thank-you
 // Utility pages
 const utilityPages = ['delivery', 'faq', 'contact', 'privacy', 'terms'];
 
-// Featured product SKUs (from placeholder data)
+// Featured product SKUs (Florist One real product codes)
 const featuredSkus = [
-  'FTD-MIX001', 'FTD-MIX002', 'FTD-MIX003', 'FTD-MIX004', 'FTD-MIX005', 'FTD-MIX006',
-  'FTD-ROSE001', 'FTD-ROSE002', 'FTD-ROSE003', 'FTD-ROSE004', 'FTD-ROSE005', 'FTD-ROSE006',
-  'FTD-PLT001', 'FTD-PLT002', 'FTD-PLT003', 'FTD-PLT004',
-  'FTD-SYM001', 'FTD-SYM002', 'FTD-SYM003', 'FTD-SYM004',
-  'FTD-SEA001', 'FTD-SEA002', 'FTD-SEA003', 'FTD-SEA004',
+  'T18-1A',   // Simply Sweet
+  'F1-120',   // Happy Birthday Balloon Bouquet
+  'FAA-100',  // Large Floral Arrangement
+  'S5251s',   // Abundance Casket Spray
+  'S5252s',   // Faithful Wishes Wreath
+  'S5253s',   // Thoughts of Tranquility
 ];
 
 interface SitemapUrl {
@@ -39,6 +50,25 @@ function generateSitemap(): string {
   const urls: SitemapUrl[] = [];
   const today = new Date().toISOString().split('T')[0];
 
+  // Homepage (global)
+  urls.push({
+    loc: `${SITE_URL}/`,
+    changefreq: 'weekly',
+    priority: 1.0,
+  });
+
+  // Auth pages (global)
+  urls.push({
+    loc: `${SITE_URL}/auth/login/`,
+    changefreq: 'monthly',
+    priority: 0.3,
+  });
+  urls.push({
+    loc: `${SITE_URL}/auth/register/`,
+    changefreq: 'monthly',
+    priority: 0.3,
+  });
+
   // Add URLs for each city
   for (const { state, city } of cities) {
     const basePath = `/${state}/${city}`;
@@ -47,7 +77,14 @@ function generateSitemap(): string {
     urls.push({
       loc: `${SITE_URL}${basePath}/`,
       changefreq: 'weekly',
-      priority: 1.0,
+      priority: 0.9,
+    });
+
+    // Subscription page (high priority - key revenue page)
+    urls.push({
+      loc: `${SITE_URL}${basePath}/subscribe/`,
+      changefreq: 'weekly',
+      priority: 0.85,
     });
 
     // Occasion pages (high priority)
