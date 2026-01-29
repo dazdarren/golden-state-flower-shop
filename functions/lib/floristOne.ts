@@ -229,7 +229,7 @@ export class FloristOneClient {
     zipcode: string,
     deliveryDate: string
   ): Promise<FloristOneTotalResponse> {
-    const url = `${FLOWERSHOP_API_URL}/gettotal?productcode=${encodeURIComponent(productCode)}&zipcode=${encodeURIComponent(zipcode)}&deliverydate=${encodeURIComponent(deliveryDate)}`;
+    const url = `${FLOWERSHOP_API_URL}/gettotal?code=${encodeURIComponent(productCode)}&zipcode=${encodeURIComponent(zipcode)}&deliverydate=${encodeURIComponent(deliveryDate)}`;
     return this.request<FloristOneTotalResponse>('GET', url);
   }
 
