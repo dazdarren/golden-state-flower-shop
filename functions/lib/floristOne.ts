@@ -229,8 +229,17 @@ export class FloristOneClient {
     zipcode: string,
     deliveryDate: string
   ): Promise<FloristOneTotalResponse> {
-    const url = `${FLOWERSHOP_API_URL}/gettotal?code=${encodeURIComponent(productCode)}&zipcode=${encodeURIComponent(zipcode)}&deliverydate=${encodeURIComponent(deliveryDate)}`;
-    return this.request<FloristOneTotalResponse>('GET', url);
+    const url = `${FLOWERSHOP_API_URL}/gettotal`;
+    // Try POST with products array in body (similar to placeOrder format)
+    return this.request<FloristOneTotalResponse>('POST', url, {
+      products: JSON.stringify([{
+        CODE: productCode,
+        DELIVERYDATE: deliveryDate,
+        ZIPCODE: zipcode,
+      }]),
+      zipcode: zipcode,
+      deliverydate: deliveryDate,
+    });
   }
 
   /**
