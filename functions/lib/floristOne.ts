@@ -246,11 +246,7 @@ export class FloristOneClient {
     }];
     const products = JSON.stringify(productData);
     const url = `${FLOWERSHOP_API_URL}/gettotal?products=${encodeURIComponent(products)}`;
-    console.log('getTotal request - URL:', url);
-    console.log('getTotal request - products:', products);
-    const result = await this.request<FloristOneTotalResponse>('GET', url);
-    console.log('getTotal response:', JSON.stringify(result));
-    return result;
+    return this.request<FloristOneTotalResponse>('GET', url);
   }
 
   /**

@@ -111,11 +111,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         deliveryDate,
         product.PRICE
       );
-      console.log('Florist One getTotal response:', JSON.stringify(totalResult));
-
       // Check for API error
       if (totalResult.error) {
-        console.error('getTotal API error:', totalResult.error);
         // Fall back to estimate for display purposes
         const productSubtotal = product.PRICE;
         subtotalSum += productSubtotal;

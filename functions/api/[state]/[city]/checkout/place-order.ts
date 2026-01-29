@@ -183,11 +183,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         dateResult.data!,
         product.PRICE
       );
-      console.log('getTotal for', product.CODE, ':', JSON.stringify(totalResult));
-
       // Check for API error
       if (totalResult.error) {
-        console.error('getTotal API error:', totalResult.error);
         return errorResponse(`Unable to calculate order total: ${totalResult.error}`, 500);
       }
 
@@ -196,14 +193,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         orderTotalFromApi += totalResult.ORDERTOTAL;
       } else {
         // API didn't return ORDERTOTAL - this is a critical error
-        console.error('getTotal did not return ORDERTOTAL:', JSON.stringify(totalResult));
         return errorResponse('Unable to calculate order total. Please try again.', 500);
       }
     }
 
     const orderTotal = Math.round(orderTotalFromApi * 100) / 100;
-
-    console.log('Order total from API:', orderTotal);
 
     // Get client IP
     const clientIp = request.headers.get('cf-connecting-ip') ||
@@ -250,9 +244,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       },
       ordertotal: orderTotal,
     });
-
-    // Log the full response for debugging
-    console.log('Florist One placeOrder response:', JSON.stringify(result));
 
     // Check for success - API returns ORDERNO (not ORDERID)
     if (!result.ORDERID && !result.ORDERNO && !result.SUCCESS) {
