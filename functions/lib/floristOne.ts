@@ -223,6 +223,10 @@ export class FloristOneClient {
 
   /**
    * Get order total
+   * FlowerShop API gettotal format:
+   * products=[{"CODE":"X","PRICE":70,"RECIPIENT":{"ZIPCODE":"12345"}}]
+   * Note: deliveryDate is kept in signature for backward compatibility but is not sent
+   * to gettotal (it's only needed for placeOrder)
    */
   async getTotal(
     productCode: string,
@@ -230,22 +234,14 @@ export class FloristOneClient {
     deliveryDate: string,
     price?: number
   ): Promise<FloristOneTotalResponse> {
-    // Use the Tree API endpoint for gettotal (works for flowers too)
-    // Convert date from YYYY-MM-DD to MM/DD/YYYY format
-    let formattedDate = deliveryDate;
-    if (deliveryDate && deliveryDate.includes('-')) {
-      const [year, month, day] = deliveryDate.split('-');
-      formattedDate = `${month}/${day}/${year}`;
-    }
-
-    const TREE_API_URL = 'https://www.floristone.com/api/rest/trees';
     const products = JSON.stringify([{
-      code: productCode,
-      price: price || 0,
-      zipcode: zipcode,
-      deliverydate: formattedDate,
+      CODE: productCode,
+      PRICE: price || 0,
+      RECIPIENT: {
+        ZIPCODE: zipcode,
+      },
     }]);
-    const url = `${TREE_API_URL}/gettotal?products=${encodeURIComponent(products)}`;
+    const url = `${FLOWERSHOP_API_URL}/gettotal?products=${encodeURIComponent(products)}`;
     return this.request<FloristOneTotalResponse>('GET', url);
   }
 
