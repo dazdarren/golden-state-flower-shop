@@ -47,7 +47,7 @@ function RegisterForm() {
     setLoading(true);
 
     try {
-      const { error: signUpError } = await signUp(
+      const { error: signUpError, data } = await signUp(
         formData.email,
         formData.password,
         {
@@ -62,6 +62,13 @@ function RegisterForm() {
         return;
       }
 
+      // If user is confirmed (email confirmation disabled), redirect to account
+      if (data?.user?.email_confirmed_at || data?.session) {
+        router.push('/account');
+        return;
+      }
+
+      // Otherwise show email confirmation message
       setSuccess(true);
     } catch {
       setError('An unexpected error occurred. Please try again.');
