@@ -17,6 +17,7 @@ import { getCartIdFromCookies, getMockCartData } from '../../../../lib/cookies';
 interface Env extends FloristOneEnv {}
 
 export const onRequest: PagesFunction<Env> = async (context) => {
+  console.log('get-total called:', context.request.url);
   const { request, params, env } = context;
 
   // Handle CORS preflight
@@ -108,6 +109,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         zip,
         deliveryDate
       );
+      console.log('Florist One getTotal response:', JSON.stringify(totalResult));
 
       const productSubtotal = totalResult.SUBTOTAL || product.PRICE;
       const productTax = totalResult.FLORISTONETAX || totalResult.TAXTOTAL || 0;
