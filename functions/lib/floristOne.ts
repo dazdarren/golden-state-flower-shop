@@ -230,14 +230,13 @@ export class FloristOneClient {
     deliveryDate: string,
     price?: number
   ): Promise<FloristOneTotalResponse> {
-    // API expects 'products' as JSON-encoded array string
+    // API expects 'products' as JSON-encoded array string (like tree API)
+    // Format: [{"code":"X","price":70}] with zipcode/deliverydate as separate params
     const products = JSON.stringify([{
       code: productCode,
-      zipcode: zipcode,
-      deliverydate: deliveryDate,
       price: price || 0,
     }]);
-    const url = `${FLOWERSHOP_API_URL}/gettotal?products=${encodeURIComponent(products)}`;
+    const url = `${FLOWERSHOP_API_URL}/gettotal?products=${encodeURIComponent(products)}&zipcode=${encodeURIComponent(zipcode)}&deliverydate=${encodeURIComponent(deliveryDate)}`;
     return this.request<FloristOneTotalResponse>('GET', url);
   }
 
