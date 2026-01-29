@@ -11,6 +11,21 @@ interface ProductPageProps {
   };
 }
 
+// Pre-generate pages for popular Florist One products
+// Other products will still work via client-side fetching
+const POPULAR_SKUS = [
+  'T18-1A',   // Simply Sweet
+  'F1-120',   // Happy Birthday Balloon Bouquet
+  'FAA-100',  // Large Floral Arrangement
+  'S5251s',   // Abundance Casket Spray
+  'S5252s',   // Faithful Wishes Wreath
+  'S5253s',   // Thoughts of Tranquility
+];
+
+export function generateStaticParams() {
+  return POPULAR_SKUS.map((sku) => ({ sku }));
+}
+
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const cityConfig = getCityConfig(params.state, params.city);
 
