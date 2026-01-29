@@ -150,38 +150,71 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   try {
     const client = createFloristOneClient(env);
 
-    // If we have SKU instead of itemId, we need to find it in the cart
-    if (!itemId && skuToRemove) {
+    // Florist One API uses product code (SKU) for removal
+    let productCode = skuToRemove;
+
+    // If we only have itemId, we need to find the SKU from the cart
+    if (!productCode && itemId) {
       const cartResult = await client.getCart(cartId);
-      if (cartResult.status !== 'success' || !cartResult.cart) {
-        return errorResponse('Cart not found', 404);
-      }
+      const products = cartResult.products || [];
 
-      const item = cartResult.cart.items.find((i) => i.product_code === skuToRemove);
-      if (!item) {
-        return errorResponse('Item not found in cart', 404);
+      // itemId format is item_INDEX - extract the product at that index
+      const match = itemId.match(/item_(\d+)/);
+      if (match) {
+        // Products are aggregated by SKU, so we need to find unique SKUs
+        const uniqueSkus = [...new Set(products.map(p => p.CODE))];
+        const idx = parseInt(match[1], 10);
+        if (idx >= 0 && idx < uniqueSkus.length) {
+          productCode = uniqueSkus[idx];
+        }
       }
-      itemId = item.item_id;
     }
 
-    const result = await client.removeFromCart(cartId, itemId!);
-
-    if (result.status !== 'success' || !result.cart) {
-      return errorResponse(result.error || 'Failed to remove item from cart', 500);
+    if (!productCode) {
+      return errorResponse('Item not found in cart', 404);
     }
+
+    // Remove item from cart
+    const removeResult = await client.removeFromCart(cartId, productCode);
+    if (removeResult.error) {
+      return errorResponse(removeResult.error, 500);
+    }
+
+    // Fetch updated cart contents
+    const cartResult = await client.getCart(cartId);
+    const products = cartResult.products || [];
+
+    // Aggregate duplicate products into quantities
+    const itemMap = new Map<string, { sku: string; name: string; price: number; quantity: number }>();
+    for (const p of products) {
+      const existing = itemMap.get(p.CODE);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        itemMap.set(p.CODE, {
+          sku: p.CODE,
+          name: p.NAME,
+          price: p.PRICE,
+          quantity: 1,
+        });
+      }
+    }
+
+    const items = Array.from(itemMap.values());
+    const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     return successResponse({
       cartId,
-      items: result.cart.items.map((item) => ({
-        itemId: item.item_id,
-        sku: item.product_code,
-        name: item.product_name,
+      items: items.map((item, idx) => ({
+        itemId: `item_${idx}`,
+        sku: item.sku,
+        name: item.name,
         price: item.price,
         quantity: item.quantity,
       })),
-      subtotal: result.cart.subtotal,
-      total: result.cart.total,
-      isEmpty: result.cart.items.length === 0,
+      subtotal,
+      total: subtotal + (items.length > 0 ? 14.99 : 0),
+      isEmpty: items.length === 0,
     });
   } catch (error) {
     console.error('Florist One API error:', error);

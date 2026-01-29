@@ -115,37 +115,41 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const client = createFloristOneClient(env);
     const result = await client.getCart(cartId);
 
-    if (!result.SESSIONID) {
-      // Cart might have expired
-      const emptyCart: CartResponse = {
-        cartId: null,
-        items: [],
-        subtotal: 0,
-        deliveryFee: 0,
-        serviceFee: 0,
-        total: 0,
-        isEmpty: true,
-      };
-      return successResponse(emptyCart);
+    const products = result.products || [];
+
+    // Aggregate duplicate products into quantities
+    const itemMap = new Map<string, { sku: string; name: string; price: number; quantity: number }>();
+    for (const p of products) {
+      const existing = itemMap.get(p.CODE);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        itemMap.set(p.CODE, {
+          sku: p.CODE,
+          name: p.NAME,
+          price: p.PRICE,
+          quantity: 1,
+        });
+      }
     }
 
-    const items = result.ITEMS || [];
-    const subtotal = result.SUBTOTAL || 0;
+    const items = Array.from(itemMap.values());
+    const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     const cart: CartResponse = {
-      cartId: result.SESSIONID,
+      cartId,
       items: items.map((item, idx) => ({
         itemId: `item_${idx}`,
-        sku: item.CODE,
-        name: item.NAME,
-        price: item.PRICE,
-        quantity: item.QUANTITY,
-        image: item.SMALL,
+        sku: item.sku,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        image: '/images/placeholder-flower.svg', // TODO: fetch product images
       })),
       subtotal,
-      deliveryFee: 0, // Will be calculated at checkout
+      deliveryFee: products.length > 0 ? 14.99 : 0,
       serviceFee: 0,
-      total: subtotal,
+      total: subtotal + (products.length > 0 ? 14.99 : 0),
       isEmpty: items.length === 0,
     };
 

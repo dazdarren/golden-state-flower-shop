@@ -45,14 +45,19 @@ export interface FloristOneCartItem {
   CODE: string;
   NAME: string;
   PRICE: number;
-  QUANTITY: number;
-  SMALL: string;
+  CURRENCY?: string;
+  STRIPE_PRICE_ID?: string;
 }
 
 export interface FloristOneCartResponse {
-  SESSIONID?: string;
-  ITEMS?: FloristOneCartItem[];
-  SUBTOTAL?: number;
+  products?: FloristOneCartItem[];
+  productcount?: number;
+  mixed?: boolean;
+  STATUS?: string;
+  error?: string;
+}
+
+export interface FloristOneCartActionResponse {
   STATUS?: string;
   error?: string;
 }
@@ -236,35 +241,35 @@ export class FloristOneClient {
   }
 
   /**
-   * Add item to cart
+   * Add item to cart (returns status only, call getCart for contents)
    */
-  async addToCart(sessionId: string, productCode: string): Promise<FloristOneCartResponse> {
+  async addToCart(sessionId: string, productCode: string): Promise<FloristOneCartActionResponse> {
     const url = `${CART_API_URL}?sessionid=${encodeURIComponent(sessionId)}&action=add&productcode=${encodeURIComponent(productCode)}`;
-    return this.request<FloristOneCartResponse>('PUT', url);
+    return this.request<FloristOneCartActionResponse>('PUT', url);
   }
 
   /**
-   * Remove item from cart
+   * Remove item from cart (returns status only)
    */
-  async removeFromCart(sessionId: string, productCode: string): Promise<FloristOneCartResponse> {
+  async removeFromCart(sessionId: string, productCode: string): Promise<FloristOneCartActionResponse> {
     const url = `${CART_API_URL}?sessionid=${encodeURIComponent(sessionId)}&action=remove&productcode=${encodeURIComponent(productCode)}`;
-    return this.request<FloristOneCartResponse>('PUT', url);
+    return this.request<FloristOneCartActionResponse>('PUT', url);
   }
 
   /**
-   * Clear all items from cart
+   * Clear all items from cart (returns status only)
    */
-  async clearCart(sessionId: string): Promise<FloristOneCartResponse> {
+  async clearCart(sessionId: string): Promise<FloristOneCartActionResponse> {
     const url = `${CART_API_URL}?sessionid=${encodeURIComponent(sessionId)}&action=clear`;
-    return this.request<FloristOneCartResponse>('PUT', url);
+    return this.request<FloristOneCartActionResponse>('PUT', url);
   }
 
   /**
-   * Destroy cart
+   * Destroy cart (returns status only)
    */
-  async destroyCart(sessionId: string): Promise<FloristOneCartResponse> {
+  async destroyCart(sessionId: string): Promise<FloristOneCartActionResponse> {
     const url = `${CART_API_URL}?sessionid=${encodeURIComponent(sessionId)}&action=destroy`;
-    return this.request<FloristOneCartResponse>('DELETE', url);
+    return this.request<FloristOneCartActionResponse>('DELETE', url);
   }
 
   /**

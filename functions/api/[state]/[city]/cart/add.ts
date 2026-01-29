@@ -179,26 +179,41 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     }
 
     // Add item to cart (quantity times for multiple)
-    let result;
     for (let i = 0; i < quantity; i++) {
-      result = await client.addToCart(cartId, sku);
+      const addResult = await client.addToCart(cartId, sku);
+      if (addResult.error) {
+        return errorResponse(addResult.error, 500);
+      }
     }
 
-    if (!result) {
-      return errorResponse('Failed to add item to cart', 500);
+    // Fetch cart contents after adding
+    const cartResult = await client.getCart(cartId);
+    const products = cartResult.products || [];
+
+    // Aggregate duplicate products into quantities
+    const itemMap = new Map<string, { sku: string; name: string; price: number; quantity: number }>();
+    for (const p of products) {
+      const existing = itemMap.get(p.CODE);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        itemMap.set(p.CODE, {
+          sku: p.CODE,
+          name: p.NAME,
+          price: p.PRICE,
+          quantity: 1,
+        });
+      }
     }
 
-    const items = result.ITEMS || [];
-    const subtotal = result.SUBTOTAL || 0;
+    const items = Array.from(itemMap.values());
+    const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     const response = successResponse({
       cartId,
       items: items.map((item, idx) => ({
         itemId: `item_${idx}`,
-        sku: item.CODE,
-        name: item.NAME,
-        price: item.PRICE,
-        quantity: item.QUANTITY,
+        ...item,
       })),
       subtotal,
       total: subtotal,
