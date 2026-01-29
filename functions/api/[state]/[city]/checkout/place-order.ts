@@ -1,9 +1,9 @@
 /**
  * POST /api/{state}/{city}/checkout/place-order
- * Places an order with Florist One
+ * Places an order with Florist One using AuthorizeNet payment token
  */
 
-import { createFloristOneClient, FloristOneEnv } from '../../../../lib/floristOne';
+import { createFloristOneClient, hasFloristOneCredentials, FloristOneEnv } from '../../../../lib/floristOne';
 import {
   validateSlug,
   validateDate,
@@ -44,16 +44,17 @@ interface PlaceOrderBody {
     lastName: string;
     email: string;
     phone: string;
+    address1?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
   };
   card: {
     message: string;
     signature?: string;
   };
   specialInstructions?: string;
-  // TODO: Payment integration
-  // In production, this would be a tokenized payment from Stripe, Square, etc.
-  // The payment_token should be obtained client-side and passed here
-  paymentToken?: string;
+  paymentToken: string;
 }
 
 export const onRequest: PagesFunction<Env> = async (context) => {
@@ -125,10 +126,15 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   const instructionsResult = validateOptionalString(
     body.specialInstructions,
     'Special instructions',
-    1000
+    100
   );
   if (!instructionsResult.success) {
     return errorResponse(instructionsResult.error!);
+  }
+
+  // Validate payment token
+  if (!body.paymentToken) {
+    return errorResponse('Payment information is required', 400);
   }
 
   const isProduction = request.url.startsWith('https://');
@@ -143,25 +149,14 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       confirmationNumber: mockOrderId,
       mock: true,
       message: 'Mock order placed - Florist One credentials not configured',
-      orderDetails: {
-        deliveryDate: dateResult.data,
-        recipient: recipientResult.data,
-        sender: senderResult.data,
-        card: cardResult.data,
-      },
     });
 
     return addCookieToResponse(response, clearCookie);
   }
 
   // Check credentials
-  if (!env.FLORISTONE_AFFILIATE_ID || !env.FLORISTONE_API_TOKEN) {
-    return errorResponse('Florist One credentials not configured', 500);
-  }
-
-  // Validate payment token
-  if (!body.paymentToken) {
-    return errorResponse('Payment information is required', 400);
+  if (!hasFloristOneCredentials(env)) {
+    return errorResponse('Payment processing not configured', 500);
   }
 
   try {
@@ -170,30 +165,66 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const sender = senderResult.data!;
     const card = cardResult.data!;
 
-    // Place order with Florist One using Stripe token
-    const result = await client.placeOrder({
-      sessionid: cartId,
+    // Fetch cart to get products
+    const cartResult = await client.getCart(cartId);
+    const products = cartResult.products || [];
+
+    if (products.length === 0) {
+      return errorResponse('Cart is empty', 400);
+    }
+
+    // Calculate total from cart
+    const subtotal = products.reduce((sum, p) => sum + p.PRICE, 0);
+    const deliveryFee = 14.99; // Standard delivery fee
+    const orderTotal = subtotal + deliveryFee;
+
+    // Get client IP
+    const clientIp = request.headers.get('cf-connecting-ip') ||
+                     request.headers.get('x-forwarded-for')?.split(',')[0] ||
+                     '0.0.0.0';
+
+    // Build products array for API
+    const orderProducts = products.map((p) => ({
+      code: p.CODE,
+      price: p.PRICE,
       deliverydate: dateResult.data!,
-      recipientfirstname: recipient.firstName,
-      recipientlastname: recipient.lastName,
-      recipientaddress: recipient.address1,
-      recipientaddress2: recipient.address2,
-      recipientcity: recipient.city,
-      recipientstate: recipient.state,
-      recipientzipcode: recipient.zip,
-      recipientphone: recipient.phone,
-      senderfirstname: sender.firstName,
-      senderlastname: sender.lastName,
-      senderemail: sender.email,
-      senderphone: sender.phone,
       cardmessage: card.signature
         ? `${card.message}\n\n${card.signature}`
         : card.message,
       specialinstructions: instructionsResult.data,
-      stripetoken: body.paymentToken,
+      recipient: {
+        name: `${recipient.firstName} ${recipient.lastName}`,
+        address1: recipient.address1,
+        address2: recipient.address2,
+        city: recipient.city,
+        state: recipient.state,
+        country: 'US',
+        phone: recipient.phone,
+        zipcode: recipient.zip,
+      },
+    }));
+
+    // Place order with Florist One
+    const result = await client.placeOrder({
+      customer: {
+        name: `${sender.firstName} ${sender.lastName}`,
+        email: sender.email,
+        address1: body.sender.address1 || 'N/A',
+        city: body.sender.city || recipient.city,
+        state: body.sender.state || recipient.state,
+        country: 'US',
+        phone: sender.phone,
+        zipcode: body.sender.zip || recipient.zip,
+        ip: clientIp,
+      },
+      products: orderProducts,
+      ccinfo: {
+        authorizenet_token: body.paymentToken,
+      },
+      ordertotal: orderTotal,
     });
 
-    if (!result.SUCCESS && !result.ORDERID) {
+    if (!result.ORDERID && !result.SUCCESS) {
       return errorResponse(result.error || 'Failed to place order', 500);
     }
 
@@ -202,7 +233,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
     const response = successResponse({
       orderId: result.ORDERID,
-      confirmationNumber: result.CONFIRMATIONNUMBER,
+      confirmationNumber: result.CONFIRMATIONNUMBER || result.ORDERID,
     });
 
     return addCookieToResponse(response, clearCookie);

@@ -78,6 +78,13 @@ export interface FloristOneOrderResponse {
   error?: string;
 }
 
+export interface FloristOneAuthorizeNetKeyResponse {
+  USERNAME?: string;
+  AUTHORIZENET_KEY?: string;
+  AUTHORIZENET_URL?: string;
+  error?: string;
+}
+
 // Configuration
 const FLOWERSHOP_API_URL = 'https://www.floristone.com/api/rest/flowershop';
 const CART_API_URL = 'https://www.floristone.com/api/rest/shoppingcart';
@@ -273,37 +280,55 @@ export class FloristOneClient {
   }
 
   /**
-   * Place order with payment token
-   * Uses cart session for items and Stripe token for payment
+   * Get AuthorizeNet Accept.js configuration
+   */
+  async getAuthorizeNetKey(): Promise<FloristOneAuthorizeNetKeyResponse> {
+    const url = `${FLOWERSHOP_API_URL}/getauthorizenetkey`;
+    return this.request<FloristOneAuthorizeNetKeyResponse>('GET', url);
+  }
+
+  /**
+   * Place order with AuthorizeNet payment token
+   * Uses the JSON structure expected by Florist One API
    */
   async placeOrder(orderData: {
-    sessionid: string;
-    deliverydate: string;
-    recipientfirstname: string;
-    recipientlastname: string;
-    recipientaddress: string;
-    recipientaddress2?: string;
-    recipientcity: string;
-    recipientstate: string;
-    recipientzipcode: string;
-    recipientphone: string;
-    senderfirstname: string;
-    senderlastname: string;
-    senderemail: string;
-    senderphone: string;
-    cardmessage: string;
-    specialinstructions?: string;
-    stripetoken: string;
+    customer: {
+      name: string;
+      email: string;
+      address1: string;
+      address2?: string;
+      city: string;
+      state: string;
+      country: string;
+      phone: string;
+      zipcode: string;
+      ip: string;
+    };
+    products: Array<{
+      code: string;
+      price: number;
+      deliverydate: string;
+      cardmessage: string;
+      specialinstructions?: string;
+      recipient: {
+        name: string;
+        institution?: string;
+        address1: string;
+        address2?: string;
+        city: string;
+        state: string;
+        country: string;
+        phone: string;
+        zipcode: string;
+      };
+    }>;
+    ccinfo: {
+      authorizenet_token: string;
+    };
+    ordertotal: number;
   }): Promise<FloristOneOrderResponse> {
-    const params = new URLSearchParams();
-    Object.entries(orderData).forEach(([key, value]) => {
-      if (value !== undefined) {
-        params.set(key, value);
-      }
-    });
-
-    const url = `${FLOWERSHOP_API_URL}/placeorder?${params.toString()}`;
-    return this.request<FloristOneOrderResponse>('POST', url);
+    const url = `${FLOWERSHOP_API_URL}/placeorder`;
+    return this.request<FloristOneOrderResponse>('POST', url, orderData as unknown as Record<string, unknown>);
   }
 }
 

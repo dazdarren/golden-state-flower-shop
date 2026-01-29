@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import StripeCardElement, { StripeCardRef } from '@/components/StripeCardElement';
+import AuthorizeNetCardElement, { AuthorizeNetCardRef } from '@/components/AuthorizeNetCardElement';
 
 interface DeliveryDate {
   date: string;
@@ -76,7 +76,7 @@ const initialFormData: FormData = {
 
 export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientProps) {
   const router = useRouter();
-  const stripeRef = useRef<StripeCardRef>(null);
+  const paymentRef = useRef<AuthorizeNetCardRef>(null);
 
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
@@ -152,14 +152,14 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
     setSubmitting(true);
     setError(null);
 
-    // Create Stripe token
-    if (!stripeRef.current) {
+    // Create payment token
+    if (!paymentRef.current) {
       setError('Payment system not ready. Please try again.');
       setSubmitting(false);
       return;
     }
 
-    const tokenResult = await stripeRef.current.createToken();
+    const tokenResult = await paymentRef.current.createToken();
 
     if (tokenResult.error) {
       setError(tokenResult.error);
@@ -553,8 +553,9 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
             Payment
           </h2>
 
-          <StripeCardElement
-            ref={stripeRef}
+          <AuthorizeNetCardElement
+            ref={paymentRef}
+            basePath={basePath}
             onChange={setCardComplete}
           />
         </div>
