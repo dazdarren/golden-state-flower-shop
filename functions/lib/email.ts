@@ -14,7 +14,8 @@ export interface EmailEnv {
 
 let resendClient: Resend | null = null;
 
-const DEFAULT_FROM_ADDRESS = 'flowers@goldenstateflowershop.com';
+// Using Resend's test domain until a custom domain is verified
+const DEFAULT_FROM_ADDRESS = 'onboarding@resend.dev';
 const DEFAULT_FROM_NAME = 'Golden State Flower Shop';
 
 /**

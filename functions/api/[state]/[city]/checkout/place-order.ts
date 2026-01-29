@@ -14,6 +14,12 @@ import {
   SupabaseEnv,
 } from '../../../../lib/supabase';
 import {
+  createEmailClient,
+  hasEmailCredentials,
+  sendOrderConfirmationEmail,
+  EmailEnv,
+} from '../../../../lib/email';
+import {
   validateSlug,
   validateDate,
   validateRecipient,
@@ -34,7 +40,7 @@ import {
   addCookieToResponse,
 } from '../../../../lib/cookies';
 
-interface Env extends FloristOneEnv, Partial<SupabaseEnv> {}
+interface Env extends FloristOneEnv, Partial<SupabaseEnv>, Partial<EmailEnv> {}
 
 interface PlaceOrderBody {
   deliveryDate: string;
@@ -399,6 +405,37 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       } catch (dbError) {
         // Log but don't fail the order - the Florist One order already succeeded
         console.error('Failed to save order to database:', dbError);
+      }
+    }
+
+    // Send order confirmation email
+    if (hasEmailCredentials(env)) {
+      try {
+        const resend = createEmailClient(env.RESEND_API_KEY!);
+        const deliveryDateFormatted = new Date(dateResult.data! + 'T00:00:00').toLocaleDateString('en-US', {
+          weekday: 'long',
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric',
+        });
+
+        await sendOrderConfirmationEmail(resend, {
+          to: sender.email,
+          env: env as EmailEnv,
+          orderNumber: confirmationNumber || actualOrderId || 'N/A',
+          customerName: `${sender.firstName} ${sender.lastName}`,
+          orderTotal: `$${orderTotal.toFixed(2)}`,
+          deliveryDate: deliveryDateFormatted,
+          recipientName: `${recipient.firstName} ${recipient.lastName}`,
+          recipientAddress: `${recipient.address1}${recipient.address2 ? ', ' + recipient.address2 : ''}, ${recipient.city}, ${recipient.state} ${recipient.zip}`,
+          items: products.map((p) => ({
+            name: p.NAME || p.CODE,
+            price: `$${p.PRICE.toFixed(2)}`,
+          })),
+        });
+      } catch (emailError) {
+        // Log but don't fail the order
+        console.error('Failed to send order confirmation email:', emailError);
       }
     }
 
