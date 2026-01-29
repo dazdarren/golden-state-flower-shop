@@ -1,9 +1,18 @@
 /**
  * POST /api/{state}/{city}/checkout/place-order
  * Places an order with Florist One using AuthorizeNet payment token
+ * and saves the order to the database for order history
  */
 
 import { createFloristOneClient, hasFloristOneCredentials, FloristOneEnv } from '../../../../lib/floristOne';
+import {
+  createSupabaseClient,
+  hasSupabaseCredentials,
+  createOrder as createDatabaseOrder,
+  extractBearerToken,
+  getUserFromToken,
+  SupabaseEnv,
+} from '../../../../lib/supabase';
 import {
   validateSlug,
   validateDate,
@@ -25,7 +34,7 @@ import {
   addCookieToResponse,
 } from '../../../../lib/cookies';
 
-interface Env extends FloristOneEnv {}
+interface Env extends FloristOneEnv, Partial<SupabaseEnv> {}
 
 interface PlaceOrderBody {
   deliveryDate: string;
@@ -142,11 +151,79 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   // Handle mock carts
   if (cartId.startsWith('mock_cart_')) {
     const mockOrderId = `MOCK_${Date.now()}_${Math.random().toString(36).substring(7).toUpperCase()}`;
+
+    // Still save mock orders to database for testing order history
+    let savedOrderId: string | undefined;
+    if (hasSupabaseCredentials(env)) {
+      try {
+        const supabase = createSupabaseClient(env as SupabaseEnv);
+        const recipient = recipientResult.data!;
+        const sender = senderResult.data!;
+        const card = cardResult.data!;
+
+        // Check if user is authenticated
+        let userId: string | undefined;
+        const token = extractBearerToken(request);
+        if (token) {
+          const user = await getUserFromToken(supabase, token);
+          if (user) {
+            userId = user.id;
+          }
+        }
+
+        // Create a mock order in database
+        const savedOrder = await createDatabaseOrder(
+          supabase,
+          {
+            user_id: userId,
+            guest_email: userId ? undefined : sender.email,
+            florist_one_order_id: mockOrderId,
+            florist_one_confirmation: mockOrderId,
+            subtotal: 59.99, // Mock subtotal
+            delivery_fee: 14.99,
+            tax: 0,
+            total: 74.98,
+            customer_name: `${sender.firstName} ${sender.lastName}`,
+            customer_email: sender.email,
+            customer_phone: sender.phone,
+            billing_address: {
+              address1: body.sender.address1 || 'N/A',
+              city: body.sender.city || recipient.city,
+              state: body.sender.state || recipient.state,
+              zip: body.sender.zip || recipient.zip,
+            },
+          },
+          [{
+            product_code: 'MOCK_PRODUCT',
+            product_name: 'Mock Flower Arrangement',
+            price: 59.99,
+            delivery_date: dateResult.data!,
+            recipient_name: `${recipient.firstName} ${recipient.lastName}`,
+            recipient_address: {
+              address1: recipient.address1,
+              address2: recipient.address2,
+              city: recipient.city,
+              state: recipient.state,
+              zip: recipient.zip,
+            },
+            card_message: card.signature
+              ? `${card.message}\n\n${card.signature}`
+              : card.message,
+            special_instructions: instructionsResult.data,
+          }]
+        );
+        savedOrderId = savedOrder.id;
+      } catch (dbError) {
+        console.error('Failed to save mock order to database:', dbError);
+      }
+    }
+
     const clearCookie = clearCartCookie(stateSlug, citySlug, isProduction);
 
     const response = successResponse({
       orderId: mockOrderId,
       confirmationNumber: mockOrderId,
+      databaseOrderId: savedOrderId,
       mock: true,
       message: 'Mock order placed - Florist One credentials not configured',
     });
@@ -252,13 +329,86 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       return errorResponse(errorMsg ? String(errorMsg) : `Order rejected. Response: ${JSON.stringify(result)}`, 500);
     }
 
+    const actualOrderId = result.ORDERID || (result.ORDERNO ? String(result.ORDERNO) : undefined);
+    const confirmationNumber = result.CONFIRMATIONNUMBER || actualOrderId;
+
+    // Save order to database for order history
+    let savedOrderId: string | undefined;
+    if (hasSupabaseCredentials(env)) {
+      try {
+        const supabase = createSupabaseClient(env as SupabaseEnv);
+
+        // Check if user is authenticated
+        let userId: string | undefined;
+        const token = extractBearerToken(request);
+        if (token) {
+          const user = await getUserFromToken(supabase, token);
+          if (user) {
+            userId = user.id;
+          }
+        }
+
+        // Calculate totals - derive from the order total we already have
+        // The delivery fee is typically $14.99 from our site
+        const deliveryFee = 14.99;
+        const subtotal = Math.round((orderTotal - deliveryFee) * 100) / 100;
+        const tax = 0; // Tax is included in Florist One's ORDERTOTAL
+
+        // Save order to database
+        const savedOrder = await createDatabaseOrder(
+          supabase,
+          {
+            user_id: userId,
+            guest_email: userId ? undefined : sender.email,
+            florist_one_order_id: actualOrderId,
+            florist_one_confirmation: confirmationNumber,
+            subtotal,
+            delivery_fee: deliveryFee,
+            tax,
+            total: orderTotal,
+            customer_name: `${sender.firstName} ${sender.lastName}`,
+            customer_email: sender.email,
+            customer_phone: sender.phone,
+            billing_address: {
+              address1: body.sender.address1 || 'N/A',
+              city: body.sender.city || recipient.city,
+              state: body.sender.state || recipient.state,
+              zip: body.sender.zip || recipient.zip,
+            },
+          },
+          products.map((p) => ({
+            product_code: p.CODE,
+            product_name: p.NAME || p.CODE,
+            price: p.PRICE,
+            delivery_date: dateResult.data!,
+            recipient_name: `${recipient.firstName} ${recipient.lastName}`,
+            recipient_address: {
+              address1: recipient.address1,
+              address2: recipient.address2,
+              city: recipient.city,
+              state: recipient.state,
+              zip: recipient.zip,
+            },
+            card_message: card.signature
+              ? `${card.message}\n\n${card.signature}`
+              : card.message,
+            special_instructions: instructionsResult.data,
+          }))
+        );
+        savedOrderId = savedOrder.id;
+      } catch (dbError) {
+        // Log but don't fail the order - the Florist One order already succeeded
+        console.error('Failed to save order to database:', dbError);
+      }
+    }
+
     // Clear cart cookie on successful order
     const clearCookie = clearCartCookie(stateSlug, citySlug, isProduction);
 
-    const actualOrderId = result.ORDERID || (result.ORDERNO ? String(result.ORDERNO) : undefined);
     const response = successResponse({
       orderId: actualOrderId,
-      confirmationNumber: result.CONFIRMATIONNUMBER || actualOrderId,
+      confirmationNumber,
+      databaseOrderId: savedOrderId,
     });
 
     return addCookieToResponse(response, clearCookie);

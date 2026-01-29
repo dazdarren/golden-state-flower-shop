@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AuthorizeNetCardElement, { AuthorizeNetCardRef } from '@/components/AuthorizeNetCardElement';
+import { supabase } from '@/lib/supabase';
 
 interface DeliveryDate {
   date: string;
@@ -210,11 +211,20 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
     }
 
     try {
+      // Get auth token if user is logged in
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (supabase) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          headers['Authorization'] = `Bearer ${session.access_token}`;
+        }
+      }
+
       const response = await fetch(`/api${basePath}/checkout/place-order`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
           deliveryDate: formData.deliveryDate,
           recipient: {
