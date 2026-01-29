@@ -273,10 +273,11 @@ export class FloristOneClient {
   }
 
   /**
-   * Place order
+   * Place order with payment token
+   * Uses cart session for items and Stripe token for payment
    */
   async placeOrder(orderData: {
-    productcode: string;
+    sessionid: string;
     deliverydate: string;
     recipientfirstname: string;
     recipientlastname: string;
@@ -292,9 +293,7 @@ export class FloristOneClient {
     senderphone: string;
     cardmessage: string;
     specialinstructions?: string;
-    ccnumber: string;
-    ccexp: string;
-    ccsecurity: string;
+    stripetoken: string;
   }): Promise<FloristOneOrderResponse> {
     const params = new URLSearchParams();
     Object.entries(orderData).forEach(([key, value]) => {

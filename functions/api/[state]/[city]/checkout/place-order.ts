@@ -159,19 +159,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     return errorResponse('Florist One credentials not configured', 500);
   }
 
-  // TODO: Payment Integration
-  // In a production system, you would:
-  // 1. Validate the payment token from body.paymentToken
-  // 2. Or integrate with Florist One's payment processing
-  // 3. The actual payment processing depends on Florist One's API requirements
-  //
-  // For MVP, we're wiring up the order placement endpoint but payment
-  // token handling is stubbed. The request shape is correct.
-
+  // Validate payment token
   if (!body.paymentToken) {
-    // In production, this would be a hard error
-    // For MVP/testing, we'll note this but try to proceed
-    console.warn('No payment token provided - order may fail on production API');
+    return errorResponse('Payment information is required', 400);
   }
 
   try {
@@ -180,29 +170,30 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const sender = senderResult.data!;
     const card = cardResult.data!;
 
+    // Place order with Florist One using Stripe token
     const result = await client.placeOrder({
-      cart_id: cartId,
-      delivery_date: dateResult.data!,
-      recipient_first_name: recipient.firstName,
-      recipient_last_name: recipient.lastName,
-      recipient_phone: recipient.phone,
-      recipient_address1: recipient.address1,
-      recipient_address2: recipient.address2,
-      recipient_city: recipient.city,
-      recipient_state: recipient.state,
-      recipient_zip: recipient.zip,
-      sender_first_name: sender.firstName,
-      sender_last_name: sender.lastName,
-      sender_email: sender.email,
-      sender_phone: sender.phone,
-      card_message: card.signature
+      sessionid: cartId,
+      deliverydate: dateResult.data!,
+      recipientfirstname: recipient.firstName,
+      recipientlastname: recipient.lastName,
+      recipientaddress: recipient.address1,
+      recipientaddress2: recipient.address2,
+      recipientcity: recipient.city,
+      recipientstate: recipient.state,
+      recipientzipcode: recipient.zip,
+      recipientphone: recipient.phone,
+      senderfirstname: sender.firstName,
+      senderlastname: sender.lastName,
+      senderemail: sender.email,
+      senderphone: sender.phone,
+      cardmessage: card.signature
         ? `${card.message}\n\n${card.signature}`
         : card.message,
-      special_instructions: instructionsResult.data,
-      payment_token: body.paymentToken,
+      specialinstructions: instructionsResult.data,
+      stripetoken: body.paymentToken,
     });
 
-    if (result.status !== 'success') {
+    if (!result.SUCCESS && !result.ORDERID) {
       return errorResponse(result.error || 'Failed to place order', 500);
     }
 
@@ -210,10 +201,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const clearCookie = clearCartCookie(stateSlug, citySlug, isProduction);
 
     const response = successResponse({
-      orderId: result.order_id,
-      confirmationNumber: result.confirmation_number,
-      estimatedDelivery: result.estimated_delivery,
-      total: result.total,
+      orderId: result.ORDERID,
+      confirmationNumber: result.CONFIRMATIONNUMBER,
     });
 
     return addCookieToResponse(response, clearCookie);

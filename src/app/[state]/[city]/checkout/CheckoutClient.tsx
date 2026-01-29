@@ -1,14 +1,32 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import StripeCardElement, { StripeCardRef } from '@/components/StripeCardElement';
 
 interface DeliveryDate {
   date: string;
-  description: string;
-  price: number;
+  formatted: string;
   available: boolean;
+}
+
+interface CartItem {
+  itemId: string;
+  sku: string;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+interface Cart {
+  cartId: string | null;
+  items: CartItem[];
+  subtotal: number;
+  deliveryFee: number;
+  serviceFee: number;
+  total: number;
+  isEmpty: boolean;
 }
 
 interface CheckoutClientProps {
@@ -21,7 +39,6 @@ interface CheckoutClientProps {
 }
 
 interface FormData {
-  // Recipient
   recipientFirstName: string;
   recipientLastName: string;
   recipientPhone: string;
@@ -30,14 +47,11 @@ interface FormData {
   recipientCity: string;
   recipientState: string;
   recipientZip: string;
-  // Sender
   senderFirstName: string;
   senderLastName: string;
   senderEmail: string;
   senderPhone: string;
-  // Card
   cardMessage: string;
-  // Delivery
   deliveryDate: string;
   specialInstructions: string;
 }
@@ -62,10 +76,13 @@ const initialFormData: FormData = {
 
 export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientProps) {
   const router = useRouter();
-  const [hasCart, setHasCart] = useState(false);
+  const stripeRef = useRef<StripeCardRef>(null);
+
+  const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cardComplete, setCardComplete] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     ...initialFormData,
     recipientCity: cityConfig.cityName,
@@ -74,9 +91,9 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
   const [deliveryDates, setDeliveryDates] = useState<DeliveryDate[]>([]);
   const [loadingDates, setLoadingDates] = useState(false);
 
-  // Check if cart exists
+  // Fetch cart on mount
   useEffect(() => {
-    checkCart();
+    fetchCart();
   }, []);
 
   // Fetch delivery dates when ZIP changes
@@ -89,16 +106,16 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
     }
   }, [formData.recipientZip]);
 
-  const checkCart = async () => {
+  const fetchCart = async () => {
     try {
       const response = await fetch(`/api${basePath}/cart`);
       const data = await response.json();
 
       if (data.success && data.data && !data.data.isEmpty) {
-        setHasCart(true);
+        setCart(data.data);
       }
     } catch (err) {
-      // Cart check failed
+      console.error('Failed to fetch cart:', err);
     } finally {
       setLoading(false);
     }
@@ -116,7 +133,7 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
         setDeliveryDates(data.data.dates.filter((d: DeliveryDate) => d.available));
       }
     } catch (err) {
-      // Failed to fetch dates
+      console.error('Failed to fetch dates:', err);
     } finally {
       setLoadingDates(false);
     }
@@ -127,12 +144,34 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
+
+    // Create Stripe token
+    if (!stripeRef.current) {
+      setError('Payment system not ready. Please try again.');
+      setSubmitting(false);
+      return;
+    }
+
+    const tokenResult = await stripeRef.current.createToken();
+
+    if (tokenResult.error) {
+      setError(tokenResult.error);
+      setSubmitting(false);
+      return;
+    }
+
+    if (!tokenResult.token) {
+      setError('Failed to process payment. Please try again.');
+      setSubmitting(false);
+      return;
+    }
 
     try {
       const response = await fetch(`/api${basePath}/checkout/place-order`, {
@@ -162,8 +201,7 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
             message: formData.cardMessage,
           },
           specialInstructions: formData.specialInstructions || undefined,
-          // TODO: Payment token would go here in production
-          // paymentToken: 'tok_xxx',
+          paymentToken: tokenResult.token,
         }),
       });
 
@@ -190,55 +228,50 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
   // Loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex items-center justify-center py-20">
         <div className="text-center">
-          <svg className="w-8 h-8 animate-spin mx-auto text-primary-600" viewBox="0 0 24 24">
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-              fill="none"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-            />
+          <svg className="w-10 h-10 animate-spin mx-auto text-sage-600" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
-          <p className="text-gray-600 mt-2">Loading...</p>
+          <p className="text-forest-800/60 mt-4">Loading checkout...</p>
         </div>
       </div>
     );
   }
 
   // No cart state
-  if (!hasCart) {
+  if (!cart || cart.isEmpty) {
     return (
-      <div className="text-center py-12">
-        <span className="text-6xl mb-4 block">🛒</span>
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Your cart is empty</h2>
-        <p className="text-gray-600 mb-6">Add some beautiful flowers before checking out.</p>
+      <div className="text-center py-20">
+        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-cream-100 flex items-center justify-center">
+          <svg className="w-10 h-10 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+              d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+        </div>
+        <h2 className="font-display text-2xl font-semibold text-forest-900 mb-3">Your cart is empty</h2>
+        <p className="text-forest-800/60 mb-8">Add some beautiful flowers before checking out.</p>
         <Link href={`${basePath}/flowers/birthday`} className="btn-primary">
-          Shop Now
+          Browse Flowers
         </Link>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid lg:grid-cols-2 gap-8">
+    <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-8">
       {/* Left Column - Forms */}
-      <div className="space-y-8">
-        {/* Recipient Info */}
-        <div className="card p-6">
-          <h2 className="font-semibold text-gray-900 mb-4">Delivery Information</h2>
+      <div className="lg:col-span-2 space-y-6">
+        {/* Delivery Information */}
+        <div className="bg-white rounded-2xl border border-cream-200 p-6">
+          <h2 className="font-display text-xl font-semibold text-forest-900 mb-6">
+            Delivery Information
+          </h2>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="recipientFirstName" className="label">
+              <label htmlFor="recipientFirstName" className="block text-sm font-medium text-forest-900 mb-1">
                 Recipient First Name *
               </label>
               <input
@@ -247,12 +280,12 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
                 name="recipientFirstName"
                 value={formData.recipientFirstName}
                 onChange={handleInputChange}
-                className="input"
+                className="w-full px-4 py-3 rounded-xl border border-cream-300 focus:border-sage-400 focus:ring-2 focus:ring-sage-100 transition-colors"
                 required
               />
             </div>
             <div>
-              <label htmlFor="recipientLastName" className="label">
+              <label htmlFor="recipientLastName" className="block text-sm font-medium text-forest-900 mb-1">
                 Recipient Last Name *
               </label>
               <input
@@ -261,14 +294,14 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
                 name="recipientLastName"
                 value={formData.recipientLastName}
                 onChange={handleInputChange}
-                className="input"
+                className="w-full px-4 py-3 rounded-xl border border-cream-300 focus:border-sage-400 focus:ring-2 focus:ring-sage-100 transition-colors"
                 required
               />
             </div>
           </div>
 
           <div className="mt-4">
-            <label htmlFor="recipientPhone" className="label">
+            <label htmlFor="recipientPhone" className="block text-sm font-medium text-forest-900 mb-1">
               Recipient Phone *
             </label>
             <input
@@ -277,14 +310,14 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
               name="recipientPhone"
               value={formData.recipientPhone}
               onChange={handleInputChange}
-              className="input"
+              className="w-full px-4 py-3 rounded-xl border border-cream-300 focus:border-sage-400 focus:ring-2 focus:ring-sage-100 transition-colors"
               placeholder="(555) 123-4567"
               required
             />
           </div>
 
           <div className="mt-4">
-            <label htmlFor="recipientAddress1" className="label">
+            <label htmlFor="recipientAddress1" className="block text-sm font-medium text-forest-900 mb-1">
               Delivery Address *
             </label>
             <input
@@ -293,15 +326,15 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
               name="recipientAddress1"
               value={formData.recipientAddress1}
               onChange={handleInputChange}
-              className="input"
+              className="w-full px-4 py-3 rounded-xl border border-cream-300 focus:border-sage-400 focus:ring-2 focus:ring-sage-100 transition-colors"
               placeholder="Street address"
               required
             />
           </div>
 
           <div className="mt-4">
-            <label htmlFor="recipientAddress2" className="label">
-              Apt, Suite, etc. (optional)
+            <label htmlFor="recipientAddress2" className="block text-sm font-medium text-forest-900 mb-1">
+              Apt, Suite, etc.
             </label>
             <input
               type="text"
@@ -309,13 +342,13 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
               name="recipientAddress2"
               value={formData.recipientAddress2}
               onChange={handleInputChange}
-              className="input"
+              className="w-full px-4 py-3 rounded-xl border border-cream-300 focus:border-sage-400 focus:ring-2 focus:ring-sage-100 transition-colors"
             />
           </div>
 
           <div className="grid grid-cols-3 gap-4 mt-4">
             <div>
-              <label htmlFor="recipientCity" className="label">
+              <label htmlFor="recipientCity" className="block text-sm font-medium text-forest-900 mb-1">
                 City *
               </label>
               <input
@@ -324,12 +357,12 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
                 name="recipientCity"
                 value={formData.recipientCity}
                 onChange={handleInputChange}
-                className="input"
+                className="w-full px-4 py-3 rounded-xl border border-cream-300 focus:border-sage-400 focus:ring-2 focus:ring-sage-100 transition-colors"
                 required
               />
             </div>
             <div>
-              <label htmlFor="recipientState" className="label">
+              <label htmlFor="recipientState" className="block text-sm font-medium text-forest-900 mb-1">
                 State *
               </label>
               <input
@@ -338,14 +371,14 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
                 name="recipientState"
                 value={formData.recipientState}
                 onChange={handleInputChange}
-                className="input"
+                className="w-full px-4 py-3 rounded-xl border border-cream-300 focus:border-sage-400 focus:ring-2 focus:ring-sage-100 transition-colors"
                 maxLength={2}
                 required
               />
             </div>
             <div>
-              <label htmlFor="recipientZip" className="label">
-                ZIP Code *
+              <label htmlFor="recipientZip" className="block text-sm font-medium text-forest-900 mb-1">
+                ZIP *
               </label>
               <input
                 type="text"
@@ -353,7 +386,7 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
                 name="recipientZip"
                 value={formData.recipientZip}
                 onChange={handleInputChange}
-                className="input"
+                className="w-full px-4 py-3 rounded-xl border border-cream-300 focus:border-sage-400 focus:ring-2 focus:ring-sage-100 transition-colors"
                 maxLength={5}
                 pattern="\d{5}"
                 required
@@ -363,32 +396,39 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
         </div>
 
         {/* Delivery Date */}
-        <div className="card p-6">
-          <h2 className="font-semibold text-gray-900 mb-4">Delivery Date</h2>
+        <div className="bg-white rounded-2xl border border-cream-200 p-6">
+          <h2 className="font-display text-xl font-semibold text-forest-900 mb-6">
+            Delivery Date
+          </h2>
 
           {formData.recipientZip.length !== 5 ? (
-            <p className="text-gray-500 text-sm">
+            <p className="text-forest-800/60 text-sm">
               Enter the delivery ZIP code above to see available dates.
             </p>
           ) : loadingDates ? (
-            <p className="text-gray-500 text-sm">Loading available dates...</p>
+            <div className="flex items-center gap-2 text-forest-800/60">
+              <svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              <span>Loading available dates...</span>
+            </div>
           ) : deliveryDates.length === 0 ? (
             <p className="text-red-600 text-sm">
-              No delivery dates available for this ZIP code. Please check the address.
+              No delivery dates available for this ZIP code.
             </p>
           ) : (
             <select
               name="deliveryDate"
               value={formData.deliveryDate}
               onChange={handleInputChange}
-              className="input"
+              className="w-full px-4 py-3 rounded-xl border border-cream-300 focus:border-sage-400 focus:ring-2 focus:ring-sage-100 transition-colors"
               required
             >
               <option value="">Select a delivery date</option>
               {deliveryDates.map((date) => (
                 <option key={date.date} value={date.date}>
-                  {formatDate(date.date)} ({date.description})
-                  {date.price > 0 ? ` - $${date.price.toFixed(2)}` : ''}
+                  {date.formatted}
                 </option>
               ))}
             </select>
@@ -396,12 +436,14 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
         </div>
 
         {/* Sender Info */}
-        <div className="card p-6">
-          <h2 className="font-semibold text-gray-900 mb-4">Your Information</h2>
+        <div className="bg-white rounded-2xl border border-cream-200 p-6">
+          <h2 className="font-display text-xl font-semibold text-forest-900 mb-6">
+            Your Information
+          </h2>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="senderFirstName" className="label">
+              <label htmlFor="senderFirstName" className="block text-sm font-medium text-forest-900 mb-1">
                 Your First Name *
               </label>
               <input
@@ -410,12 +452,12 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
                 name="senderFirstName"
                 value={formData.senderFirstName}
                 onChange={handleInputChange}
-                className="input"
+                className="w-full px-4 py-3 rounded-xl border border-cream-300 focus:border-sage-400 focus:ring-2 focus:ring-sage-100 transition-colors"
                 required
               />
             </div>
             <div>
-              <label htmlFor="senderLastName" className="label">
+              <label htmlFor="senderLastName" className="block text-sm font-medium text-forest-900 mb-1">
                 Your Last Name *
               </label>
               <input
@@ -424,14 +466,14 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
                 name="senderLastName"
                 value={formData.senderLastName}
                 onChange={handleInputChange}
-                className="input"
+                className="w-full px-4 py-3 rounded-xl border border-cream-300 focus:border-sage-400 focus:ring-2 focus:ring-sage-100 transition-colors"
                 required
               />
             </div>
           </div>
 
           <div className="mt-4">
-            <label htmlFor="senderEmail" className="label">
+            <label htmlFor="senderEmail" className="block text-sm font-medium text-forest-900 mb-1">
               Your Email *
             </label>
             <input
@@ -440,13 +482,13 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
               name="senderEmail"
               value={formData.senderEmail}
               onChange={handleInputChange}
-              className="input"
+              className="w-full px-4 py-3 rounded-xl border border-cream-300 focus:border-sage-400 focus:ring-2 focus:ring-sage-100 transition-colors"
               required
             />
           </div>
 
           <div className="mt-4">
-            <label htmlFor="senderPhone" className="label">
+            <label htmlFor="senderPhone" className="block text-sm font-medium text-forest-900 mb-1">
               Your Phone *
             </label>
             <input
@@ -455,7 +497,7 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
               name="senderPhone"
               value={formData.senderPhone}
               onChange={handleInputChange}
-              className="input"
+              className="w-full px-4 py-3 rounded-xl border border-cream-300 focus:border-sage-400 focus:ring-2 focus:ring-sage-100 transition-colors"
               placeholder="(555) 123-4567"
               required
             />
@@ -463,11 +505,13 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
         </div>
 
         {/* Card Message */}
-        <div className="card p-6">
-          <h2 className="font-semibold text-gray-900 mb-4">Card Message</h2>
+        <div className="bg-white rounded-2xl border border-cream-200 p-6">
+          <h2 className="font-display text-xl font-semibold text-forest-900 mb-6">
+            Card Message
+          </h2>
 
           <div>
-            <label htmlFor="cardMessage" className="label">
+            <label htmlFor="cardMessage" className="block text-sm font-medium text-forest-900 mb-1">
               Message to include with flowers *
             </label>
             <textarea
@@ -475,107 +519,132 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
               name="cardMessage"
               value={formData.cardMessage}
               onChange={handleInputChange}
-              className="input"
+              className="w-full px-4 py-3 rounded-xl border border-cream-300 focus:border-sage-400 focus:ring-2 focus:ring-sage-100 transition-colors resize-none"
               rows={4}
               maxLength={1000}
               placeholder="Write your heartfelt message here..."
               required
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-forest-800/50 mt-1">
               {formData.cardMessage.length}/1000 characters
             </p>
           </div>
 
           <div className="mt-4">
-            <label htmlFor="specialInstructions" className="label">
-              Special Instructions (optional)
+            <label htmlFor="specialInstructions" className="block text-sm font-medium text-forest-900 mb-1">
+              Special Instructions
             </label>
             <textarea
               id="specialInstructions"
               name="specialInstructions"
               value={formData.specialInstructions}
               onChange={handleInputChange}
-              className="input"
+              className="w-full px-4 py-3 rounded-xl border border-cream-300 focus:border-sage-400 focus:ring-2 focus:ring-sage-100 transition-colors resize-none"
               rows={2}
               maxLength={500}
               placeholder="Delivery instructions, gate codes, etc."
             />
           </div>
         </div>
+
+        {/* Payment */}
+        <div className="bg-white rounded-2xl border border-cream-200 p-6">
+          <h2 className="font-display text-xl font-semibold text-forest-900 mb-6">
+            Payment
+          </h2>
+
+          <StripeCardElement
+            ref={stripeRef}
+            onChange={setCardComplete}
+          />
+        </div>
       </div>
 
-      {/* Right Column - Summary & Payment */}
-      <div className="space-y-6">
-        <div className="card p-6 sticky top-24">
-          <h2 className="font-semibold text-gray-900 mb-4">Order Summary</h2>
+      {/* Right Column - Order Summary */}
+      <div className="lg:col-span-1">
+        <div className="bg-white rounded-2xl border border-cream-200 p-6 sticky top-24">
+          <h2 className="font-display text-xl font-semibold text-forest-900 mb-6">
+            Order Summary
+          </h2>
 
-          <div className="border-b pb-4 mb-4">
+          {/* Cart Items */}
+          <div className="space-y-4 mb-6">
+            {cart.items.map((item) => (
+              <div key={item.itemId} className="flex justify-between items-start">
+                <div>
+                  <p className="font-medium text-forest-900">{item.name}</p>
+                  <p className="text-sm text-forest-800/60">Qty: {item.quantity}</p>
+                </div>
+                <p className="font-medium text-forest-900">
+                  ${(item.price * item.quantity).toFixed(2)}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="border-t border-cream-200 pt-4 space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-forest-800/60">Subtotal</span>
+              <span className="text-forest-900">${cart.subtotal.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-forest-800/60">Delivery</span>
+              <span className="text-forest-900">
+                {cart.deliveryFee > 0 ? `$${cart.deliveryFee.toFixed(2)}` : 'Calculated at delivery'}
+              </span>
+            </div>
+            <div className="flex justify-between text-lg font-semibold pt-2 border-t border-cream-200">
+              <span className="text-forest-900">Total</span>
+              <span className="text-sage-600">${cart.total.toFixed(2)}</span>
+            </div>
+          </div>
+
+          <div className="mt-6">
             <Link
               href={`${basePath}/cart`}
-              className="text-primary-600 hover:text-primary-700 text-sm"
+              className="text-sage-600 hover:text-sage-700 text-sm font-medium"
             >
-              ← Edit Cart
+              Edit Cart
             </Link>
           </div>
 
-          {/* Payment Notice */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-            <p className="text-sm text-yellow-800">
-              <strong>Demo Mode:</strong> Payment processing is not active. Orders will be
-              simulated for testing purposes.
-            </p>
-          </div>
-
           {error && (
-            <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm mb-4 animate-fade-in">
-              {error}
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+              <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
 
           <button
             type="submit"
-            disabled={submitting || deliveryDates.length === 0}
-            className="btn-primary w-full py-3 text-lg"
+            disabled={submitting || deliveryDates.length === 0 || !cardComplete}
+            className="w-full mt-6 py-4 bg-sage-600 hover:bg-sage-700 disabled:bg-cream-300
+                     text-white disabled:text-forest-800/40 font-semibold rounded-xl
+                     transition-colors duration-200 flex items-center justify-center gap-2"
           >
             {submitting ? (
-              <span className="flex items-center justify-center gap-2">
+              <>
                 <svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    fill="none"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-                Processing...
-              </span>
+                Processing Order...
+              </>
             ) : (
-              'Place Order'
+              <>
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                Place Order - ${cart.total.toFixed(2)}
+              </>
             )}
           </button>
 
-          <p className="text-xs text-gray-500 text-center mt-4">
-            By placing this order, you agree to our terms of service.
+          <p className="text-xs text-forest-800/50 text-center mt-4">
+            Your payment is secure and encrypted.
           </p>
         </div>
       </div>
     </form>
   );
-}
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr + 'T00:00:00');
-  return date.toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-  });
 }
