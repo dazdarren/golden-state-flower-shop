@@ -98,30 +98,41 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       });
     }
 
-    // Call getTotal for each product to get accurate pricing
+    // Try to get total from Florist One API
     let subtotalSum = 0;
     let taxSum = 0;
-    let deliveryCharge = 0;
-    const debugResponses: unknown[] = [];
+    let deliveryCharge = 14.99; // Default delivery
+    let gotValidResponse = false;
 
     for (const product of products) {
-      const totalResult = await client.getTotal(
-        product.CODE,
-        zip,
-        deliveryDate,
-        product.PRICE
-      );
-      debugResponses.push({ product: product.CODE, response: totalResult });
+      try {
+        const totalResult = await client.getTotal(
+          product.CODE,
+          zip,
+          deliveryDate,
+          product.PRICE
+        );
 
-      const productSubtotal = totalResult.SUBTOTAL || product.PRICE;
-      const productTax = totalResult.FLORISTONETAX || totalResult.TAXTOTAL || 0;
-
-      subtotalSum += productSubtotal;
-      taxSum += productTax;
-
-      if (!deliveryCharge) {
-        deliveryCharge = totalResult.FLORISTONEDELIVERYCHARGE || totalResult.DELIVERYCHARGETOTAL || 14.99;
+        // Check if we got a valid response (not an error)
+        if (totalResult.ORDERTOTAL && !totalResult.errors) {
+          gotValidResponse = true;
+          subtotalSum += totalResult.SUBTOTAL || product.PRICE;
+          taxSum += totalResult.FLORISTONETAX || totalResult.TAXTOTAL || 0;
+          deliveryCharge = totalResult.FLORISTONEDELIVERYCHARGE || totalResult.DELIVERYCHARGETOTAL || 14.99;
+        } else {
+          // API returned error, use product price
+          subtotalSum += product.PRICE;
+        }
+      } catch {
+        // API call failed, use product price
+        subtotalSum += product.PRICE;
       }
+    }
+
+    // If API didn't return valid tax, estimate based on CA tax rate (~8.625%)
+    if (!gotValidResponse || taxSum === 0) {
+      const CA_TAX_RATE = 0.08625; // San Francisco tax rate
+      taxSum = Math.round(subtotalSum * CA_TAX_RATE * 100) / 100;
     }
 
     const total = Math.round((subtotalSum + deliveryCharge + taxSum) * 100) / 100;
@@ -131,7 +142,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       delivery: deliveryCharge,
       tax: taxSum,
       total,
-      _debug: debugResponses, // Temporary: see what Florist One returns
     });
   } catch (error) {
     console.error('Florist One API error:', error);

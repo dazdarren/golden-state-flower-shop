@@ -174,58 +174,44 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     }
 
     // Calculate order total by calling getTotal for each product
-    // If ORDERTOTAL is returned, use it directly (subtract duplicate delivery for multi-product)
-    // Otherwise calculate from SUBTOTAL + delivery + tax
-    let orderTotalSum = 0;
     let subtotalSum = 0;
     let taxSum = 0;
-    let deliveryCharge = 0;
-    let hasOrderTotal = false;
+    let deliveryCharge = 14.99; // Default delivery
+    let gotValidResponse = false;
 
     for (const product of products) {
-      const totalResult = await client.getTotal(
-        product.CODE,
-        recipientResult.data!.zip,
-        dateResult.data!,
-        product.PRICE
-      );
-      console.log('getTotal for', product.CODE, ':', JSON.stringify(totalResult));
+      try {
+        const totalResult = await client.getTotal(
+          product.CODE,
+          recipientResult.data!.zip,
+          dateResult.data!,
+          product.PRICE
+        );
+        console.log('getTotal for', product.CODE, ':', JSON.stringify(totalResult));
 
-      // Check if ORDERTOTAL is returned
-      if (totalResult.ORDERTOTAL) {
-        hasOrderTotal = true;
-        orderTotalSum += totalResult.ORDERTOTAL;
-      }
-
-      // Also capture component values as fallback
-      const productSubtotal = totalResult.SUBTOTAL || product.PRICE;
-      // Check both tax fields - API may return either
-      const productTax = totalResult.FLORISTONETAX || totalResult.TAXTOTAL || 0;
-
-      subtotalSum += productSubtotal;
-      taxSum += productTax;
-
-      // Capture delivery charge (same for all products to same address)
-      if (!deliveryCharge) {
-        deliveryCharge = totalResult.FLORISTONEDELIVERYCHARGE || totalResult.DELIVERYCHARGETOTAL || 0;
+        // Check if we got a valid response with ORDERTOTAL
+        if (totalResult.ORDERTOTAL && !(totalResult as Record<string, unknown>).errors) {
+          gotValidResponse = true;
+          subtotalSum += totalResult.SUBTOTAL || product.PRICE;
+          taxSum += totalResult.FLORISTONETAX || totalResult.TAXTOTAL || 0;
+          deliveryCharge = totalResult.FLORISTONEDELIVERYCHARGE || totalResult.DELIVERYCHARGETOTAL || 14.99;
+        } else {
+          subtotalSum += product.PRICE;
+        }
+      } catch {
+        subtotalSum += product.PRICE;
       }
     }
 
-    // Calculate final order total
-    let orderTotal: number;
-    if (hasOrderTotal) {
-      // ORDERTOTAL includes delivery, so subtract duplicate delivery charges for multi-product
-      const duplicateDelivery = deliveryCharge * (products.length - 1);
-      orderTotal = Math.round((orderTotalSum - duplicateDelivery) * 100) / 100;
-      console.log('Using ORDERTOTAL approach:', orderTotalSum, '- duplicate delivery:', duplicateDelivery);
-    } else {
-      // Fallback: sum subtotals + one delivery + sum taxes
-      orderTotal = Math.round((subtotalSum + deliveryCharge + taxSum) * 100) / 100;
-      console.log('Using fallback calculation:', subtotalSum, '+', deliveryCharge, '+', taxSum);
+    // If API didn't return valid tax, estimate based on CA tax rate (~8.625%)
+    if (!gotValidResponse || taxSum === 0) {
+      const CA_TAX_RATE = 0.08625;
+      taxSum = Math.round(subtotalSum * CA_TAX_RATE * 100) / 100;
     }
 
-    console.log('Products:', products.length, 'Subtotal:', subtotalSum,
-                'Delivery:', deliveryCharge, 'Tax:', taxSum, 'OrderTotal:', orderTotal);
+    const orderTotal = Math.round((subtotalSum + deliveryCharge + taxSum) * 100) / 100;
+    console.log('Order calculation - Subtotal:', subtotalSum, 'Delivery:', deliveryCharge,
+                'Tax:', taxSum, 'Total:', orderTotal);
 
     // Get client IP
     const clientIp = request.headers.get('cf-connecting-ip') ||
