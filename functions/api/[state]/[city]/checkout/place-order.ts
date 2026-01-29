@@ -174,10 +174,13 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     }
 
     // Calculate order total by calling getTotal for each product
-    // Sum up subtotal + tax for each, then add delivery once
+    // If ORDERTOTAL is returned, use it directly (subtract duplicate delivery for multi-product)
+    // Otherwise calculate from SUBTOTAL + delivery + tax
+    let orderTotalSum = 0;
     let subtotalSum = 0;
     let taxSum = 0;
     let deliveryCharge = 0;
+    let hasOrderTotal = false;
 
     for (const product of products) {
       const totalResult = await client.getTotal(
@@ -187,21 +190,38 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       );
       console.log('getTotal for', product.CODE, ':', JSON.stringify(totalResult));
 
-      // Use API's SUBTOTAL if available, otherwise use product price
+      // Check if ORDERTOTAL is returned
+      if (totalResult.ORDERTOTAL) {
+        hasOrderTotal = true;
+        orderTotalSum += totalResult.ORDERTOTAL;
+      }
+
+      // Also capture component values as fallback
       const productSubtotal = totalResult.SUBTOTAL || product.PRICE;
-      const productTax = totalResult.FLORISTONETAX || 0;
+      // Check both tax fields - API may return either
+      const productTax = totalResult.FLORISTONETAX || totalResult.TAXTOTAL || 0;
 
       subtotalSum += productSubtotal;
       taxSum += productTax;
 
       // Capture delivery charge (same for all products to same address)
-      if (!deliveryCharge && totalResult.FLORISTONEDELIVERYCHARGE) {
-        deliveryCharge = totalResult.FLORISTONEDELIVERYCHARGE;
+      if (!deliveryCharge) {
+        deliveryCharge = totalResult.FLORISTONEDELIVERYCHARGE || totalResult.DELIVERYCHARGETOTAL || 0;
       }
     }
 
-    // Order total = sum of subtotals + one delivery charge + sum of taxes
-    const orderTotal = Math.round((subtotalSum + deliveryCharge + taxSum) * 100) / 100;
+    // Calculate final order total
+    let orderTotal: number;
+    if (hasOrderTotal) {
+      // ORDERTOTAL includes delivery, so subtract duplicate delivery charges for multi-product
+      const duplicateDelivery = deliveryCharge * (products.length - 1);
+      orderTotal = Math.round((orderTotalSum - duplicateDelivery) * 100) / 100;
+      console.log('Using ORDERTOTAL approach:', orderTotalSum, '- duplicate delivery:', duplicateDelivery);
+    } else {
+      // Fallback: sum subtotals + one delivery + sum taxes
+      orderTotal = Math.round((subtotalSum + deliveryCharge + taxSum) * 100) / 100;
+      console.log('Using fallback calculation:', subtotalSum, '+', deliveryCharge, '+', taxSum);
+    }
 
     console.log('Products:', products.length, 'Subtotal:', subtotalSum,
                 'Delivery:', deliveryCharge, 'Tax:', taxSum, 'OrderTotal:', orderTotal);
