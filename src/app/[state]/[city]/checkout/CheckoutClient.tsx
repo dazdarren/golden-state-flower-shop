@@ -29,6 +29,13 @@ interface Cart {
   isEmpty: boolean;
 }
 
+interface OrderTotal {
+  subtotal: number;
+  delivery: number;
+  tax: number;
+  total: number;
+}
+
 interface CheckoutClientProps {
   basePath: string;
   cityConfig: {
@@ -90,6 +97,8 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
   });
   const [deliveryDates, setDeliveryDates] = useState<DeliveryDate[]>([]);
   const [loadingDates, setLoadingDates] = useState(false);
+  const [orderTotal, setOrderTotal] = useState<OrderTotal | null>(null);
+  const [loadingTotal, setLoadingTotal] = useState(false);
 
   // Fetch cart on mount
   useEffect(() => {
@@ -105,6 +114,15 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
       setFormData((prev) => ({ ...prev, deliveryDate: '' }));
     }
   }, [formData.recipientZip]);
+
+  // Fetch order total when ZIP and delivery date are set
+  useEffect(() => {
+    if (formData.recipientZip.length === 5 && formData.deliveryDate) {
+      fetchOrderTotal(formData.recipientZip, formData.deliveryDate);
+    } else {
+      setOrderTotal(null);
+    }
+  }, [formData.recipientZip, formData.deliveryDate]);
 
   const fetchCart = async () => {
     try {
@@ -136,6 +154,24 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
       console.error('Failed to fetch dates:', err);
     } finally {
       setLoadingDates(false);
+    }
+  };
+
+  const fetchOrderTotal = async (zip: string, date: string) => {
+    setLoadingTotal(true);
+    try {
+      const response = await fetch(
+        `/api${basePath}/checkout/get-total?zip=${encodeURIComponent(zip)}&date=${encodeURIComponent(date)}`
+      );
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        setOrderTotal(data.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch order total:', err);
+    } finally {
+      setLoadingTotal(false);
     }
   };
 
@@ -586,17 +622,31 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
           <div className="border-t border-cream-200 pt-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-forest-800/60">Subtotal</span>
-              <span className="text-forest-900">${cart.subtotal.toFixed(2)}</span>
+              <span className="text-forest-900">
+                ${(orderTotal?.subtotal ?? cart.subtotal).toFixed(2)}
+              </span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-forest-800/60">Delivery</span>
               <span className="text-forest-900">
-                {cart.deliveryFee > 0 ? `$${cart.deliveryFee.toFixed(2)}` : 'Calculated at delivery'}
+                ${(orderTotal?.delivery ?? cart.deliveryFee).toFixed(2)}
               </span>
             </div>
+            {(orderTotal?.tax ?? 0) > 0 && (
+              <div className="flex justify-between text-sm">
+                <span className="text-forest-800/60">Tax</span>
+                <span className="text-forest-900">${orderTotal!.tax.toFixed(2)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-lg font-semibold pt-2 border-t border-cream-200">
               <span className="text-forest-900">Total</span>
-              <span className="text-sage-600">${cart.total.toFixed(2)}</span>
+              <span className="text-sage-600">
+                {loadingTotal ? (
+                  <span className="text-forest-800/40">Calculating...</span>
+                ) : (
+                  `$${(orderTotal?.total ?? cart.total).toFixed(2)}`
+                )}
+              </span>
             </div>
           </div>
 
@@ -636,7 +686,7 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                     d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
-                Place Order - ${cart.total.toFixed(2)}
+                Place Order - ${(orderTotal?.total ?? cart.total).toFixed(2)}
               </>
             )}
           </button>
