@@ -98,44 +98,37 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       });
     }
 
-    // Try to get total from Florist One API
+    // Call Tree API gettotal for each product
     let subtotalSum = 0;
     let taxSum = 0;
-    let deliveryCharge = 14.99; // Default delivery
-    let gotValidResponse = false;
+    let deliveryCharge = 0;
+    let orderTotal = 0;
 
     for (const product of products) {
-      try {
-        const totalResult = await client.getTotal(
-          product.CODE,
-          zip,
-          deliveryDate,
-          product.PRICE
-        );
+      const totalResult = await client.getTotal(
+        product.CODE,
+        zip,
+        deliveryDate,
+        product.PRICE
+      );
+      console.log('Florist One getTotal response:', JSON.stringify(totalResult));
 
-        // Check if we got a valid response (not an error)
-        if (totalResult.ORDERTOTAL && !totalResult.errors) {
-          gotValidResponse = true;
-          subtotalSum += totalResult.SUBTOTAL || product.PRICE;
-          taxSum += totalResult.FLORISTONETAX || totalResult.TAXTOTAL || 0;
-          deliveryCharge = totalResult.FLORISTONEDELIVERYCHARGE || totalResult.DELIVERYCHARGETOTAL || 14.99;
-        } else {
-          // API returned error, use product price
-          subtotalSum += product.PRICE;
-        }
-      } catch {
-        // API call failed, use product price
-        subtotalSum += product.PRICE;
+      // Use ORDERTOTAL if available, otherwise sum components
+      if (totalResult.ORDERTOTAL) {
+        orderTotal += totalResult.ORDERTOTAL;
+      }
+      subtotalSum += totalResult.SUBTOTAL || product.PRICE;
+      taxSum += totalResult.FLORISTONETAX || totalResult.TAXTOTAL || 0;
+
+      if (!deliveryCharge) {
+        deliveryCharge = totalResult.FLORISTONEDELIVERYCHARGE || totalResult.DELIVERYCHARGETOTAL || 14.99;
       }
     }
 
-    // If API didn't return valid tax, estimate based on CA tax rate (~8.625%)
-    if (!gotValidResponse || taxSum === 0) {
-      const CA_TAX_RATE = 0.08625; // San Francisco tax rate
-      taxSum = Math.round(subtotalSum * CA_TAX_RATE * 100) / 100;
-    }
-
-    const total = Math.round((subtotalSum + deliveryCharge + taxSum) * 100) / 100;
+    // Use ORDERTOTAL if we got it, otherwise calculate
+    const total = orderTotal > 0
+      ? Math.round(orderTotal * 100) / 100
+      : Math.round((subtotalSum + deliveryCharge + taxSum) * 100) / 100;
 
     return successResponse({
       subtotal: subtotalSum,

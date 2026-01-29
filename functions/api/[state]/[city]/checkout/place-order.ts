@@ -173,45 +173,40 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       return errorResponse('Cart is empty', 400);
     }
 
-    // Calculate order total by calling getTotal for each product
+    // Calculate order total by calling Tree API gettotal for each product
     let subtotalSum = 0;
     let taxSum = 0;
-    let deliveryCharge = 14.99; // Default delivery
-    let gotValidResponse = false;
+    let deliveryCharge = 0;
+    let orderTotalFromApi = 0;
 
     for (const product of products) {
-      try {
-        const totalResult = await client.getTotal(
-          product.CODE,
-          recipientResult.data!.zip,
-          dateResult.data!,
-          product.PRICE
-        );
-        console.log('getTotal for', product.CODE, ':', JSON.stringify(totalResult));
+      const totalResult = await client.getTotal(
+        product.CODE,
+        recipientResult.data!.zip,
+        dateResult.data!,
+        product.PRICE
+      );
+      console.log('getTotal for', product.CODE, ':', JSON.stringify(totalResult));
 
-        // Check if we got a valid response with ORDERTOTAL
-        if (totalResult.ORDERTOTAL && !(totalResult as Record<string, unknown>).errors) {
-          gotValidResponse = true;
-          subtotalSum += totalResult.SUBTOTAL || product.PRICE;
-          taxSum += totalResult.FLORISTONETAX || totalResult.TAXTOTAL || 0;
-          deliveryCharge = totalResult.FLORISTONEDELIVERYCHARGE || totalResult.DELIVERYCHARGETOTAL || 14.99;
-        } else {
-          subtotalSum += product.PRICE;
-        }
-      } catch {
-        subtotalSum += product.PRICE;
+      // Use ORDERTOTAL if available
+      if (totalResult.ORDERTOTAL) {
+        orderTotalFromApi += totalResult.ORDERTOTAL;
+      }
+      subtotalSum += totalResult.SUBTOTAL || product.PRICE;
+      taxSum += totalResult.FLORISTONETAX || totalResult.TAXTOTAL || 0;
+
+      if (!deliveryCharge) {
+        deliveryCharge = totalResult.FLORISTONEDELIVERYCHARGE || totalResult.DELIVERYCHARGETOTAL || 14.99;
       }
     }
 
-    // If API didn't return valid tax, estimate based on CA tax rate (~8.625%)
-    if (!gotValidResponse || taxSum === 0) {
-      const CA_TAX_RATE = 0.08625;
-      taxSum = Math.round(subtotalSum * CA_TAX_RATE * 100) / 100;
-    }
+    // Use ORDERTOTAL from API if available, otherwise calculate
+    const orderTotal = orderTotalFromApi > 0
+      ? Math.round(orderTotalFromApi * 100) / 100
+      : Math.round((subtotalSum + deliveryCharge + taxSum) * 100) / 100;
 
-    const orderTotal = Math.round((subtotalSum + deliveryCharge + taxSum) * 100) / 100;
     console.log('Order calculation - Subtotal:', subtotalSum, 'Delivery:', deliveryCharge,
-                'Tax:', taxSum, 'Total:', orderTotal);
+                'Tax:', taxSum, 'OrderTotal:', orderTotal);
 
     // Get client IP
     const clientIp = request.headers.get('cf-connecting-ip') ||
