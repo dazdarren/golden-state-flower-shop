@@ -3,7 +3,7 @@
  * Creates a new shopping cart
  */
 
-import { createFloristOneClient, FloristOneEnv } from '../../../../lib/floristOne';
+import { createFloristOneClient, hasFloristOneCredentials, FloristOneEnv } from '../../../../lib/floristOne';
 import { validateSlug } from '../../../../lib/validation';
 import {
   successResponse,
@@ -61,7 +61,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   const isProduction = request.url.startsWith('https://');
 
   // Check if credentials are configured
-  if (!env.FLORISTONE_AFFILIATE_ID || !env.FLORISTONE_API_TOKEN) {
+  if (!hasFloristOneCredentials(env)) {
     // Return mock cart for development
     const mockCartId = `mock_cart_${Date.now()}_${Math.random().toString(36).substring(7)}`;
     const cookie = createCartCookie(mockCartId, stateSlug, citySlug, isProduction);
@@ -79,11 +79,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const client = createFloristOneClient(env);
     const result = await client.createCart();
 
-    if (result.status !== 'success' || !result.cart) {
+    if (!result.SESSIONID) {
       return errorResponse(result.error || 'Failed to create cart', 500);
     }
 
-    const cartId = result.cart.cart_id;
+    const cartId = result.SESSIONID;
     const cookie = createCartCookie(cartId, stateSlug, citySlug, isProduction);
 
     const response = successResponse({

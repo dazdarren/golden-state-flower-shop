@@ -3,14 +3,8 @@
  * Adds an item to the cart
  */
 
-import { createFloristOneClient, FloristOneEnv } from '../../../../lib/floristOne';
-import {
-  validateSlug,
-  validateSku,
-  validateQuantity,
-  validateZip,
-  validateDate,
-} from '../../../../lib/validation';
+import { createFloristOneClient, hasFloristOneCredentials, FloristOneEnv } from '../../../../lib/floristOne';
+import { validateSlug, validateSku, validateQuantity } from '../../../../lib/validation';
 import {
   successResponse,
   errorResponse,
@@ -32,8 +26,6 @@ interface Env extends FloristOneEnv {}
 interface AddToCartBody {
   sku: string;
   quantity?: number;
-  deliveryZip?: string;
-  deliveryDate?: string;
 }
 
 // Mock product data for development
@@ -111,26 +103,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     return errorResponse(quantityResult.error!);
   }
 
-  // Validate optional delivery ZIP
-  let deliveryZip: string | undefined;
-  if (body.deliveryZip) {
-    const zipResult = validateZip(body.deliveryZip);
-    if (!zipResult.success) {
-      return errorResponse(zipResult.error!);
-    }
-    deliveryZip = zipResult.data;
-  }
-
-  // Validate optional delivery date
-  let deliveryDate: string | undefined;
-  if (body.deliveryDate) {
-    const dateResult = validateDate(body.deliveryDate);
-    if (!dateResult.success) {
-      return errorResponse(dateResult.error!);
-    }
-    deliveryDate = dateResult.data;
-  }
-
   const sku = skuResult.data!;
   const quantity = quantityResult.data!;
   const isProduction = request.url.startsWith('https://');
@@ -140,7 +112,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   let cartCreated = false;
 
   // Handle mock carts for development
-  if (!env.FLORISTONE_AFFILIATE_ID || !env.FLORISTONE_API_TOKEN) {
+  if (!hasFloristOneCredentials(env)) {
     if (!cartId) {
       cartId = `mock_cart_${Date.now()}_${Math.random().toString(36).substring(7)}`;
       cartCreated = true;
@@ -180,7 +152,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         quantity: item.quantity,
       })),
       subtotal,
-      total: subtotal + 9.99, // Add mock delivery fee
+      total: subtotal + 14.99, // Add mock delivery fee
     });
 
     // Set both cart ID and cart data cookies
@@ -199,31 +171,37 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     // Create cart if needed
     if (!cartId) {
       const createResult = await client.createCart();
-      if (createResult.status !== 'success' || !createResult.cart) {
+      if (!createResult.SESSIONID) {
         return errorResponse(createResult.error || 'Failed to create cart', 500);
       }
-      cartId = createResult.cart.cart_id;
+      cartId = createResult.SESSIONID;
       cartCreated = true;
     }
 
-    // Add item to cart
-    const result = await client.addToCart(cartId, sku, quantity, deliveryZip, deliveryDate);
-
-    if (result.status !== 'success' || !result.cart) {
-      return errorResponse(result.error || 'Failed to add item to cart', 500);
+    // Add item to cart (quantity times for multiple)
+    let result;
+    for (let i = 0; i < quantity; i++) {
+      result = await client.addToCart(cartId, sku);
     }
+
+    if (!result) {
+      return errorResponse('Failed to add item to cart', 500);
+    }
+
+    const items = result.ITEMS || [];
+    const subtotal = result.SUBTOTAL || 0;
 
     const response = successResponse({
       cartId,
-      items: result.cart.items.map((item) => ({
-        itemId: item.item_id,
-        sku: item.product_code,
-        name: item.product_name,
-        price: item.price,
-        quantity: item.quantity,
+      items: items.map((item, idx) => ({
+        itemId: `item_${idx}`,
+        sku: item.CODE,
+        name: item.NAME,
+        price: item.PRICE,
+        quantity: item.QUANTITY,
       })),
-      subtotal: result.cart.subtotal,
-      total: result.cart.total,
+      subtotal,
+      total: subtotal,
     });
 
     // Set cookie if cart was just created

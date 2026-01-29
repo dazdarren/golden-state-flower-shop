@@ -3,7 +3,7 @@
  * Returns cart contents
  */
 
-import { createFloristOneClient, FloristOneEnv, FloristOneCart } from '../../../../lib/floristOne';
+import { createFloristOneClient, hasFloristOneCredentials, FloristOneEnv } from '../../../../lib/floristOne';
 import { validateSlug } from '../../../../lib/validation';
 import {
   successResponse,
@@ -32,8 +32,6 @@ interface CartResponse {
   deliveryFee: number;
   serviceFee: number;
   total: number;
-  deliveryDate?: string;
-  deliveryZip?: string;
   isEmpty: boolean;
 }
 
@@ -78,16 +76,15 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     return successResponse(emptyCart);
   }
 
-  // Handle mock carts
+  // Handle mock carts (for development without API credentials)
   if (cartId.startsWith('mock_cart_')) {
-    // Get mock cart data from cookie
     const mockCartData = getMockCartData(request);
 
     const subtotal = mockCartData.items.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0
     );
-    const deliveryFee = mockCartData.items.length > 0 ? 9.99 : 0;
+    const deliveryFee = mockCartData.items.length > 0 ? 14.99 : 0;
 
     const mockCart: CartResponse = {
       cartId,
@@ -109,8 +106,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     return successResponse({ ...mockCart, mock: true });
   }
 
-  // Check credentials
-  if (!env.FLORISTONE_AFFILIATE_ID || !env.FLORISTONE_API_TOKEN) {
+  // Check credentials for real API
+  if (!hasFloristOneCredentials(env)) {
     return errorResponse('Florist One credentials not configured', 500);
   }
 
@@ -118,12 +115,40 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const client = createFloristOneClient(env);
     const result = await client.getCart(cartId);
 
-    if (result.status !== 'success' || !result.cart) {
+    if (!result.SESSIONID) {
       // Cart might have expired
-      return errorResponse(result.error || 'Cart not found', 404);
+      const emptyCart: CartResponse = {
+        cartId: null,
+        items: [],
+        subtotal: 0,
+        deliveryFee: 0,
+        serviceFee: 0,
+        total: 0,
+        isEmpty: true,
+      };
+      return successResponse(emptyCart);
     }
 
-    const cart: CartResponse = transformCart(result.cart);
+    const items = result.ITEMS || [];
+    const subtotal = result.SUBTOTAL || 0;
+
+    const cart: CartResponse = {
+      cartId: result.SESSIONID,
+      items: items.map((item, idx) => ({
+        itemId: `item_${idx}`,
+        sku: item.CODE,
+        name: item.NAME,
+        price: item.PRICE,
+        quantity: item.QUANTITY,
+        image: item.SMALL,
+      })),
+      subtotal,
+      deliveryFee: 0, // Will be calculated at checkout
+      serviceFee: 0,
+      total: subtotal,
+      isEmpty: items.length === 0,
+    };
+
     return successResponse(cart);
   } catch (error) {
     console.error('Florist One API error:', error);
@@ -132,24 +157,3 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     );
   }
 };
-
-function transformCart(floristOneCart: FloristOneCart): CartResponse {
-  return {
-    cartId: floristOneCart.cart_id,
-    items: floristOneCart.items.map((item) => ({
-      itemId: item.item_id,
-      sku: item.product_code,
-      name: item.product_name,
-      price: item.price,
-      quantity: item.quantity,
-      image: item.image_url,
-    })),
-    subtotal: floristOneCart.subtotal,
-    deliveryFee: floristOneCart.delivery_charge,
-    serviceFee: floristOneCart.service_fee,
-    total: floristOneCart.total,
-    deliveryDate: floristOneCart.delivery_date,
-    deliveryZip: floristOneCart.delivery_zip,
-    isEmpty: floristOneCart.items.length === 0,
-  };
-}
