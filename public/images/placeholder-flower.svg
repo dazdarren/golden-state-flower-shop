@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <rect width="200" height="200" fill="#FDF2F8"/>
+
+  <!-- Stem -->
+  <path d="M100 200 L100 120" stroke="#22C55E" stroke-width="4" stroke-linecap="round"/>
+  <path d="M100 160 Q85 150 80 140" stroke="#22C55E" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <path d="M100 140 Q115 130 120 120" stroke="#22C55E" stroke-width="3" stroke-linecap="round" fill="none"/>
+
+  <!-- Flower center -->
+  <circle cx="100" cy="80" r="12" fill="#FCD34D"/>
+
+  <!-- Petals -->
+  <ellipse cx="100" cy="50" rx="15" ry="20" fill="#F472B6"/>
+  <ellipse cx="130" cy="70" rx="15" ry="20" fill="#F472B6" transform="rotate(60 130 70)"/>
+  <ellipse cx="120" cy="105" rx="15" ry="20" fill="#F472B6" transform="rotate(120 120 105)"/>
+  <ellipse cx="80" cy="105" rx="15" ry="20" fill="#F472B6" transform="rotate(-120 80 105)"/>
+  <ellipse cx="70" cy="70" rx="15" ry="20" fill="#F472B6" transform="rotate(-60 70 70)"/>
+
+  <!-- Inner petals -->
+  <ellipse cx="100" cy="58" rx="10" ry="14" fill="#EC4899"/>
+  <ellipse cx="122" cy="74" rx="10" ry="14" fill="#EC4899" transform="rotate(60 122 74)"/>
+  <ellipse cx="114" cy="98" rx="10" ry="14" fill="#EC4899" transform="rotate(120 114 98)"/>
+  <ellipse cx="86" cy="98" rx="10" ry="14" fill="#EC4899" transform="rotate(-120 86 98)"/>
+  <ellipse cx="78" cy="74" rx="10" ry="14" fill="#EC4899" transform="rotate(-60 78 74)"/>
+
+  <!-- Center highlight -->
+  <circle cx="97" cy="77" r="4" fill="#FEF08A"/>
+</svg>

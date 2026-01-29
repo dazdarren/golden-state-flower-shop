@@ -1,0 +1,9 @@
+# Florist One API credentials
+# Copy this file to .dev.vars and fill in your credentials
+# These are used by wrangler pages dev for local Functions development
+
+FLORISTONE_AFFILIATE_ID=your_affiliate_id
+FLORISTONE_API_TOKEN=your_api_token
+
+# Optional: Override API base URL
+# FLORISTONE_API_BASE_URL=https://www.floristone.com/api

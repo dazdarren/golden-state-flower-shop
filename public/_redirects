@@ -1,0 +1,6 @@
+# Cloudflare Pages redirects
+# https://developers.cloudflare.com/pages/platform/redirects
+
+# Redirect /ca/ to show the homepage (select a city)
+/ca /ca/los-angeles/ 302
+/ca/ /ca/los-angeles/ 302

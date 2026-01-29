@@ -1,0 +1,10 @@
+# robots.txt for Golden State Flower Shop
+User-agent: *
+Allow: /
+
+# Disallow checkout and cart pages
+Disallow: /*/cart/
+Disallow: /*/checkout/
+
+# Sitemap location
+Sitemap: https://goldenstateflowershop.com/sitemap.xml
