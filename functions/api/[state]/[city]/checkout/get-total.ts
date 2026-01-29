@@ -107,7 +107,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       const totalResult = await client.getTotal(
         product.CODE,
         zip,
-        deliveryDate
+        deliveryDate,
+        product.PRICE
       );
       console.log('Florist One getTotal response:', JSON.stringify(totalResult));
 

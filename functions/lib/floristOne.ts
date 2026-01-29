@@ -227,19 +227,18 @@ export class FloristOneClient {
   async getTotal(
     productCode: string,
     zipcode: string,
-    deliveryDate: string
+    deliveryDate: string,
+    price?: number
   ): Promise<FloristOneTotalResponse> {
-    const url = `${FLOWERSHOP_API_URL}/gettotal`;
-    // Try POST with products array in body (similar to placeOrder format)
-    return this.request<FloristOneTotalResponse>('POST', url, {
-      products: JSON.stringify([{
-        CODE: productCode,
-        DELIVERYDATE: deliveryDate,
-        ZIPCODE: zipcode,
-      }]),
+    // API expects 'products' as JSON-encoded array string
+    const products = JSON.stringify([{
+      code: productCode,
       zipcode: zipcode,
       deliverydate: deliveryDate,
-    });
+      price: price || 0,
+    }]);
+    const url = `${FLOWERSHOP_API_URL}/gettotal?products=${encodeURIComponent(products)}`;
+    return this.request<FloristOneTotalResponse>('GET', url);
   }
 
   /**

@@ -186,7 +186,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       const totalResult = await client.getTotal(
         product.CODE,
         recipientResult.data!.zip,
-        dateResult.data!
+        dateResult.data!,
+        product.PRICE
       );
       console.log('getTotal for', product.CODE, ':', JSON.stringify(totalResult));
 
