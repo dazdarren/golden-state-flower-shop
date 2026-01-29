@@ -102,6 +102,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     let subtotalSum = 0;
     let taxSum = 0;
     let deliveryCharge = 0;
+    const debugResponses: unknown[] = [];
 
     for (const product of products) {
       const totalResult = await client.getTotal(
@@ -110,7 +111,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         deliveryDate,
         product.PRICE
       );
-      console.log('Florist One getTotal response:', JSON.stringify(totalResult));
+      debugResponses.push({ product: product.CODE, response: totalResult });
 
       const productSubtotal = totalResult.SUBTOTAL || product.PRICE;
       const productTax = totalResult.FLORISTONETAX || totalResult.TAXTOTAL || 0;
@@ -130,6 +131,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       delivery: deliveryCharge,
       tax: taxSum,
       total,
+      _debug: debugResponses, // Temporary: see what Florist One returns
     });
   } catch (error) {
     console.error('Florist One API error:', error);
