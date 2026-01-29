@@ -98,7 +98,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       });
     }
 
-    // Call Tree API gettotal for each product
+    // Call FlowerShop API gettotal for each product
     let subtotalSum = 0;
     let taxSum = 0;
     let deliveryCharge = 0;
@@ -113,8 +113,20 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       );
       console.log('Florist One getTotal response:', JSON.stringify(totalResult));
 
-      // Use ORDERTOTAL if available, otherwise sum components
-      if (totalResult.ORDERTOTAL) {
+      // Check for API error
+      if (totalResult.error) {
+        console.error('getTotal API error:', totalResult.error);
+        // Fall back to estimate for display purposes
+        const productSubtotal = product.PRICE;
+        subtotalSum += productSubtotal;
+        // Estimate CA tax at 8.625%
+        taxSum += Math.round(productSubtotal * 0.08625 * 100) / 100;
+        if (!deliveryCharge) deliveryCharge = 14.99;
+        continue;
+      }
+
+      // Use values from API response
+      if (typeof totalResult.ORDERTOTAL === 'number' && totalResult.ORDERTOTAL > 0) {
         orderTotal += totalResult.ORDERTOTAL;
       }
       subtotalSum += totalResult.SUBTOTAL || product.PRICE;

@@ -173,10 +173,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       return errorResponse('Cart is empty', 400);
     }
 
-    // Calculate order total by calling Tree API gettotal for each product
-    let subtotalSum = 0;
-    let taxSum = 0;
-    let deliveryCharge = 0;
+    // Calculate order total by calling FlowerShop API gettotal for each product
     let orderTotalFromApi = 0;
 
     for (const product of products) {
@@ -188,25 +185,25 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       );
       console.log('getTotal for', product.CODE, ':', JSON.stringify(totalResult));
 
-      // Use ORDERTOTAL if available
-      if (totalResult.ORDERTOTAL) {
-        orderTotalFromApi += totalResult.ORDERTOTAL;
+      // Check for API error
+      if (totalResult.error) {
+        console.error('getTotal API error:', totalResult.error);
+        return errorResponse(`Unable to calculate order total: ${totalResult.error}`, 500);
       }
-      subtotalSum += totalResult.SUBTOTAL || product.PRICE;
-      taxSum += totalResult.FLORISTONETAX || totalResult.TAXTOTAL || 0;
 
-      if (!deliveryCharge) {
-        deliveryCharge = totalResult.FLORISTONEDELIVERYCHARGE || totalResult.DELIVERYCHARGETOTAL || 14.99;
+      // ORDERTOTAL is the authoritative total from Florist One - we MUST use it
+      if (typeof totalResult.ORDERTOTAL === 'number' && totalResult.ORDERTOTAL > 0) {
+        orderTotalFromApi += totalResult.ORDERTOTAL;
+      } else {
+        // API didn't return ORDERTOTAL - this is a critical error
+        console.error('getTotal did not return ORDERTOTAL:', JSON.stringify(totalResult));
+        return errorResponse('Unable to calculate order total. Please try again.', 500);
       }
     }
 
-    // Use ORDERTOTAL from API if available, otherwise calculate
-    const orderTotal = orderTotalFromApi > 0
-      ? Math.round(orderTotalFromApi * 100) / 100
-      : Math.round((subtotalSum + deliveryCharge + taxSum) * 100) / 100;
+    const orderTotal = Math.round(orderTotalFromApi * 100) / 100;
 
-    console.log('Order calculation - Subtotal:', subtotalSum, 'Delivery:', deliveryCharge,
-                'Tax:', taxSum, 'OrderTotal:', orderTotal);
+    console.log('Order total from API:', orderTotal);
 
     // Get client IP
     const clientIp = request.headers.get('cf-connecting-ip') ||
@@ -257,7 +254,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     // Log the full response for debugging
     console.log('Florist One placeOrder response:', JSON.stringify(result));
 
-    if (!result.ORDERID && !result.SUCCESS) {
+    // Check for success - API returns ORDERNO (not ORDERID)
+    if (!result.ORDERID && !result.ORDERNO && !result.SUCCESS) {
       // Return detailed error to help debug
       const errorMsg = result.error || result.STATUS || (result as Record<string, unknown>).MESSAGE || (result as Record<string, unknown>).ERRORMESSAGE;
       return errorResponse(errorMsg ? String(errorMsg) : `Order rejected. Response: ${JSON.stringify(result)}`, 500);
@@ -266,9 +264,10 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     // Clear cart cookie on successful order
     const clearCookie = clearCartCookie(stateSlug, citySlug, isProduction);
 
+    const actualOrderId = result.ORDERID || (result.ORDERNO ? String(result.ORDERNO) : undefined);
     const response = successResponse({
-      orderId: result.ORDERID,
-      confirmationNumber: result.CONFIRMATIONNUMBER || result.ORDERID,
+      orderId: actualOrderId,
+      confirmationNumber: result.CONFIRMATIONNUMBER || actualOrderId,
     });
 
     return addCookieToResponse(response, clearCookie);

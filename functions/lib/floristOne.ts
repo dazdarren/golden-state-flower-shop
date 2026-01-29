@@ -74,6 +74,7 @@ export interface FloristOneTotalResponse {
 
 export interface FloristOneOrderResponse {
   ORDERID?: string;
+  ORDERNO?: number;
   CONFIRMATIONNUMBER?: string;
   SUCCESS?: boolean;
   STATUS?: string;
@@ -234,15 +235,22 @@ export class FloristOneClient {
     deliveryDate: string,
     price?: number
   ): Promise<FloristOneTotalResponse> {
-    const products = JSON.stringify([{
+    // Ensure price has decimal places (API may require it)
+    const priceValue = Math.round((price || 0) * 100) / 100;
+    const productData = [{
       CODE: productCode,
-      PRICE: price || 0,
+      PRICE: priceValue,
       RECIPIENT: {
         ZIPCODE: zipcode,
       },
-    }]);
+    }];
+    const products = JSON.stringify(productData);
     const url = `${FLOWERSHOP_API_URL}/gettotal?products=${encodeURIComponent(products)}`;
-    return this.request<FloristOneTotalResponse>('GET', url);
+    console.log('getTotal request - URL:', url);
+    console.log('getTotal request - products:', products);
+    const result = await this.request<FloristOneTotalResponse>('GET', url);
+    console.log('getTotal response:', JSON.stringify(result));
+    return result;
   }
 
   /**
