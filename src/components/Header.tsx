@@ -96,15 +96,13 @@ export default function Header({ cityConfig }: HeaderProps) {
               { href: `${basePath}/flowers/sympathy`, label: 'Sympathy' },
               { href: `${basePath}/flowers/anniversary`, label: 'Anniversary' },
               { href: `${basePath}/flowers/get-well`, label: 'Get Well' },
-              { href: `${basePath}/subscribe`, label: 'Subscribe' },
               { href: `${basePath}/delivery`, label: 'Delivery' },
             ].map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-4 py-2 font-body text-sm text-forest-800/80 hover:text-forest-900
-                         transition-colors duration-200 rounded-lg hover:bg-sage-100/50
-                         ${link.label === 'Subscribe' ? 'text-sage-600 font-medium' : ''}`}
+                className="px-4 py-2 font-body text-sm text-forest-800/80 hover:text-forest-900
+                         transition-colors duration-200 rounded-lg hover:bg-sage-100/50"
               >
                 {link.label}
               </Link>
@@ -155,13 +153,6 @@ export default function Header({ cityConfig }: HeaderProps) {
                         onClick={() => setAccountMenuOpen(false)}
                       >
                         Order History
-                      </Link>
-                      <Link
-                        href="/account/subscriptions"
-                        className="block px-4 py-2 text-sm text-forest-800/80 hover:bg-sage-50 hover:text-forest-900"
-                        onClick={() => setAccountMenuOpen(false)}
-                      >
-                        Subscriptions
                       </Link>
                       <hr className="my-2 border-cream-100" />
                       <button
@@ -236,7 +227,6 @@ export default function Header({ cityConfig }: HeaderProps) {
                 { href: `${basePath}/flowers/anniversary`, label: 'Anniversary' },
                 { href: `${basePath}/flowers/get-well`, label: 'Get Well' },
                 { href: `${basePath}/flowers/thank-you`, label: 'Thank You' },
-                { href: `${basePath}/subscribe`, label: 'Subscribe & Save' },
                 { href: `${basePath}/delivery`, label: 'Delivery Info' },
               ].map((link, i) => (
                 <Link
@@ -244,8 +234,7 @@ export default function Header({ cityConfig }: HeaderProps) {
                   href={link.href}
                   className={`px-4 py-3 font-body text-forest-800 hover:text-forest-900
                            hover:bg-sage-100/50 rounded-xl transition-all duration-200
-                           opacity-0 animate-fade-up stagger-${i + 1}
-                           ${link.label === 'Subscribe & Save' ? 'text-sage-600 font-medium' : ''}`}
+                           opacity-0 animate-fade-up stagger-${i + 1}`}
                   style={{ animationFillMode: 'forwards' }}
                   onClick={() => setMobileMenuOpen(false)}
                 >

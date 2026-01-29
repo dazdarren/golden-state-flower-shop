@@ -36,7 +36,6 @@ function AccountLayoutInner({ children }: { children: React.ReactNode }) {
   const navLinks = [
     { href: '/account', label: 'Overview', icon: 'home' },
     { href: '/account/orders', label: 'Order History', icon: 'orders' },
-    { href: '/account/subscriptions', label: 'Subscriptions', icon: 'subscription' },
     { href: '/account/addresses', label: 'Addresses', icon: 'address' },
     { href: '/account/reminders', label: 'Reminders', icon: 'reminder' },
   ];

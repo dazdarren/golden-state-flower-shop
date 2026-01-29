@@ -7,7 +7,6 @@ import { supabase, getSupabase } from '@/lib/supabase';
 
 interface DashboardStats {
   totalOrders: number;
-  activeSubscriptions: number;
   loyaltyPoints: number;
   upcomingReminders: number;
 }
@@ -16,7 +15,6 @@ export default function AccountOverviewPage() {
   const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     totalOrders: 0,
-    activeSubscriptions: 0,
     loyaltyPoints: 0,
     upcomingReminders: 0,
   });
@@ -38,16 +36,14 @@ export default function AccountOverviewPage() {
       try {
         const db = getSupabase();
         // Fetch counts in parallel
-        const [ordersRes, subsRes, pointsRes, remindersRes] = await Promise.all([
+        const [ordersRes, pointsRes, remindersRes] = await Promise.all([
           db.from('orders').select('id, created_at, total, status', { count: 'exact' }).eq('user_id', user!.id).order('created_at', { ascending: false }).limit(3),
-          db.from('subscriptions').select('id', { count: 'exact' }).eq('user_id', user!.id).eq('status', 'active'),
           db.from('loyalty_points').select('points').eq('user_id', user!.id).single(),
           db.from('occasion_reminders').select('id', { count: 'exact' }).eq('user_id', user!.id).eq('is_active', true),
         ]);
 
         setStats({
           totalOrders: ordersRes.count || 0,
-          activeSubscriptions: subsRes.count || 0,
           loyaltyPoints: pointsRes.data?.points || 0,
           upcomingReminders: remindersRes.count || 0,
         });
@@ -104,12 +100,12 @@ export default function AccountOverviewPage() {
           Welcome back{user?.user_metadata?.firstName ? `, ${user.user_metadata.firstName}` : ''}!
         </h1>
         <p className="text-forest-800/60">
-          Manage your orders, subscriptions, and account settings.
+          Manage your orders and account settings.
         </p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <div className="bg-white rounded-xl border border-cream-200 p-5">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 rounded-lg bg-sage-100 flex items-center justify-center">
@@ -122,21 +118,6 @@ export default function AccountOverviewPage() {
           </div>
           <p className="text-2xl font-semibold text-forest-900">
             {loading ? '-' : stats.totalOrders}
-          </p>
-        </div>
-
-        <div className="bg-white rounded-xl border border-cream-200 p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-lg bg-sage-100 flex items-center justify-center">
-              <svg className="w-5 h-5 text-sage-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </div>
-            <span className="text-sm text-forest-800/60">Subscriptions</span>
-          </div>
-          <p className="text-2xl font-semibold text-forest-900">
-            {loading ? '-' : stats.activeSubscriptions}
           </p>
         </div>
 
@@ -236,7 +217,7 @@ export default function AccountOverviewPage() {
       {/* Quick Actions */}
       <div className="grid md:grid-cols-2 gap-4">
         <Link
-          href="/ca/san-francisco/subscribe"
+          href="/ca/san-francisco/flowers/birthday"
           className="bg-gradient-to-br from-forest-900 to-forest-800 rounded-2xl p-6 text-cream-100
                    hover:shadow-soft-lg transition-all duration-300 group"
         >
@@ -244,20 +225,20 @@ export default function AccountOverviewPage() {
             <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                      d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                      d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
               </svg>
             </div>
             <div>
               <h3 className="font-display text-lg font-semibold mb-1">
-                Join the Golden Bloom Club
+                Send Flowers Today
               </h3>
               <p className="text-cream-200/70 text-sm">
-                Fresh flowers delivered monthly. Starting at $65/month.
+                Same-day delivery available for orders before 2pm.
               </p>
             </div>
           </div>
           <div className="mt-4 flex items-center gap-2 text-sage-300 text-sm font-medium group-hover:translate-x-1 transition-transform">
-            <span>Learn more</span>
+            <span>Shop now</span>
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
