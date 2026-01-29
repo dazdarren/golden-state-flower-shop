@@ -1,6 +1,9 @@
 # Cloudflare Pages redirects
 # https://developers.cloudflare.com/pages/platform/redirects
 
-# Redirect /ca/ to show the homepage (select a city)
-/ca /ca/los-angeles/ 302
-/ca/ /ca/los-angeles/ 302
+# Redirect homepage straight to shop - maximize conversions
+/ /ca/san-francisco/ 302
+
+# Redirect /ca/ to San Francisco (primary market)
+/ca /ca/san-francisco/ 302
+/ca/ /ca/san-francisco/ 302

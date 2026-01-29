@@ -214,6 +214,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       items: items.map((item, idx) => ({
         itemId: `item_${idx}`,
         ...item,
+        image: `https://cdn.floristone.com/small/${item.sku}_t1.jpg`,
       })),
       subtotal,
       total: subtotal,

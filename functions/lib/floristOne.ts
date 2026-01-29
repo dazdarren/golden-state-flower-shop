@@ -64,9 +64,11 @@ export interface FloristOneCartActionResponse {
 
 export interface FloristOneTotalResponse {
   SUBTOTAL?: number;
-  DELIVERYCHARGE?: number;
-  SERVICEFEE?: number;
-  TOTAL?: number;
+  ORDERTOTAL?: number;
+  FLORISTONEDELIVERYCHARGE?: number;
+  DELIVERYCHARGETOTAL?: number;
+  TAXTOTAL?: number;
+  FLORISTONETAX?: number;
   error?: string;
 }
 
@@ -289,7 +291,7 @@ export class FloristOneClient {
 
   /**
    * Place order with AuthorizeNet payment token
-   * Uses the JSON structure expected by Florist One API
+   * Florist One API expects UPPERCASE field names and stringified JSON for nested objects
    */
   async placeOrder(orderData: {
     customer: {
@@ -328,7 +330,53 @@ export class FloristOneClient {
     ordertotal: number;
   }): Promise<FloristOneOrderResponse> {
     const url = `${FLOWERSHOP_API_URL}/placeorder`;
-    return this.request<FloristOneOrderResponse>('POST', url, orderData as unknown as Record<string, unknown>);
+
+    // Convert to Florist One's expected format (UPPERCASE keys, stringified JSON)
+    const customerObj = {
+      NAME: orderData.customer.name,
+      EMAIL: orderData.customer.email,
+      ADDRESS1: orderData.customer.address1,
+      ADDRESS2: orderData.customer.address2 || '',
+      CITY: orderData.customer.city,
+      STATE: orderData.customer.state,
+      COUNTRY: orderData.customer.country,
+      PHONE: orderData.customer.phone.replace(/\D/g, ''), // digits only
+      ZIPCODE: orderData.customer.zipcode,
+      IP: orderData.customer.ip,
+    };
+
+    const productsArr = orderData.products.map((p) => ({
+      CODE: p.code,
+      PRICE: p.price,
+      DELIVERYDATE: p.deliverydate,
+      CARDMESSAGE: p.cardmessage,
+      SPECIALINSTRUCTIONS: p.specialinstructions || '',
+      RECIPIENT: {
+        NAME: p.recipient.name,
+        INSTITUTION: p.recipient.institution || '',
+        ADDRESS1: p.recipient.address1,
+        ADDRESS2: p.recipient.address2 || '',
+        CITY: p.recipient.city,
+        STATE: p.recipient.state,
+        COUNTRY: p.recipient.country,
+        PHONE: p.recipient.phone.replace(/\D/g, ''), // digits only
+        ZIPCODE: p.recipient.zipcode,
+      },
+    }));
+
+    const ccinfoObj = {
+      AUTHORIZENET_TOKEN: orderData.ccinfo.authorizenet_token,
+    };
+
+    // Florist One expects stringified JSON for these fields
+    const requestBody = {
+      customer: JSON.stringify(customerObj),
+      products: JSON.stringify(productsArr),
+      ccinfo: JSON.stringify(ccinfoObj),
+      ordertotal: orderData.ordertotal,
+    };
+
+    return this.request<FloristOneOrderResponse>('POST', url, requestBody);
   }
 }
 

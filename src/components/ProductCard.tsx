@@ -12,7 +12,7 @@ export default function ProductCard({ product, basePath, index = 0 }: ProductCar
 
   return (
     <Link
-      href={`${basePath}/product/${product.sku}`}
+      href={`${basePath}/product?sku=${product.sku}`}
       className="group product-card flex flex-col opacity-0 animate-fade-up"
       style={{
         animationDelay: `${index * 80}ms`,

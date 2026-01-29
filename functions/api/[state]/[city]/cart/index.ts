@@ -144,7 +144,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         name: item.name,
         price: item.price,
         quantity: item.quantity,
-        image: '/images/placeholder-flower.svg', // TODO: fetch product images
+        image: `https://cdn.floristone.com/small/${item.sku}_t1.jpg`,
       })),
       subtotal,
       deliveryFee: products.length > 0 ? 14.99 : 0,

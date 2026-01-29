@@ -191,18 +191,16 @@ export default function CartClient({ basePath, cityName }: CartClientProps) {
         {cart.items.map((item) => (
           <div key={item.itemId} className="card p-4 flex gap-4">
             {/* Image */}
-            <div className="w-24 h-24 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
-              {item.image ? (
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-3xl">
-                  🌸
-                </div>
-              )}
+            <div className="w-24 h-24 bg-cream-100 rounded-lg flex-shrink-0 overflow-hidden">
+              <img
+                src={item.image || '/images/placeholder-flower.svg'}
+                alt={item.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/images/placeholder-flower.svg';
+                }}
+              />
             </div>
 
             {/* Details */}
