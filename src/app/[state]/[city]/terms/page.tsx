@@ -158,7 +158,7 @@ export default function TermsPage({ params }: TermsPageProps) {
 
           <h2>Contact</h2>
           <p>
-            For questions about these terms, please contact us at legal@example.com.
+            For questions about these terms, please contact us at support@goldenstateflowershop.com.
           </p>
         </div>
       </section>

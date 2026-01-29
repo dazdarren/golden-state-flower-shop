@@ -154,7 +154,7 @@ export default function PrivacyPage({ params }: PrivacyPageProps) {
           <h2>Contact Us</h2>
           <p>
             If you have questions about this privacy policy, please contact us at
-            privacy@example.com.
+            support@goldenstateflowershop.com.
           </p>
         </div>
       </section>

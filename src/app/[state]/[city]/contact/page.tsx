@@ -67,10 +67,10 @@ export default function ContactPage({ params }: ContactPageProps) {
                   For general inquiries and order questions
                 </p>
                 <a
-                  href="mailto:support@example.com"
+                  href="mailto:support@goldenstateflowershop.com"
                   className="text-primary-600 hover:text-primary-700 font-medium"
                 >
-                  support@example.com
+                  support@goldenstateflowershop.com
                 </a>
               </div>
 
@@ -82,10 +82,10 @@ export default function ContactPage({ params }: ContactPageProps) {
                   Available Monday - Saturday, 8 AM - 6 PM PST
                 </p>
                 <a
-                  href="tel:+14155551234"
+                  href="tel:+15104859113"
                   className="text-primary-600 hover:text-primary-700 font-medium"
                 >
-                  (415) 555-1234
+                  (510) 485-9113
                 </a>
               </div>
 

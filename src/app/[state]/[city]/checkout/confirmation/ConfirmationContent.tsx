@@ -73,7 +73,7 @@ export default function ConfirmationContent({
       </div>
 
       <p className="text-sm text-gray-500 mt-8">
-        Questions about your order? Contact us at support@example.com
+        Questions about your order? Contact us at support@goldenstateflowershop.com
       </p>
     </div>
   );
