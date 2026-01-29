@@ -5,6 +5,7 @@ import { getCityConfig, getCityPath, getAllCityPaths } from '@/data/cities';
 import { OCCASIONS, OccasionSlug } from '@/types/city';
 import ZipChecker from '@/components/ZipChecker';
 import DynamicProductGrid from '@/components/DynamicProductGrid';
+import NewsletterSignup from '@/components/NewsletterSignup';
 
 interface CityPageProps {
   params: {
@@ -166,22 +167,25 @@ export default function CityHomePage({ params }: CityPageProps) {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left content */}
             <div className="max-w-xl">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sage-100/80
-                            text-sage-700 text-sm font-medium mb-8 backdrop-blur-sm">
-                <span className="w-2 h-2 rounded-full bg-sage-500 animate-pulse" />
-                Same-day delivery available
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full
+                            bg-gradient-to-r from-gold-100 to-cream-100
+                            text-gold-700 text-sm font-medium mb-8 backdrop-blur-sm
+                            border border-gold-200/50">
+                <svg className="w-4 h-4 text-gold-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                Premium Artisan Florists
               </div>
 
               <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-semibold
                            text-forest-900 leading-[1.1] tracking-tight mb-6">
-                Fresh Flowers
+                Luxury Flowers
                 <span className="block text-sage-600">in {cityConfig.cityName}</span>
               </h1>
 
               <p className="text-lg sm:text-xl text-forest-800/70 leading-relaxed mb-10 max-w-lg">
-                Artisan floral arrangements delivered throughout {cityConfig.cityName}.
-                From {cityConfig.neighborhoods[0]} to {cityConfig.neighborhoods[2]},
-                we bring nature's beauty to your doorstep.
+                Hand-selected blooms crafted into stunning arrangements by local artisan florists.
+                Same-day delivery throughout {cityConfig.cityName}, from {cityConfig.neighborhoods[0]} to {cityConfig.neighborhoods[2]}.
               </p>
 
               <div className="flex flex-wrap gap-4">
@@ -326,6 +330,80 @@ export default function CityHomePage({ params }: CityPageProps) {
             <Link href={`${basePath}/flowers/birthday`} className="btn-primary">
               View All Arrangements
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Editor's Picks - Premium Collection */}
+      <section className="py-20 lg:py-28 bg-gradient-to-b from-forest-900 to-forest-800 text-cream-100 relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-gold-500 via-gold-400 to-gold-500" />
+        <div className="absolute top-10 right-10 w-64 h-64 opacity-5">
+          <svg viewBox="0 0 200 200" fill="none" className="w-full h-full">
+            <circle cx="100" cy="100" r="80" stroke="currentColor" strokeWidth="1"/>
+            <circle cx="100" cy="100" r="50" stroke="currentColor" strokeWidth="1"/>
+          </svg>
+        </div>
+
+        <div className="container-wide relative z-10">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full
+                            bg-gold-500/20 text-gold-400 text-sm font-medium mb-4
+                            border border-gold-500/30">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                Editor's Picks
+              </div>
+              <h2 className="font-display text-4xl lg:text-5xl font-semibold text-cream-100">
+                Premium Collection
+              </h2>
+              <p className="text-cream-200/70 mt-3 max-w-lg">
+                Our most exquisite arrangements, hand-selected for their exceptional beauty and craftsmanship.
+              </p>
+            </div>
+            <Link
+              href={`${basePath}/flowers/anniversary`}
+              className="group flex items-center gap-2 text-gold-400 font-medium
+                       hover:text-gold-300 transition-colors"
+            >
+              <span>View luxury collection</span>
+              <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                   fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
+          </div>
+
+          <DynamicProductGrid basePath={basePath} occasion="anniversary" count={4} />
+
+          {/* Premium guarantee */}
+          <div className="mt-16 flex flex-wrap justify-center gap-8 md:gap-16 pt-10 border-t border-forest-700">
+            <div className="flex items-center gap-3 text-cream-200/80">
+              <div className="w-10 h-10 rounded-full bg-gold-500/20 flex items-center justify-center">
+                <svg className="w-5 h-5 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <span className="text-sm font-medium">100% Satisfaction Guaranteed</span>
+            </div>
+            <div className="flex items-center gap-3 text-cream-200/80">
+              <div className="w-10 h-10 rounded-full bg-gold-500/20 flex items-center justify-center">
+                <svg className="w-5 h-5 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                </svg>
+              </div>
+              <span className="text-sm font-medium">Complimentary Gift Packaging</span>
+            </div>
+            <div className="flex items-center gap-3 text-cream-200/80">
+              <div className="w-10 h-10 rounded-full bg-gold-500/20 flex items-center justify-center">
+                <svg className="w-5 h-5 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <span className="text-sm font-medium">Personalized Card Included</span>
+            </div>
           </div>
         </div>
       </section>
@@ -534,6 +612,13 @@ export default function CityHomePage({ params }: CityPageProps) {
               </svg>
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Newsletter Signup */}
+      <section className="py-20 lg:py-28 bg-white">
+        <div className="container-narrow">
+          <NewsletterSignup variant="card" source="homepage" />
         </div>
       </section>
     </>

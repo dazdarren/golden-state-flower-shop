@@ -48,6 +48,19 @@ const config: Config = {
           800: '#2D3A2D',
           900: '#1E261E',
         },
+        // Premium gold accents
+        gold: {
+          50: '#FFFDF7',
+          100: '#FEF9E7',
+          200: '#FCF0C3',
+          300: '#F9E29A',
+          400: '#F5D06A',
+          500: '#D4AF37', // Classic gold
+          600: '#B8962E',
+          700: '#8B7223',
+          800: '#5F4E1A',
+          900: '#3D3211',
+        },
       },
       fontFamily: {
         display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
