@@ -2,10 +2,9 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCityConfig, getCityPath, getAllCityPaths } from '@/data/cities';
-import { placeholderProducts } from '@/data/products/placeholder';
 import { OCCASIONS, OccasionSlug } from '@/types/city';
 import ZipChecker from '@/components/ZipChecker';
-import ProductGrid from '@/components/ProductGrid';
+import DynamicProductGrid from '@/components/DynamicProductGrid';
 
 interface CityPageProps {
   params: {
@@ -49,7 +48,6 @@ export default function CityHomePage({ params }: CityPageProps) {
 
   const basePath = getCityPath(cityConfig);
   const occasionList = Object.values(OCCASIONS);
-  const featuredProducts = placeholderProducts.slice(0, 8);
 
   return (
     <>
@@ -263,7 +261,7 @@ export default function CityHomePage({ params }: CityPageProps) {
             </Link>
           </div>
 
-          <ProductGrid products={featuredProducts} basePath={basePath} />
+          <DynamicProductGrid basePath={basePath} occasion="best-sellers" count={8} />
 
           <div className="text-center mt-12 md:hidden">
             <Link href={`${basePath}/flowers/birthday`} className="btn-primary">

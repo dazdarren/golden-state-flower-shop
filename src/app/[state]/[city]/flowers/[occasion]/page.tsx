@@ -2,9 +2,8 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCityConfig, getCityPath } from '@/data/cities';
-import { getPlaceholderProductsByOccasion } from '@/data/products/placeholder';
 import { OCCASIONS, OccasionSlug } from '@/types/city';
-import ProductGrid from '@/components/ProductGrid';
+import DynamicProductGrid from '@/components/DynamicProductGrid';
 
 interface OccasionPageProps {
   params: {
@@ -57,9 +56,6 @@ export default function OccasionPage({ params }: OccasionPageProps) {
 
   const basePath = getCityPath(cityConfig);
 
-  // Get products for this occasion
-  const products = getPlaceholderProductsByOccasion(params.occasion);
-
   return (
     <>
       {/* Breadcrumb */}
@@ -92,16 +88,10 @@ export default function OccasionPage({ params }: OccasionPageProps) {
       {/* Products */}
       <section className="py-12">
         <div className="container-wide">
-          <div className="mb-8">
-            <p className="text-gray-600">
-              {products.length} arrangement{products.length !== 1 ? 's' : ''} available
-            </p>
-          </div>
-
-          <ProductGrid
-            products={products}
+          <DynamicProductGrid
             basePath={basePath}
-            emptyMessage={`No ${occasion.name.toLowerCase()} arrangements available at the moment.`}
+            occasion={params.occasion}
+            count={12}
           />
         </div>
       </section>
