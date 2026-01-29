@@ -131,8 +131,9 @@ export class FloristOneClient {
         signal: controller.signal,
       };
 
-      if (body && (method === 'POST' || method === 'PUT')) {
-        options.body = JSON.stringify(body);
+      // Always include body for POST/PUT/DELETE to ensure Content-Length is set
+      if (method === 'POST' || method === 'PUT' || method === 'DELETE') {
+        options.body = body ? JSON.stringify(body) : '';
       }
 
       const response = await fetch(url, options);
