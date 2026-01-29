@@ -3,7 +3,7 @@
  * Returns available delivery dates for a ZIP code
  */
 
-import { createFloristOneClient, FloristOneEnv } from '../../../lib/floristOne';
+import { createFloristOneClient, hasFloristOneCredentials, FloristOneEnv } from '../../../lib/floristOne';
 import { validateZip, validateSlug } from '../../../lib/validation';
 import {
   successResponse,
@@ -23,8 +23,7 @@ interface Env extends FloristOneEnv {}
 
 interface DeliveryDateResult {
   date: string;
-  description: string;
-  price: number;
+  formatted: string;
   available: boolean;
 }
 
@@ -81,7 +80,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   }
 
   // Check if credentials are configured
-  if (!env.FLORISTONE_AFFILIATE_ID || !env.FLORISTONE_API_TOKEN) {
+  if (!hasFloristOneCredentials(env)) {
     // Return mock data for development without credentials
     const mockDates = generateMockDeliveryDates();
     return successResponse({
@@ -96,16 +95,27 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const client = createFloristOneClient(env);
     const response = await client.getDeliveryDates(validZip);
 
-    if (response.status !== 'success' || !response.delivery_dates) {
-      return errorResponse(response.error || 'Failed to fetch delivery dates', 500);
+    if (!response.DATES || response.DATES.length === 0) {
+      return errorResponse(response.error || 'No delivery dates available for this ZIP code', 404);
     }
 
-    const dates: DeliveryDateResult[] = response.delivery_dates.map((d) => ({
-      date: d.delivery_date,
-      description: d.delivery_day,
-      price: d.delivery_charge,
-      available: d.available,
-    }));
+    // Transform dates from MM/DD/YYYY to ISO format and include formatted version
+    const dates: DeliveryDateResult[] = response.DATES.map((dateStr) => {
+      // Parse MM/DD/YYYY
+      const [month, day, year] = dateStr.split('/');
+      const isoDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      const date = new Date(isoDate);
+
+      return {
+        date: isoDate,
+        formatted: date.toLocaleDateString('en-US', {
+          weekday: 'long',
+          month: 'long',
+          day: 'numeric',
+        }),
+        available: true,
+      };
+    });
 
     // Cache the result
     const cacheData: CachedDeliveryDates = {
@@ -138,17 +148,20 @@ function generateMockDeliveryDates(): DeliveryDateResult[] {
     const date = new Date(today);
     date.setDate(date.getDate() + i);
 
-    const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
-    const dateStr = date.toISOString().split('T')[0];
+    // Skip Sundays (Florist One doesn't deliver on Sundays)
+    if (date.getDay() === 0) continue;
 
-    // No delivery on Sundays in mock
-    const isSunday = date.getDay() === 0;
+    const isoDate = date.toISOString().split('T')[0];
+    const formatted = date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+    });
 
     dates.push({
-      date: dateStr,
-      description: dayOfWeek,
-      price: i === 0 ? 14.99 : 9.99, // Same-day costs more
-      available: !isSunday,
+      date: isoDate,
+      formatted,
+      available: true,
     });
   }
 

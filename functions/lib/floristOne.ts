@@ -2,109 +2,100 @@
  * Florist One API Client for Cloudflare Pages Functions
  *
  * Official Florist One API Documentation:
- * https://www.floristone.com/api/
+ * https://florist.one/api/documentation/
  *
- * This client implements the core API endpoints needed for:
- * - Delivery date checking
- * - Shopping cart management
- * - Order placement
+ * Uses HTTP Basic Authentication and REST endpoints.
  */
 
 export interface FloristOneEnv {
   FLORISTONE_AFFILIATE_ID: string;
   FLORISTONE_API_TOKEN: string;
-  FLORISTONE_API_BASE_URL?: string;
 }
 
 // API Response Types
-export interface FloristOneDeliveryDate {
-  delivery_date: string;
-  delivery_day: string;
-  delivery_charge: number;
-  available: boolean;
-}
-
 export interface FloristOneDeliveryDatesResponse {
-  status: string;
-  delivery_dates?: FloristOneDeliveryDate[];
+  DATES?: string[];
+  DATE_AVAILABLE?: boolean;
   error?: string;
 }
 
 export interface FloristOneProduct {
-  product_code: string;
-  product_name: string;
-  description: string;
-  price: number;
-  sale_price?: number;
-  image_url_small: string;
-  image_url_medium: string;
-  image_url_large: string;
-  category: string;
-  available: boolean;
+  PRODUCTCODE: string;
+  NAME: string;
+  DESCRIPTION: string;
+  PRICE: number;
+  SALEPRICE?: number;
+  IMAGE: string;
+  MEDIUMIMAGE: string;
+  LARGEIMAGE: string;
+  CATEGORY: string;
 }
 
-export interface FloristOneProductResponse {
-  status: string;
-  product?: FloristOneProduct;
+export interface FloristOneProductsResponse {
+  PRODUCTS?: FloristOneProduct[];
   error?: string;
 }
 
 export interface FloristOneCartItem {
-  item_id: string;
-  product_code: string;
-  product_name: string;
-  price: number;
-  quantity: number;
-  image_url: string;
+  ITEMID: string;
+  PRODUCTCODE: string;
+  NAME: string;
+  PRICE: number;
+  QUANTITY: number;
+  IMAGE: string;
 }
 
 export interface FloristOneCart {
-  cart_id: string;
-  items: FloristOneCartItem[];
-  subtotal: number;
-  delivery_charge: number;
-  service_fee: number;
-  total: number;
-  delivery_date?: string;
-  delivery_zip?: string;
+  CARTID: string;
+  ITEMS: FloristOneCartItem[];
+  SUBTOTAL: number;
+  DELIVERYCHARGE: number;
+  SERVICEFEE: number;
+  TOTAL: number;
 }
 
 export interface FloristOneCartResponse {
-  status: string;
-  cart?: FloristOneCart;
+  CART?: FloristOneCart;
+  CARTID?: string;
+  SUCCESS?: boolean;
+  error?: string;
+}
+
+export interface FloristOneTotalResponse {
+  SUBTOTAL?: number;
+  DELIVERYCHARGE?: number;
+  SERVICEFEE?: number;
+  TOTAL?: number;
   error?: string;
 }
 
 export interface FloristOneOrderResponse {
-  status: string;
-  order_id?: string;
-  confirmation_number?: string;
-  estimated_delivery?: string;
-  total?: number;
+  ORDERID?: string;
+  CONFIRMATIONNUMBER?: string;
+  SUCCESS?: boolean;
   error?: string;
 }
 
 // Configuration
-const DEFAULT_API_BASE_URL = 'https://www.floristone.com/api/rest';
-const REQUEST_TIMEOUT = 30000; // 30 seconds
+const API_BASE_URL = 'https://www.floristone.com/api/rest/flowershop';
+const CART_API_BASE_URL = 'https://www.floristone.com/api/rest/shoppingcart';
+const REQUEST_TIMEOUT = 30000;
 const MAX_RETRIES = 2;
-const RETRY_DELAY = 1000; // 1 second
+const RETRY_DELAY = 1000;
 
 /**
  * Florist One API Client
  */
 export class FloristOneClient {
-  private affiliateId: string;
-  private apiToken: string;
-  private baseUrl: string;
+  private authHeader: string;
 
   constructor(env: FloristOneEnv) {
     if (!env.FLORISTONE_AFFILIATE_ID || !env.FLORISTONE_API_TOKEN) {
       throw new Error('Florist One credentials not configured');
     }
-    this.affiliateId = env.FLORISTONE_AFFILIATE_ID;
-    this.apiToken = env.FLORISTONE_API_TOKEN;
-    this.baseUrl = env.FLORISTONE_API_BASE_URL || DEFAULT_API_BASE_URL;
+    // HTTP Basic Auth: base64(APIKey:APIPassword)
+    const credentials = `${env.FLORISTONE_AFFILIATE_ID}:${env.FLORISTONE_API_TOKEN}`;
+    this.authHeader = `Basic ${btoa(credentials)}`;
   }
 
   /**
@@ -112,18 +103,15 @@ export class FloristOneClient {
    */
   private async request<T>(
     method: 'GET' | 'POST' | 'DELETE',
+    baseUrl: string,
     endpoint: string,
     params?: Record<string, string>,
     body?: Record<string, unknown>,
     retries = MAX_RETRIES
   ): Promise<T> {
-    const url = new URL(`${this.baseUrl}${endpoint}`);
+    const url = new URL(`${baseUrl}/${endpoint}`);
 
-    // Add auth params
-    url.searchParams.set('aid', this.affiliateId);
-    url.searchParams.set('token', this.apiToken);
-
-    // Add additional params
+    // Add query params for GET requests
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         url.searchParams.set(key, value);
@@ -137,14 +125,19 @@ export class FloristOneClient {
       const response = await fetch(url.toString(), {
         method,
         headers: {
+          'Authorization': this.authHeader,
           'Content-Type': 'application/json',
-          Accept: 'application/json',
+          'Accept': 'application/json',
         },
         body: body ? JSON.stringify(body) : undefined,
         signal: controller.signal,
       });
 
       clearTimeout(timeoutId);
+
+      if (response.status === 403) {
+        throw new Error('Authentication failed - check API credentials');
+      }
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -155,11 +148,11 @@ export class FloristOneClient {
     } catch (error) {
       clearTimeout(timeoutId);
 
-      // Retry on network errors for idempotent GET requests
+      // Retry on network errors for GET requests
       if (method === 'GET' && retries > 0 && error instanceof Error) {
         if (error.name === 'AbortError' || error.message.includes('network')) {
           await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
-          return this.request<T>(method, endpoint, params, body, retries - 1);
+          return this.request<T>(method, baseUrl, endpoint, params, body, retries - 1);
         }
       }
 
@@ -169,112 +162,189 @@ export class FloristOneClient {
 
   /**
    * Get available delivery dates for a ZIP code
-   * API Endpoint: /deliverydates
+   * Returns array of dates in MM/DD/YYYY format
    */
-  async getDeliveryDates(zip: string): Promise<FloristOneDeliveryDatesResponse> {
-    return this.request<FloristOneDeliveryDatesResponse>('GET', '/deliverydates', {
-      zip,
-    });
+  async getDeliveryDates(zipcode: string): Promise<FloristOneDeliveryDatesResponse> {
+    return this.request<FloristOneDeliveryDatesResponse>(
+      'GET',
+      API_BASE_URL,
+      'checkdeliverydate',
+      { zipcode }
+    );
   }
 
   /**
-   * Get product details by SKU
-   * API Endpoint: /product
+   * Check if a specific date is available for delivery
    */
-  async getProduct(productCode: string): Promise<FloristOneProductResponse> {
-    return this.request<FloristOneProductResponse>('GET', '/product', {
-      code: productCode,
-    });
+  async checkDeliveryDate(zipcode: string, date: string): Promise<FloristOneDeliveryDatesResponse> {
+    return this.request<FloristOneDeliveryDatesResponse>(
+      'GET',
+      API_BASE_URL,
+      'checkdeliverydate',
+      { zipcode, date }
+    );
+  }
+
+  /**
+   * Get products by category
+   * Categories: bd (birthday), sy (sympathy), ao (everyday), etc.
+   */
+  async getProducts(category: string, numProducts = 20, startAt = 0): Promise<FloristOneProductsResponse> {
+    return this.request<FloristOneProductsResponse>(
+      'GET',
+      API_BASE_URL,
+      'getproducts',
+      {
+        category,
+        numproducts: numProducts.toString(),
+        startat: startAt.toString(),
+      }
+    );
+  }
+
+  /**
+   * Get order total
+   */
+  async getTotal(
+    productCode: string,
+    zipcode: string,
+    deliveryDate: string
+  ): Promise<FloristOneTotalResponse> {
+    return this.request<FloristOneTotalResponse>(
+      'GET',
+      API_BASE_URL,
+      'gettotal',
+      {
+        productcode: productCode,
+        zipcode,
+        deliverydate: deliveryDate,
+      }
+    );
   }
 
   /**
    * Create a new shopping cart
-   * API Endpoint: /cart/create
    */
   async createCart(): Promise<FloristOneCartResponse> {
-    return this.request<FloristOneCartResponse>('POST', '/cart/create');
+    return this.request<FloristOneCartResponse>(
+      'POST',
+      CART_API_BASE_URL,
+      'createcart'
+    );
   }
 
   /**
    * Get cart contents
-   * API Endpoint: /cart
    */
   async getCart(cartId: string): Promise<FloristOneCartResponse> {
-    return this.request<FloristOneCartResponse>('GET', '/cart', {
-      cart_id: cartId,
-    });
+    return this.request<FloristOneCartResponse>(
+      'GET',
+      CART_API_BASE_URL,
+      'getcart',
+      { cartid: cartId }
+    );
   }
 
   /**
    * Add item to cart
-   * API Endpoint: /cart/add
    */
   async addToCart(
     cartId: string,
     productCode: string,
-    quantity: number,
-    deliveryZip?: string,
-    deliveryDate?: string
+    zipcode: string,
+    deliveryDate: string,
+    quantity = 1
   ): Promise<FloristOneCartResponse> {
-    return this.request<FloristOneCartResponse>('POST', '/cart/add', undefined, {
-      cart_id: cartId,
-      product_code: productCode,
-      quantity,
-      delivery_zip: deliveryZip,
-      delivery_date: deliveryDate,
-    });
+    return this.request<FloristOneCartResponse>(
+      'POST',
+      CART_API_BASE_URL,
+      'addtocart',
+      {
+        cartid: cartId,
+        productcode: productCode,
+        zipcode,
+        deliverydate: deliveryDate,
+        quantity: quantity.toString(),
+      }
+    );
   }
 
   /**
    * Remove item from cart
-   * API Endpoint: /cart/remove
    */
   async removeFromCart(cartId: string, itemId: string): Promise<FloristOneCartResponse> {
-    return this.request<FloristOneCartResponse>('POST', '/cart/remove', undefined, {
-      cart_id: cartId,
-      item_id: itemId,
-    });
+    return this.request<FloristOneCartResponse>(
+      'POST',
+      CART_API_BASE_URL,
+      'removefromcart',
+      {
+        cartid: cartId,
+        itemid: itemId,
+      }
+    );
+  }
+
+  /**
+   * Clear all items from cart
+   */
+  async clearCart(cartId: string): Promise<FloristOneCartResponse> {
+    return this.request<FloristOneCartResponse>(
+      'POST',
+      CART_API_BASE_URL,
+      'clearcart',
+      { cartid: cartId }
+    );
   }
 
   /**
    * Destroy cart
-   * API Endpoint: /cart/destroy
    */
   async destroyCart(cartId: string): Promise<FloristOneCartResponse> {
-    return this.request<FloristOneCartResponse>('POST', '/cart/destroy', undefined, {
-      cart_id: cartId,
-    });
+    return this.request<FloristOneCartResponse>(
+      'POST',
+      CART_API_BASE_URL,
+      'destroycart',
+      { cartid: cartId }
+    );
   }
 
   /**
    * Place order
-   * API Endpoint: /order/place
-   *
-   * TODO: Payment token integration
-   * In production, the payment_token should come from a secure payment processor
-   * (Stripe, Square, etc.) and never be raw card data passing through your server.
    */
   async placeOrder(orderData: {
-    cart_id: string;
-    delivery_date: string;
-    recipient_first_name: string;
-    recipient_last_name: string;
-    recipient_phone: string;
-    recipient_address1: string;
-    recipient_address2?: string;
-    recipient_city: string;
-    recipient_state: string;
-    recipient_zip: string;
-    sender_first_name: string;
-    sender_last_name: string;
-    sender_email: string;
-    sender_phone: string;
-    card_message: string;
-    special_instructions?: string;
-    // TODO: Payment integration - this would be a tokenized payment in production
-    payment_token?: string;
+    productcode: string;
+    deliverydate: string;
+    recipientfirstname: string;
+    recipientlastname: string;
+    recipientaddress: string;
+    recipientaddress2?: string;
+    recipientcity: string;
+    recipientstate: string;
+    recipientzipcode: string;
+    recipientphone: string;
+    senderfirstname: string;
+    senderlastname: string;
+    senderemail: string;
+    senderphone: string;
+    cardmessage: string;
+    specialinstructions?: string;
+    ccnumber: string;
+    ccexp: string;
+    ccsecurity: string;
   }): Promise<FloristOneOrderResponse> {
-    return this.request<FloristOneOrderResponse>('POST', '/order/place', undefined, orderData);
+    const params: Record<string, string> = {};
+    Object.entries(orderData).forEach(([key, value]) => {
+      if (value !== undefined) {
+        params[key] = value;
+      }
+    });
+
+    return this.request<FloristOneOrderResponse>(
+      'POST',
+      API_BASE_URL,
+      'placeorder',
+      params
+    );
   }
 }
 
@@ -283,4 +353,11 @@ export class FloristOneClient {
  */
 export function createFloristOneClient(env: FloristOneEnv): FloristOneClient {
   return new FloristOneClient(env);
+}
+
+/**
+ * Check if Florist One credentials are configured
+ */
+export function hasFloristOneCredentials(env: FloristOneEnv): boolean {
+  return !!(env.FLORISTONE_AFFILIATE_ID && env.FLORISTONE_API_TOKEN);
 }
