@@ -1,3 +1,4 @@
+import React from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -53,6 +54,40 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
   const basePath = `/${cityConfig.stateSlug}/${cityConfig.citySlug}`;
   const recentPosts = getRecentPosts(3).filter((p) => p.slug !== post.slug).slice(0, 2);
 
+  // Helper to parse inline bold markdown
+  const parseInlineFormatting = (text: string): React.ReactNode => {
+    const parts: React.ReactNode[] = [];
+    let remaining = text;
+    let keyIndex = 0;
+
+    while (remaining.length > 0) {
+      const boldStart = remaining.indexOf('**');
+      if (boldStart === -1) {
+        parts.push(remaining);
+        break;
+      }
+
+      // Add text before bold
+      if (boldStart > 0) {
+        parts.push(remaining.slice(0, boldStart));
+      }
+
+      // Find closing **
+      const boldEnd = remaining.indexOf('**', boldStart + 2);
+      if (boldEnd === -1) {
+        parts.push(remaining);
+        break;
+      }
+
+      // Add bold text
+      const boldText = remaining.slice(boldStart + 2, boldEnd);
+      parts.push(<strong key={keyIndex++} className="text-forest-900">{boldText}</strong>);
+      remaining = remaining.slice(boldEnd + 2);
+    }
+
+    return parts.length === 1 && typeof parts[0] === 'string' ? parts[0] : parts;
+  };
+
   // Convert markdown-like content to HTML
   const formatContent = (content: string) => {
     return content
@@ -62,25 +97,15 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
         if (paragraph.startsWith('## ')) {
           return (
             <h2 key={idx} className="font-display text-2xl font-semibold text-forest-900 mt-10 mb-4">
-              {paragraph.replace('## ', '')}
+              {parseInlineFormatting(paragraph.replace('## ', ''))}
             </h2>
           );
         }
         if (paragraph.startsWith('### ')) {
           return (
             <h3 key={idx} className="font-display text-xl font-semibold text-forest-900 mt-8 mb-3">
-              {paragraph.replace('### ', '')}
+              {parseInlineFormatting(paragraph.replace('### ', ''))}
             </h3>
-          );
-        }
-        // Bold text formatting
-        if (paragraph.startsWith('**') && paragraph.includes(':**')) {
-          const [boldPart, rest] = paragraph.split(':**');
-          return (
-            <p key={idx} className="text-forest-800/80 leading-relaxed mb-4">
-              <strong className="text-forest-900">{boldPart.replace('**', '')}:</strong>
-              {rest}
-            </p>
           );
         }
         // Lists
@@ -89,7 +114,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           return (
             <ul key={idx} className="list-disc list-inside text-forest-800/80 space-y-2 mb-6 ml-4">
               {items.map((item, i) => (
-                <li key={i}>{item.replace('- ', '')}</li>
+                <li key={i}>{parseInlineFormatting(item.replace('- ', ''))}</li>
               ))}
             </ul>
           );
@@ -100,7 +125,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           return (
             <ol key={idx} className="list-decimal list-inside text-forest-800/80 space-y-2 mb-6 ml-4">
               {items.map((item, i) => (
-                <li key={i}>{item.replace(/^\d+\.\s*/, '')}</li>
+                <li key={i}>{parseInlineFormatting(item.replace(/^\d+\.\s*/, ''))}</li>
               ))}
             </ol>
           );
@@ -108,7 +133,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
         // Regular paragraphs
         return (
           <p key={idx} className="text-forest-800/80 leading-relaxed mb-4">
-            {paragraph}
+            {parseInlineFormatting(paragraph)}
           </p>
         );
       });
