@@ -676,6 +676,7 @@ export async function saveAbandonedCart(
         cart_data: cartData,
         user_id: userId,
         recovered: false,
+        email_sent: false,
       },
       { onConflict: 'cart_session_id' }
     )
@@ -697,6 +698,35 @@ export async function markCartRecovered(
       recovered_at: new Date().toISOString(),
     })
     .eq('cart_session_id', cartSessionId);
+
+  if (error) throw error;
+}
+
+export async function getAbandonedCartBySessionId(
+  supabase: SupabaseClient,
+  cartSessionId: string
+) {
+  const { data, error } = await supabase
+    .from('abandoned_carts')
+    .select('*')
+    .eq('cart_session_id', cartSessionId)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function markAbandonedCartEmailSent(
+  supabase: SupabaseClient,
+  cartId: string
+) {
+  const { error } = await supabase
+    .from('abandoned_carts')
+    .update({
+      email_sent: true,
+      email_sent_at: new Date().toISOString(),
+    })
+    .eq('id', cartId);
 
   if (error) throw error;
 }

@@ -11,7 +11,7 @@ interface CartZipCheckerProps {
 
 interface DeliveryDate {
   date: string;
-  description: string;
+  formatted: string;
   price: number;
   available: boolean;
 }

@@ -11,6 +11,7 @@ import {
   createOrder as createDatabaseOrder,
   extractBearerToken,
   getUserFromToken,
+  markCartRecovered,
   SupabaseEnv,
 } from '../../../../lib/supabase';
 import {
@@ -405,6 +406,17 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       } catch (dbError) {
         // Log but don't fail the order - the Florist One order already succeeded
         console.error('Failed to save order to database:', dbError);
+      }
+    }
+
+    // Mark abandoned cart as recovered
+    if (hasSupabaseCredentials(env)) {
+      try {
+        const supabase = createSupabaseClient(env as SupabaseEnv);
+        await markCartRecovered(supabase, cartId);
+      } catch (recoverError) {
+        // Log but don't fail - cart recovery tracking is non-critical
+        console.error('Failed to mark cart as recovered:', recoverError);
       }
     }
 

@@ -2,14 +2,24 @@
 
 import { useState, useEffect } from 'react';
 
+interface CartItem {
+  sku: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image?: string;
+}
+
 interface CartEmailCaptureProps {
   cartHasItems: boolean;
+  cartItems?: CartItem[];
+  cartSubtotal?: number;
   onEmailSubmit?: (email: string) => void;
 }
 
 const STORAGE_KEY = 'cart_email_captured';
 
-export default function CartEmailCapture({ cartHasItems, onEmailSubmit }: CartEmailCaptureProps) {
+export default function CartEmailCapture({ cartHasItems, cartItems = [], cartSubtotal = 0, onEmailSubmit }: CartEmailCaptureProps) {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -43,10 +53,22 @@ export default function CartEmailCapture({ cartHasItems, onEmailSubmit }: CartEm
       // Call callback if provided
       onEmailSubmit?.(email);
 
-      // You could also send to your API here
-      // await fetch('/api/cart/email', { method: 'POST', body: JSON.stringify({ email }) });
+      // Send to API for abandoned cart recovery
+      await fetch('/api/cart/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          cartData: {
+            items: cartItems,
+            subtotal: cartSubtotal,
+          },
+        }),
+      });
     } catch {
-      // Silently fail
+      // Silently fail - email is still captured locally
     }
   };
 

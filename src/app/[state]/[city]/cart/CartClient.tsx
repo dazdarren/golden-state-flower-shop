@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import CartZipChecker from '@/components/CartZipChecker';
+import CartEmailCapture from '@/components/CartEmailCapture';
 
 interface CartItem {
   itemId: string;
@@ -249,6 +250,19 @@ export default function CartClient({ basePath, cityName, primaryZipCodes = [] }:
             Clear Cart
           </button>
         </div>
+
+        {/* Email capture for abandoned cart recovery */}
+        <CartEmailCapture
+          cartHasItems={!cart.isEmpty}
+          cartItems={cart.items.map((item) => ({
+            sku: item.sku,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image,
+          }))}
+          cartSubtotal={cart.subtotal}
+        />
       </div>
 
       {/* Order Summary */}
