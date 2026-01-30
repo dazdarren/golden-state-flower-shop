@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Product } from '@/types/floristOne';
 import WishlistButton from './WishlistButton';
+import { usePrefetchOnHover } from '@/hooks/usePrefetch';
 
 interface ProductCardProps {
   product: Product;
@@ -13,6 +14,8 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, basePath, index = 0, onQuickView }: ProductCardProps) {
   const hasDiscount = product.originalPrice && product.originalPrice > product.price;
+  const productUrl = `${basePath}/product?sku=${product.sku}`;
+  const { onMouseEnter, onFocus } = usePrefetchOnHover(productUrl);
 
   const handleQuickView = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -40,8 +43,10 @@ export default function ProductCard({ product, basePath, index = 0, onQuickView 
       </div>
 
       <Link
-        href={`${basePath}/product?sku=${product.sku}`}
+        href={productUrl}
         className="flex flex-col flex-1"
+        onMouseEnter={onMouseEnter}
+        onFocus={onFocus}
       >
         {/* Image Container */}
         <div className="relative aspect-[4/5] overflow-hidden bg-cream-200 rounded-2xl">
