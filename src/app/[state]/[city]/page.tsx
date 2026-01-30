@@ -236,24 +236,26 @@ export default function CityHomePage({ params }: CityPageProps) {
             </div>
 
             {/* Inline Trust Badges */}
-            <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2 pt-6 border-t border-cream-300/50">
-              <div className="flex items-center gap-2 text-sm text-forest-800">
-                <svg className="w-5 h-5 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Order by 2pm for today</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-forest-800">
-                <svg className="w-5 h-5 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>100% Satisfaction</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-forest-800">
-                <svg className="w-5 h-5 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Local florist network</span>
+            <div className="pt-6 border-t border-cream-300/50 max-w-xl mx-auto">
+              <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2">
+                <div className="flex items-center gap-2 text-sm text-forest-800">
+                  <svg className="w-5 h-5 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Order by 2pm for today</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-forest-800">
+                  <svg className="w-5 h-5 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>100% Satisfaction</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-forest-800">
+                  <svg className="w-5 h-5 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Local florist network</span>
+                </div>
               </div>
             </div>
           </div>

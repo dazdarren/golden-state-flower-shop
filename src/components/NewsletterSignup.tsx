@@ -59,10 +59,10 @@ export default function NewsletterSignup({
     return (
       <div className={className}>
         <h3 className="font-display text-lg font-semibold text-cream-100 mb-2">
-          Get 10% Off
+          Stay Updated
         </h3>
         <p className="text-sm text-cream-200/70 mb-4">
-          Subscribe for your first-order discount plus exclusive offers and flower care tips.
+          Subscribe for exclusive offers, seasonal collections, and flower care tips.
         </p>
 
         {status === 'success' ? (
@@ -121,10 +121,10 @@ export default function NewsletterSignup({
             </svg>
           </div>
           <h3 className="font-display text-2xl font-semibold text-forest-900 mb-2">
-            Get 10% Off Your First Order
+            Join Our Newsletter
           </h3>
           <p className="text-forest-800/60 mb-6">
-            Subscribe for your welcome discount plus exclusive offers and seasonal collections.
+            Subscribe for exclusive offers, seasonal collections, and flower care tips.
           </p>
 
           {status === 'success' ? (

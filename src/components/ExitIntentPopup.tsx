@@ -154,13 +154,13 @@ export default function ExitIntentPopup({ delay = 5000, mobileScrollThreshold = 
           <div className="p-8 md:p-10">
             <div className="mb-6">
               <span className="inline-block px-3 py-1 bg-sage-100 text-sage-700 text-xs font-medium rounded-full mb-4">
-                EXCLUSIVE OFFER
+                BEFORE YOU GO
               </span>
               <h2 className="font-display text-2xl md:text-3xl font-semibold text-forest-900 mb-2">
-                Wait! Get 10% Off
+                Wait! Don't Miss Out
               </h2>
               <p className="text-forest-800/60">
-                Subscribe to our newsletter and get 10% off your first order.
+                Subscribe for exclusive offers, seasonal collections, and flower care tips.
               </p>
             </div>
 
@@ -198,7 +198,7 @@ export default function ExitIntentPopup({ delay = 5000, mobileScrollThreshold = 
                            hover:bg-forest-800 hover:shadow-soft-lg
                            disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {status === 'loading' ? 'Subscribing...' : 'Get My 10% Off'}
+                  {status === 'loading' ? 'Subscribing...' : 'Subscribe Now'}
                 </button>
 
                 <p className="text-xs text-center text-forest-800/50">
