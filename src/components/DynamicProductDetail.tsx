@@ -5,6 +5,7 @@ import Link from 'next/link';
 import AddToCartButton from '@/app/[state]/[city]/product/[sku]/AddToCartButton';
 import StarRating from '@/components/StarRating';
 import CustomerReviews from '@/components/CustomerReviews';
+import TrustBadges from '@/components/TrustBadges';
 
 interface ApiProduct {
   sku: string;
@@ -273,6 +274,9 @@ export default function DynamicProductDetail({
                   </li>
                 </ul>
               </div>
+
+              {/* Trust Badges */}
+              <TrustBadges variant="compact" showPaymentMethods={true} className="mt-6" />
             </div>
           </div>
         </div>

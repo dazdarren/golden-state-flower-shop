@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AuthorizeNetCardElement, { AuthorizeNetCardRef } from '@/components/AuthorizeNetCardElement';
 import { supabase } from '@/lib/supabase';
+import { PaymentIcons } from '@/components/TrustBadges';
 
 interface DeliveryDate {
   date: string;
@@ -787,9 +788,18 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
               )}
             </button>
 
-            <p className="text-xs text-forest-800/50 text-center mt-4">
-              Your payment is secure and encrypted.
+            <p className="text-xs text-forest-800/50 text-center mt-4 flex items-center justify-center gap-1.5">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              Your payment is secure and encrypted
             </p>
+
+            {/* Payment method icons */}
+            <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-cream-200">
+              <PaymentIcons size="sm" />
+            </div>
           </div>
         </div>
       </form>

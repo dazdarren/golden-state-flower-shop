@@ -1,17 +1,20 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 interface ExitIntentPopupProps {
   delay?: number; // Delay before popup can appear (ms)
+  mobileScrollThreshold?: number; // Show on mobile after scrolling up this many pixels
 }
 
-export default function ExitIntentPopup({ delay = 5000 }: ExitIntentPopupProps) {
+export default function ExitIntentPopup({ delay = 5000, mobileScrollThreshold = 300 }: ExitIntentPopupProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
   const [canShow, setCanShow] = useState(false);
+  const lastScrollY = useRef(0);
+  const scrollUpDistance = useRef(0);
 
   // Check if popup has been dismissed or user already subscribed
   const hasBeenDismissed = useCallback(() => {
@@ -34,19 +37,41 @@ export default function ExitIntentPopup({ delay = 5000 }: ExitIntentPopupProps) 
   useEffect(() => {
     if (!canShow) return;
 
+    // Desktop: Mouse leave detection
     const handleMouseLeave = (e: MouseEvent) => {
-      // Only trigger when mouse leaves from the top of the page
       if (e.clientY <= 0 && !isVisible && !hasBeenDismissed()) {
         setIsVisible(true);
       }
     };
 
+    // Mobile: Detect rapid scroll up (user trying to leave)
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY < lastScrollY.current) {
+        // Scrolling up
+        scrollUpDistance.current += lastScrollY.current - currentScrollY;
+
+        if (scrollUpDistance.current > mobileScrollThreshold && !isVisible && !hasBeenDismissed()) {
+          setIsVisible(true);
+          scrollUpDistance.current = 0;
+        }
+      } else {
+        // Scrolling down - reset
+        scrollUpDistance.current = 0;
+      }
+
+      lastScrollY.current = currentScrollY;
+    };
+
     document.addEventListener('mouseleave', handleMouseLeave);
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
       document.removeEventListener('mouseleave', handleMouseLeave);
+      window.removeEventListener('scroll', handleScroll);
     };
-  }, [canShow, isVisible, hasBeenDismissed]);
+  }, [canShow, isVisible, hasBeenDismissed, mobileScrollThreshold]);
 
   const handleClose = () => {
     setIsVisible(false);
@@ -180,6 +205,24 @@ export default function ExitIntentPopup({ delay = 5000 }: ExitIntentPopupProps) 
                   By subscribing, you agree to receive marketing emails.
                   Unsubscribe anytime.
                 </p>
+
+                {/* Trust indicators */}
+                <div className="flex items-center justify-center gap-4 pt-2 text-xs text-forest-800/50">
+                  <span className="flex items-center gap-1">
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    Secure
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                            d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    No spam
+                  </span>
+                </div>
               </form>
             )}
 

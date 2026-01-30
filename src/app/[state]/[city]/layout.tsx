@@ -3,6 +3,7 @@ import { getCityConfig, getAllCityPaths } from '@/data/cities';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ExitIntentPopup from '@/components/ExitIntentPopup';
+import DeliveryCountdown from '@/components/DeliveryCountdown';
 import { AuthProvider } from '@/context/AuthContext';
 import { WishlistProvider } from '@/context/WishlistContext';
 import { ToastProvider } from '@/components/ui/Toast';
@@ -41,6 +42,11 @@ export default function CityLayout({ children, params }: CityLayoutProps) {
             Skip to main content
           </a>
           <Header cityConfig={cityConfig} />
+          <DeliveryCountdown
+            cutoffTime={cityConfig.deliveryInfo.sameDay.cutoffTime}
+            cityName={cityConfig.cityName}
+            variant="banner"
+          />
           <main id="main-content" className="flex-1">
             {children}
           </main>
