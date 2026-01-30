@@ -266,7 +266,9 @@ export default function MegaMenu({ basePath }: MegaMenuProps) {
         type="button"
         className="lg:hidden p-2.5 rounded-xl text-forest-800 hover:bg-sage-100/50 transition-colors"
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        aria-label="Toggle menu"
+        aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+        aria-expanded={mobileMenuOpen}
+        aria-controls="mobile-menu"
       >
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           {mobileMenuOpen ? (
@@ -279,7 +281,13 @@ export default function MegaMenu({ basePath }: MegaMenuProps) {
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 top-20 bg-cream-100/95 backdrop-blur-md z-40 overflow-y-auto animate-fade-in">
+        <div
+          id="mobile-menu"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Navigation menu"
+          className="lg:hidden fixed inset-0 top-20 bg-cream-100/95 backdrop-blur-md z-40 overflow-y-auto animate-fade-in"
+        >
           <div className="container-wide py-6">
             {/* Mobile Search */}
             <form onSubmit={handleMobileSearch} className="mb-6">

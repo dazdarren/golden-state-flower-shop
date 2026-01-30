@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { CityConfig } from '@/types/city';
 import { useAuth } from '@/context/AuthContext';
 import MegaMenu from './MegaMenu';
@@ -14,8 +15,12 @@ interface HeaderProps {
 export default function Header({ cityConfig }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [mobileSearchQuery, setMobileSearchQuery] = useState('');
+  const mobileSearchInputRef = useRef<HTMLInputElement>(null);
   const basePath = `/${cityConfig.stateSlug}/${cityConfig.citySlug}`;
   const { user, loading, signOut, isConfigured } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,6 +40,23 @@ export default function Header({ cityConfig }: HeaderProps) {
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, [accountMenuOpen]);
+
+  // Focus mobile search input when opened
+  useEffect(() => {
+    if (mobileSearchOpen && mobileSearchInputRef.current) {
+      mobileSearchInputRef.current.focus();
+    }
+  }, [mobileSearchOpen]);
+
+  // Handle mobile search submit
+  const handleMobileSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (mobileSearchQuery.trim()) {
+      router.push(`${basePath}/search?q=${encodeURIComponent(mobileSearchQuery.trim())}`);
+      setMobileSearchOpen(false);
+      setMobileSearchQuery('');
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -95,7 +117,34 @@ export default function Header({ cityConfig }: HeaderProps) {
 
           {/* Right side buttons */}
           <div className="flex items-center gap-2">
-            {/* Search */}
+            {/* Mobile action buttons - visible on mobile only */}
+            <div className="flex md:hidden items-center gap-1">
+              {/* Mobile Search Button */}
+              <button
+                onClick={() => setMobileSearchOpen(true)}
+                className="p-2.5 rounded-full text-forest-800/70 hover:bg-sage-100/50 transition-colors"
+                aria-label="Search"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+
+              {/* Mobile Cart Button */}
+              <Link
+                href={`${basePath}/cart`}
+                className="relative p-2.5 rounded-full text-forest-800/70 hover:bg-sage-100/50 transition-colors"
+                aria-label="Shopping cart"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+              </Link>
+            </div>
+
+            {/* Desktop Search */}
             <div className="hidden md:block">
               <SearchBar basePath={basePath} />
             </div>
@@ -106,6 +155,9 @@ export default function Header({ cityConfig }: HeaderProps) {
                 <div className="relative account-menu hidden md:block">
                   <button
                     onClick={() => setAccountMenuOpen(!accountMenuOpen)}
+                    aria-expanded={accountMenuOpen}
+                    aria-haspopup="true"
+                    aria-label="Account menu"
                     className="flex items-center gap-2 px-3 py-2 rounded-lg
                              text-forest-800/80 hover:text-forest-900 hover:bg-sage-100/50
                              transition-colors duration-200"
@@ -190,6 +242,61 @@ export default function Header({ cityConfig }: HeaderProps) {
           </div>
         </div>
       </div>
+
+      {/* Mobile Search Overlay */}
+      {mobileSearchOpen && (
+        <div className="md:hidden fixed inset-0 z-50 bg-forest-900/50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-cream-100 p-4 shadow-lg">
+            <form onSubmit={handleMobileSearch} className="relative">
+              <svg
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-forest-800/40"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                ref={mobileSearchInputRef}
+                type="text"
+                value={mobileSearchQuery}
+                onChange={(e) => setMobileSearchQuery(e.target.value)}
+                placeholder="Search flowers, plants..."
+                className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-cream-300 bg-white
+                         text-forest-900 placeholder:text-forest-800/40
+                         focus:outline-none focus:border-sage-400 focus:ring-2 focus:ring-sage-100"
+                autoComplete="off"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileSearchOpen(false);
+                  setMobileSearchQuery('');
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full
+                         text-forest-800/60 hover:text-forest-900 hover:bg-cream-200"
+                aria-label="Close search"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </form>
+            <p className="text-xs text-forest-800/50 mt-2 px-1">
+              Press Enter to search
+            </p>
+          </div>
+          {/* Click outside to close */}
+          <div
+            className="flex-1 h-full"
+            onClick={() => {
+              setMobileSearchOpen(false);
+              setMobileSearchQuery('');
+            }}
+          />
+        </div>
+      )}
     </header>
   );
 }
