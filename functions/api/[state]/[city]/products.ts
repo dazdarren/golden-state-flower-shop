@@ -64,6 +64,20 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   const occasion = url.searchParams.get('occasion') || 'best-sellers';
   const count = Math.min(parseInt(url.searchParams.get('count') || '12', 10), 50);
   const start = parseInt(url.searchParams.get('start') || '1', 10);
+  const sortParam = url.searchParams.get('sort') || 'default';
+  const priceMin = url.searchParams.get('priceMin') ? parseFloat(url.searchParams.get('priceMin')!) : null;
+  const priceMax = url.searchParams.get('priceMax') ? parseFloat(url.searchParams.get('priceMax')!) : null;
+
+  // Map our sort options to Florist One API sorttype values
+  // pa = price ascending, pd = price descending, az = name A-Z, za = name Z-A
+  const sortMap: Record<string, 'pa' | 'pd' | 'az' | 'za' | undefined> = {
+    'default': undefined,
+    'price-low': 'pa',
+    'price-high': 'pd',
+    'name-az': 'az',
+    'name-za': 'za',
+  };
+  const sorttype = sortMap[sortParam];
 
   // Map occasion slug to Florist One category code
   const categoryCode = OCCASION_TO_CATEGORY[occasion] || 'bs';
@@ -81,7 +95,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
   try {
     const client = createFloristOneClient(env);
-    const response = await client.getProducts(categoryCode, count, start);
+    // Request more products if filtering by price to ensure we have enough after filtering
+    const requestCount = (priceMin !== null || priceMax !== null) ? Math.min(count * 3, 100) : count;
+    const response = await client.getProducts(categoryCode, requestCount, start, sorttype);
 
     if (!response.PRODUCTS || response.PRODUCTS.length === 0) {
       return successResponse({
@@ -93,7 +109,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     }
 
     // Transform to our product format
-    const products: ProductResult[] = response.PRODUCTS.map((p) => ({
+    let products: ProductResult[] = response.PRODUCTS.map((p) => ({
       sku: p.CODE,
       name: p.NAME,
       description: p.DESCRIPTION,
@@ -103,11 +119,28 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       dimension: p.DIMENSION || undefined,
     }));
 
+    // Apply price filtering if specified
+    if (priceMin !== null || priceMax !== null) {
+      products = products.filter((p) => {
+        if (priceMin !== null && p.price < priceMin) return false;
+        if (priceMax !== null && p.price > priceMax) return false;
+        return true;
+      });
+    }
+
+    // Limit to requested count after filtering
+    const filteredProducts = products.slice(0, count);
+
     return successResponse({
-      products,
-      total: response.TOTAL || products.length,
+      products: filteredProducts,
+      total: products.length,
       occasion,
       categoryCode,
+      filters: {
+        sort: sortParam,
+        priceMin,
+        priceMax,
+      },
     });
   } catch (error) {
     console.error('Florist One API error:', error);

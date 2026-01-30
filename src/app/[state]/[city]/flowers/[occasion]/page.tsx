@@ -149,6 +149,7 @@ export default function OccasionPage({ params }: OccasionPageProps) {
             basePath={basePath}
             occasion={params.occasion}
             count={12}
+            showFilters={true}
           />
         </div>
       </section>
@@ -198,6 +199,10 @@ function getOccasionIntro(occasion: OccasionSlug, cityName: string): string {
     anniversary: `Celebrate your love story with romantic anniversary flowers delivered in ${cityName}. Choose from classic red roses, mixed arrangements, or contemporary designs to mark your special milestone.`,
     'get-well': `Brighten their day and lift their spirits with cheerful get-well flowers delivered to homes and hospitals across ${cityName}. We deliver to all major medical centers.`,
     'thank-you': `Show your gratitude with beautiful thank-you flowers delivered in ${cityName}. Perfect for teachers, caregivers, hosts, or anyone who deserves a special thank you.`,
+    'love-romance': `Express your deepest feelings with romantic flowers delivered in ${cityName}. From classic red roses to passionate arrangements, find the perfect way to say "I love you."`,
+    'new-baby': `Welcome the newest family member with cheerful new baby flowers delivered in ${cityName}. Celebrate this joyous occasion with arrangements in soft pinks, blues, or sunny yellows.`,
+    'just-because': `Sometimes the best gifts need no reason at all. Send beautiful just-because flowers to brighten someone's day in ${cityName}. A thoughtful surprise that shows you care.`,
+    'congratulations': `Celebrate their achievements with vibrant congratulations flowers delivered in ${cityName}. Mark graduations, promotions, new homes, and all of life's victories.`,
   };
   return intros[occasion];
 }

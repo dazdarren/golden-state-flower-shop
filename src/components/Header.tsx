@@ -4,13 +4,14 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { CityConfig } from '@/types/city';
 import { useAuth } from '@/context/AuthContext';
+import MegaMenu from './MegaMenu';
+import SearchBar from './SearchBar';
 
 interface HeaderProps {
   cityConfig: CityConfig;
 }
 
 export default function Header({ cityConfig }: HeaderProps) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const basePath = `/${cityConfig.stateSlug}/${cityConfig.citySlug}`;
@@ -89,28 +90,16 @@ export default function Header({ cityConfig }: HeaderProps) {
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1">
-            {[
-              { href: `${basePath}/flowers/birthday`, label: 'Birthday' },
-              { href: `${basePath}/flowers/sympathy`, label: 'Sympathy' },
-              { href: `${basePath}/flowers/anniversary`, label: 'Anniversary' },
-              { href: `${basePath}/flowers/get-well`, label: 'Get Well' },
-              { href: `${basePath}/delivery`, label: 'Delivery' },
-            ].map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="px-4 py-2 font-body text-sm text-forest-800/80 hover:text-forest-900
-                         transition-colors duration-200 rounded-lg hover:bg-sage-100/50"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+          {/* Desktop Navigation - MegaMenu */}
+          <MegaMenu basePath={basePath} />
 
           {/* Right side buttons */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            {/* Search */}
+            <div className="hidden md:block">
+              <SearchBar basePath={basePath} />
+            </div>
+
             {/* Account / Sign In */}
             {isConfigured && !loading && (
               user ? (
@@ -198,118 +187,8 @@ export default function Header({ cityConfig }: HeaderProps) {
               </svg>
               <span>Cart</span>
             </Link>
-
-            {/* Mobile menu button */}
-            <button
-              type="button"
-              className="lg:hidden p-2.5 rounded-xl text-forest-800 hover:bg-sage-100/50 transition-colors"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                {mobileMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </button>
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <nav className="lg:hidden py-6 border-t border-cream-300/50 animate-fade-in">
-            <div className="flex flex-col gap-1">
-              {[
-                { href: `${basePath}/flowers/birthday`, label: 'Birthday Flowers' },
-                { href: `${basePath}/flowers/sympathy`, label: 'Sympathy & Funeral' },
-                { href: `${basePath}/flowers/anniversary`, label: 'Anniversary' },
-                { href: `${basePath}/flowers/get-well`, label: 'Get Well' },
-                { href: `${basePath}/flowers/thank-you`, label: 'Thank You' },
-                { href: `${basePath}/delivery`, label: 'Delivery Info' },
-              ].map((link, i) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`px-4 py-3 font-body text-forest-800 hover:text-forest-900
-                           hover:bg-sage-100/50 rounded-xl transition-all duration-200
-                           opacity-0 animate-fade-up stagger-${i + 1}`}
-                  style={{ animationFillMode: 'forwards' }}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
-
-              {/* Mobile Account Links */}
-              {isConfigured && (
-                <div className="mt-4 pt-4 border-t border-cream-300/50 space-y-1">
-                  {user ? (
-                    <>
-                      <Link
-                        href="/account"
-                        className="flex items-center gap-3 px-4 py-3 text-forest-800 hover:bg-sage-100/50 rounded-xl"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                        My Account
-                      </Link>
-                      <button
-                        onClick={() => {
-                          handleSignOut();
-                          setMobileMenuOpen(false);
-                        }}
-                        className="flex items-center gap-3 w-full px-4 py-3 text-forest-800 hover:bg-sage-100/50 rounded-xl"
-                      >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                        Sign Out
-                      </button>
-                    </>
-                  ) : (
-                    <Link
-                      href={`/auth/login?redirect=${encodeURIComponent(basePath)}`}
-                      className="flex items-center gap-3 px-4 py-3 text-forest-800 hover:bg-sage-100/50 rounded-xl"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      Sign In / Create Account
-                    </Link>
-                  )}
-                </div>
-              )}
-
-              <div className="mt-4 pt-4 border-t border-cream-300/50">
-                <Link
-                  href={`${basePath}/cart`}
-                  className="flex items-center justify-center gap-2 w-full py-3 rounded-full
-                           bg-forest-900 text-cream-100 font-medium
-                           transition-all duration-300 hover:bg-forest-800"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                    />
-                  </svg>
-                  View Cart
-                </Link>
-              </div>
-            </div>
-          </nav>
-        )}
       </div>
     </header>
   );

@@ -39,7 +39,20 @@ export interface OccasionConfig {
   skuFilter?: string[];
 }
 
-export type OccasionSlug = 'birthday' | 'sympathy' | 'anniversary' | 'get-well' | 'thank-you';
+export type OccasionSlug =
+  | 'birthday'
+  | 'sympathy'
+  | 'anniversary'
+  | 'get-well'
+  | 'thank-you'
+  | 'love-romance'
+  | 'new-baby'
+  | 'just-because'
+  | 'congratulations';
+
+export type ProductTypeSlug = 'plants' | 'rose-bouquets' | 'mixed-arrangements' | 'premium-collection';
+
+export type SeasonalSlug = 'valentines-day' | 'mothers-day' | 'christmas' | 'seasonal-specials';
 
 export const OCCASIONS: Record<OccasionSlug, OccasionConfig> = {
   birthday: {
@@ -76,5 +89,33 @@ export const OCCASIONS: Record<OccasionSlug, OccasionConfig> = {
     title: 'Thank You Flowers',
     description: 'Show your appreciation with beautiful thank you flower arrangements.',
     metaDescription: 'Send thank you flowers in {cityName}. Express your gratitude with same-day delivery.',
+  },
+  'love-romance': {
+    slug: 'love-romance',
+    name: 'Love & Romance',
+    title: 'Romantic Flowers',
+    description: 'Express your love with stunning romantic flower arrangements.',
+    metaDescription: 'Send romantic flowers for delivery in {cityName}. Perfect for expressing love.',
+  },
+  'new-baby': {
+    slug: 'new-baby',
+    name: 'New Baby',
+    title: 'New Baby Flowers',
+    description: 'Welcome the newest arrival with cheerful baby flower arrangements.',
+    metaDescription: 'Order new baby flowers for delivery in {cityName}. Celebrate the new arrival.',
+  },
+  'just-because': {
+    slug: 'just-because',
+    name: 'Just Because',
+    title: 'Just Because Flowers',
+    description: 'Brighten their day with beautiful flowers, just because.',
+    metaDescription: 'Send just because flowers in {cityName}. No occasion needed to show you care.',
+  },
+  'congratulations': {
+    slug: 'congratulations',
+    name: 'Congratulations',
+    title: 'Congratulations Flowers',
+    description: 'Celebrate their achievements with vibrant congratulations arrangements.',
+    metaDescription: 'Order congratulations flowers for delivery in {cityName}. Celebrate their success.',
   },
 };

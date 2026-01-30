@@ -57,6 +57,41 @@ export const occasionSkuMap: Record<OccasionSlug, string[]> = {
     'FTD-SEA001',
     'FTD-SEA004',
   ],
+  'love-romance': [
+    'FTD-ROSE001',
+    'FTD-ROSE003',
+    'FTD-ROSE005',
+    'FTD-ROSE006',
+    'FTD-MIX002',
+    'FTD-MIX005',
+  ],
+  'new-baby': [
+    'FTD-MIX001',
+    'FTD-MIX003',
+    'FTD-MIX004',
+    'FTD-PLT002',
+    'FTD-PLT003',
+    'FTD-SEA001',
+  ],
+  'just-because': [
+    'FTD-MIX001',
+    'FTD-MIX002',
+    'FTD-MIX003',
+    'FTD-MIX004',
+    'FTD-MIX005',
+    'FTD-MIX006',
+    'FTD-PLT001',
+    'FTD-PLT002',
+  ],
+  'congratulations': [
+    'FTD-MIX001',
+    'FTD-MIX002',
+    'FTD-MIX005',
+    'FTD-ROSE001',
+    'FTD-ROSE002',
+    'FTD-SEA001',
+    'FTD-SEA002',
+  ],
 };
 
 export function getSkusForOccasion(occasion: OccasionSlug): string[] {

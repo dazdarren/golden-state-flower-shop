@@ -97,6 +97,7 @@ const RETRY_DELAY = 1000;
 
 // Category mapping from our occasion slugs to Florist One codes
 export const OCCASION_TO_CATEGORY: Record<string, string> = {
+  // Occasions
   'birthday': 'bd',
   'sympathy': 'sy',
   'anniversary': 'an',
@@ -104,8 +105,20 @@ export const OCCASION_TO_CATEGORY: Record<string, string> = {
   'thank-you': 'ty',
   'love-romance': 'lr',
   'new-baby': 'nb',
+  'just-because': 'ao',
+  'congratulations': 'ao',
   'everyday': 'ao',
   'best-sellers': 'bs',
+  // Product Types (using related categories)
+  'plants': 'pl',
+  'rose-bouquets': 'ro',
+  'mixed-arrangements': 'ao',
+  'premium-collection': 'bs',
+  // Seasonal (mapping to appropriate API categories)
+  'valentines-day': 'lr',
+  'mothers-day': 'md',
+  'christmas': 'ch',
+  'seasonal-specials': 'ao',
 };
 
 /**
