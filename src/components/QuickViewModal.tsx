@@ -88,6 +88,9 @@ export default function QuickViewModal({
                 alt={product.name}
                 className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                 onLoad={() => setImageLoaded(true)}
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-sage-100 to-cream-100">

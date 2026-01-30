@@ -12,6 +12,14 @@ export const metadata: Metadata = {
   },
   description:
     'Same-day flower delivery throughout California. Fresh arrangements delivered to San Francisco, Los Angeles, San Diego, San Jose, Sacramento, and more.',
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    apple: [
+      { url: '/apple-icon.svg', type: 'image/svg+xml' },
+    ],
+  },
 };
 
 export default function RootLayout({

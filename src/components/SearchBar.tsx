@@ -251,7 +251,13 @@ export default function SearchBar({ basePath, variant = 'icon' }: SearchBarProps
                       >
                         <div className="w-12 h-12 rounded-lg bg-cream-100 overflow-hidden flex-shrink-0">
                           {result.image ? (
-                            <img src={result.image} alt="" className="w-full h-full object-cover" />
+                            <img
+                              src={result.image}
+                              alt=""
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                              decoding="async"
+                            />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
                               <svg className="w-6 h-6 text-sage-300" viewBox="0 0 24 24" fill="none">

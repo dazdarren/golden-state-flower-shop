@@ -51,7 +51,9 @@ export default function ProductCard({ product, basePath, index = 0, onQuickView 
               alt={product.name}
               className="w-full h-full object-cover transition-transform duration-700 ease-out
                        group-hover:scale-105"
-              loading="lazy"
+              loading={index < 4 ? 'eager' : 'lazy'}
+              decoding="async"
+              fetchPriority={index < 4 ? 'high' : 'auto'}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-sage-100 to-cream-200">
