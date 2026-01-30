@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import ProductCard from './ProductCard';
 import ProductFilters, { SortOption } from './ProductFilters';
+import QuickViewModal from './QuickViewModal';
+import DeliveryDateSelector from './DeliveryDateSelector';
 import { Product } from '@/types/floristOne';
 
 interface ApiProduct {
@@ -20,6 +22,7 @@ interface DynamicProductGridProps {
   occasion?: string;
   count?: number;
   showFilters?: boolean;
+  showDeliveryDate?: boolean;
   initialSort?: SortOption;
 }
 
@@ -38,6 +41,7 @@ export default function DynamicProductGrid({
   occasion = 'best-sellers',
   count = 8,
   showFilters = false,
+  showDeliveryDate = false,
   initialSort = 'default',
 }: DynamicProductGridProps) {
   const [products, setProducts] = useState<Product[]>([]);
@@ -47,6 +51,8 @@ export default function DynamicProductGrid({
   const [priceMin, setPriceMin] = useState<number | null>(null);
   const [priceMax, setPriceMax] = useState<number | null>(null);
   const [totalCount, setTotalCount] = useState<number>(0);
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [selectedDeliveryDate, setSelectedDeliveryDate] = useState<string | null>(null);
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -107,6 +113,31 @@ export default function DynamicProductGrid({
     fetchProducts();
   }, [fetchProducts]);
 
+  // Track product views for recently viewed
+  const handleQuickView = (product: Product) => {
+    setQuickViewProduct(product);
+
+    // Save to recently viewed
+    try {
+      const stored = localStorage.getItem('recentlyViewed');
+      const existing = stored ? JSON.parse(stored) : [];
+      const filtered = existing.filter((p: { sku: string }) => p.sku !== product.sku);
+      const updated = [
+        {
+          sku: product.sku,
+          name: product.name,
+          price: product.price,
+          image: product.images.medium || product.images.small || '',
+          viewedAt: Date.now(),
+        },
+        ...filtered,
+      ].slice(0, 12);
+      localStorage.setItem('recentlyViewed', JSON.stringify(updated));
+    } catch (e) {
+      console.error('Failed to save to recently viewed:', e);
+    }
+  };
+
   const handleSortChange = (newSort: SortOption) => {
     setSort(newSort);
   };
@@ -119,6 +150,11 @@ export default function DynamicProductGrid({
   if (loading && products.length === 0) {
     return (
       <>
+        {showDeliveryDate && (
+          <div className="mb-8">
+            <DeliveryDateSelector basePath={basePath} compact />
+          </div>
+        )}
         {showFilters && (
           <div className="mb-8 pb-6 border-b border-cream-200">
             <div className="h-10 bg-cream-200 rounded animate-pulse w-64" />
@@ -163,6 +199,17 @@ export default function DynamicProductGrid({
 
   return (
     <>
+      {showDeliveryDate && (
+        <div className="mb-8">
+          <DeliveryDateSelector
+            basePath={basePath}
+            compact
+            selectedDate={selectedDeliveryDate}
+            onDateSelect={setSelectedDeliveryDate}
+          />
+        </div>
+      )}
+
       {showFilters && (
         <ProductFilters
           onSortChange={handleSortChange}
@@ -216,6 +263,7 @@ export default function DynamicProductGrid({
               product={product}
               basePath={basePath}
               index={index}
+              onQuickView={handleQuickView}
             />
           ))}
         </div>
@@ -226,6 +274,13 @@ export default function DynamicProductGrid({
           Updating...
         </div>
       )}
+
+      {/* Quick View Modal */}
+      <QuickViewModal
+        product={quickViewProduct}
+        basePath={basePath}
+        onClose={() => setQuickViewProduct(null)}
+      />
     </>
   );
 }
