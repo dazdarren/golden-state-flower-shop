@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import CartZipChecker from '@/components/CartZipChecker';
 
 interface CartItem {
   itemId: string;
@@ -26,13 +27,21 @@ interface Cart {
 interface CartClientProps {
   basePath: string;
   cityName: string;
+  primaryZipCodes?: string[];
 }
 
-export default function CartClient({ basePath, cityName }: CartClientProps) {
+export default function CartClient({ basePath, cityName, primaryZipCodes = [] }: CartClientProps) {
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [removingItem, setRemovingItem] = useState<string | null>(null);
+  const [zipValidated, setZipValidated] = useState(false);
+  const [validatedDeliveryFee, setValidatedDeliveryFee] = useState<number | null>(null);
+
+  const handleValidZip = (zip: string, deliveryFee: number) => {
+    setZipValidated(true);
+    setValidatedDeliveryFee(deliveryFee);
+  };
 
   // Fetch cart on mount
   useEffect(() => {
@@ -244,39 +253,68 @@ export default function CartClient({ basePath, cityName }: CartClientProps) {
 
       {/* Order Summary */}
       <div className="lg:col-span-1">
-        <div className="card p-6 sticky top-20 lg:top-24">
-          <h2 className="font-semibold text-gray-900 mb-4">Order Summary</h2>
+        <div className="card p-6 sticky top-20 lg:top-24 space-y-6">
+          {/* ZIP Validation */}
+          <CartZipChecker
+            basePath={basePath}
+            cityName={cityName}
+            onValidZip={handleValidZip}
+            primaryZipCodes={primaryZipCodes}
+          />
 
-          <div className="space-y-3 text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Subtotal</span>
-              <span className="font-medium">${cart.subtotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Delivery</span>
-              <span className="font-medium">
-                {cart.deliveryFee > 0 ? `$${cart.deliveryFee.toFixed(2)}` : 'TBD'}
-              </span>
-            </div>
-            {cart.serviceFee > 0 && (
+          <div>
+            <h2 className="font-semibold text-gray-900 mb-4">Order Summary</h2>
+
+            <div className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">Service Fee</span>
-                <span className="font-medium">${cart.serviceFee.toFixed(2)}</span>
+                <span className="text-gray-600">Subtotal</span>
+                <span className="font-medium">${cart.subtotal.toFixed(2)}</span>
               </div>
-            )}
-            <div className="border-t pt-3 flex justify-between">
-              <span className="font-semibold">Total</span>
-              <span className="font-bold text-lg">${cart.total.toFixed(2)}</span>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Delivery</span>
+                <span className="font-medium">
+                  {validatedDeliveryFee !== null
+                    ? validatedDeliveryFee === 0
+                      ? 'Free'
+                      : `$${validatedDeliveryFee.toFixed(2)}`
+                    : cart.deliveryFee > 0
+                    ? `$${cart.deliveryFee.toFixed(2)}`
+                    : 'Enter ZIP above'}
+                </span>
+              </div>
+              {cart.serviceFee > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Service Fee</span>
+                  <span className="font-medium">${cart.serviceFee.toFixed(2)}</span>
+                </div>
+              )}
+              <div className="border-t pt-3 flex justify-between">
+                <span className="font-semibold">Total</span>
+                <span className="font-bold text-lg">
+                  ${((validatedDeliveryFee ?? cart.deliveryFee) + cart.subtotal + cart.serviceFee).toFixed(2)}
+                </span>
+              </div>
             </div>
+
+            {zipValidated ? (
+              <Link href={`${basePath}/checkout`} className="btn-primary w-full mt-6">
+                Proceed to Checkout
+              </Link>
+            ) : (
+              <button
+                disabled
+                className="w-full mt-6 px-6 py-3 rounded-full bg-gray-300 text-gray-500 font-medium cursor-not-allowed"
+              >
+                Verify ZIP to Continue
+              </button>
+            )}
+
+            <p className="text-xs text-gray-500 text-center mt-4">
+              {zipValidated
+                ? `Delivering to ${cityName}`
+                : 'Please verify your delivery ZIP code above'}
+            </p>
           </div>
-
-          <Link href={`${basePath}/checkout`} className="btn-primary w-full mt-6">
-            Proceed to Checkout
-          </Link>
-
-          <p className="text-xs text-gray-500 text-center mt-4">
-            Delivery to {cityName} addresses
-          </p>
         </div>
       </div>
     </div>

@@ -5,8 +5,8 @@ import { getCityConfig, getCityPath, getAllCityPaths } from '@/data/cities';
 import { OCCASIONS as OCCASIONS_OLD, OccasionSlug } from '@/types/city';
 import { OCCASIONS, PRODUCT_TYPES, SEASONAL, getActiveSeasonalCollections } from '@/data/categories';
 import { getFeaturedGuides } from '@/data/guides';
-import ZipChecker from '@/components/ZipChecker';
 import DynamicProductGrid from '@/components/DynamicProductGrid';
+import ValuePropStrip from '@/components/ValuePropStrip';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import FeaturedProducts from '@/components/FeaturedProducts';
 import GuideCard from '@/components/GuideCard';
@@ -175,19 +175,19 @@ export default function CityHomePage({ params }: CityPageProps) {
       />
 
       {/* Hero Section */}
-      <section className="relative min-h-[85vh] flex items-center overflow-hidden">
+      <section className="relative min-h-[80vh] flex items-center overflow-hidden">
         {/* Background layers */}
         <div className="absolute inset-0 bg-gradient-to-br from-cream-100 via-cream-50 to-sage-50" />
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMtNi42MjcgMC0xMiA1LjM3My0xMiAxMnM1LjM3MyAxMiAxMiAxMiAxMi01LjM3MyAxMi0xMi01LjM3My0xMi0xMi0xMnptMCAxOGMtMy4zMTQgMC02LTIuNjg2LTYtNnMyLjY4Ni02IDYtNiA2IDIuNjg2IDYgNi0yLjY4NiA2LTYgNnoiIGZpbGw9IiM4Yjk5NmYiIGZpbGwtb3BhY2l0eT0iMC4wMyIvPjwvZz48L3N2Zz4=')] opacity-60" />
 
         {/* Decorative botanical elements */}
-        <div className="absolute top-20 right-10 w-72 h-72 opacity-[0.07]">
+        <div className="absolute top-20 right-10 w-72 h-72 opacity-[0.07] hidden lg:block">
           <svg viewBox="0 0 200 200" fill="none" className="w-full h-full text-sage-600">
             <path d="M100 20c0 40-30 60-30 90s15 40 30 40 30-10 30-40-30-50-30-90z" fill="currentColor"/>
             <path d="M70 80c20-10 40 0 60 20M130 80c-20-10-40 0-60 20" stroke="currentColor" strokeWidth="3"/>
           </svg>
         </div>
-        <div className="absolute bottom-32 left-10 w-48 h-48 opacity-[0.05] rotate-45">
+        <div className="absolute bottom-32 left-10 w-48 h-48 opacity-[0.05] rotate-45 hidden lg:block">
           <svg viewBox="0 0 200 200" fill="none" className="w-full h-full text-rose-400">
             <circle cx="100" cy="100" r="80" stroke="currentColor" strokeWidth="2"/>
             <circle cx="100" cy="100" r="50" stroke="currentColor" strokeWidth="2"/>
@@ -195,34 +195,71 @@ export default function CityHomePage({ params }: CityPageProps) {
           </svg>
         </div>
 
-        <div className="container-wide relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Left content */}
-            <div className="max-w-xl">
+        <div className="container-wide relative z-10 py-12 lg:py-0">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            {/* Left content - Hero Image */}
+            <div className="order-2 lg:order-1 relative">
+              <div className="relative aspect-[4/3] lg:aspect-square rounded-3xl overflow-hidden shadow-soft-lg">
+                {/* Placeholder hero image - replace with actual image */}
+                <div className="absolute inset-0 bg-gradient-to-br from-sage-200 via-cream-200 to-rose-100">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <svg className="w-32 h-32 text-sage-400" viewBox="0 0 80 80" fill="none">
+                      <path d="M40 15c0 12-8 20-8 28s4 12 8 12 8-4 8-12-8-16-8-28z" fill="currentColor" opacity="0.3" />
+                      <path d="M40 20c-6 8-12 14-12 20s4 10 12 10 12-4 12-10-6-12-12-20z" stroke="currentColor" strokeWidth="2" fill="none" />
+                      <path d="M28 36c4-2 8 0 12 4M52 36c-4-2-8 0-12 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      <path d="M40 50v15M35 60l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                </div>
+                {/* Same-day badge on image */}
+                <div className="absolute top-4 left-4 px-3 py-1.5 bg-sage-600 text-white text-xs font-semibold rounded-full shadow-sm">
+                  Same-Day Delivery
+                </div>
+              </div>
+            </div>
+
+            {/* Right content - CTA Area */}
+            <div className="order-1 lg:order-2 max-w-xl lg:max-w-none">
+              {/* Tagline */}
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full
-                            bg-gradient-to-r from-gold-100 to-cream-100
-                            text-gold-700 text-sm font-medium mb-8 backdrop-blur-sm
-                            border border-gold-200/50">
-                <svg className="w-4 h-4 text-gold-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            bg-gradient-to-r from-sage-100 to-cream-100
+                            text-sage-700 text-sm font-medium mb-6 backdrop-blur-sm
+                            border border-sage-200/50">
+                <svg className="w-4 h-4 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
-                Premium Artisan Florists
+                Same-Day Delivery to {cityConfig.cityName}
               </div>
 
-              <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-semibold
-                           text-forest-900 leading-[1.1] tracking-tight mb-6">
-                Luxury Flowers
-                <span className="block text-sage-600">in {cityConfig.cityName}</span>
+              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold
+                           text-forest-900 leading-[1.1] tracking-tight mb-4">
+                Fresh, Hand-Arranged
+                <span className="block text-sage-600">Bouquets</span>
               </h1>
 
-              <p className="text-lg sm:text-xl text-forest-800/70 leading-relaxed mb-10 max-w-lg">
-                Hand-selected blooms crafted into stunning arrangements by local artisan florists.
-                Same-day delivery throughout {cityConfig.cityName}, from {cityConfig.neighborhoods[0]} to {cityConfig.neighborhoods[2]}.
+              {/* Starting price */}
+              <p className="text-lg sm:text-xl text-forest-800/70 leading-relaxed mb-6">
+                Starting at <span className="font-semibold text-forest-900">$49</span> with free delivery on orders over $75
               </p>
 
-              <div className="flex flex-wrap gap-4">
+              {/* Star Rating - Social Proof */}
+              <div className="flex items-center gap-3 mb-8">
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <svg key={star} className="w-5 h-5 text-gold-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+                <span className="font-semibold text-forest-900">4.8</span>
+                <span className="text-forest-800/60">(247 reviews)</span>
+              </div>
+
+              {/* Primary CTAs */}
+              <div className="flex flex-wrap gap-3 mb-8">
                 <Link href={`${basePath}/flowers/birthday`} className="btn-primary">
-                  <span>Browse Collection</span>
+                  <span>Shop Birthday</span>
                   <svg className="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
@@ -230,30 +267,36 @@ export default function CityHomePage({ params }: CityPageProps) {
                 <Link href={`${basePath}/flowers/sympathy`} className="btn-secondary">
                   Sympathy Flowers
                 </Link>
+                <Link
+                  href={`${basePath}/flowers/love-romance`}
+                  className="px-5 py-2.5 rounded-full border border-rose-300 text-rose-600 font-medium
+                           hover:bg-rose-50 transition-colors"
+                >
+                  Romance
+                </Link>
               </div>
 
-              {/* Trust badges */}
-              <div className="flex items-center gap-8 mt-12 pt-8 border-t border-cream-300/50">
-                <div className="flex items-center gap-2 text-sm text-forest-800/60">
+              {/* Inline Trust Badges */}
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-6 border-t border-cream-300/50">
+                <div className="flex items-center gap-2 text-sm text-forest-800">
                   <svg className="w-5 h-5 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span>Order by 2pm</span>
+                  <span>Order by 2pm for today</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-forest-800/60">
+                <div className="flex items-center gap-2 text-sm text-forest-800">
                   <svg className="w-5 h-5 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                          d="M5 13l4 4L19 7" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span>Freshness guaranteed</span>
+                  <span>100% Satisfaction</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-forest-800">
+                  <svg className="w-5 h-5 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Local florist network</span>
                 </div>
               </div>
-            </div>
-
-            {/* Right content - ZIP checker */}
-            <div className="flex justify-center lg:justify-end">
-              <ZipChecker cityConfig={cityConfig} />
             </div>
           </div>
         </div>
@@ -268,6 +311,9 @@ export default function CityHomePage({ params }: CityPageProps) {
           </svg>
         </div>
       </section>
+
+      {/* Value Proposition Strip */}
+      <ValuePropStrip cutoffTime={cityConfig.deliveryInfo.sameDay.cutoffTime} />
 
       {/* Occasion Categories */}
       <section className="py-20 lg:py-28 bg-white">

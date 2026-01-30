@@ -5,6 +5,8 @@ import Footer from '@/components/Footer';
 import ExitIntentPopup from '@/components/ExitIntentPopup';
 import DeliveryCountdown from '@/components/DeliveryCountdown';
 import CompareDrawer from '@/components/CompareDrawer';
+import AnnouncementBar from '@/components/AnnouncementBar';
+import MobileStickyBar from '@/components/MobileStickyBar';
 import { AuthProvider } from '@/context/AuthContext';
 import { WishlistProvider } from '@/context/WishlistContext';
 import { CompareProvider } from '@/context/CompareContext';
@@ -46,6 +48,11 @@ export default function CityLayout({ children, params }: CityLayoutProps) {
             >
               Skip to main content
             </a>
+            <AnnouncementBar
+              basePath={basePath}
+              cityName={cityConfig.cityName}
+              cutoffTime={cityConfig.deliveryInfo.sameDay.cutoffTime}
+            />
             <Header cityConfig={cityConfig} />
             <DeliveryCountdown
               cutoffTime={cityConfig.deliveryInfo.sameDay.cutoffTime}
@@ -57,6 +64,7 @@ export default function CityLayout({ children, params }: CityLayoutProps) {
             </main>
             <Footer cityConfig={cityConfig} />
             <CompareDrawer basePath={basePath} />
+            <MobileStickyBar basePath={basePath} />
             <ExitIntentPopup delay={10000} />
           </ToastProvider>
         </CompareProvider>

@@ -50,7 +50,11 @@ export default function CartPage({ params }: CartPageProps) {
       {/* Cart Content */}
       <section className="py-8">
         <div className="container-wide">
-          <CartClient basePath={basePath} cityName={cityConfig.cityName} />
+          <CartClient
+            basePath={basePath}
+            cityName={cityConfig.cityName}
+            primaryZipCodes={cityConfig.primaryZipCodes}
+          />
         </div>
       </section>
     </>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { Product } from '@/types/floristOne';
 import WishlistButton from './WishlistButton';
@@ -11,10 +12,42 @@ interface ProductCardProps {
   basePath: string;
   index?: number;
   onQuickView?: (product: Product) => void;
+  showSameDayBadge?: boolean;
 }
 
-export default function ProductCard({ product, basePath, index = 0, onQuickView }: ProductCardProps) {
+export default function ProductCard({ product, basePath, index = 0, onQuickView, showSameDayBadge = true }: ProductCardProps) {
   const hasDiscount = product.originalPrice && product.originalPrice > product.price;
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [addedToCart, setAddedToCart] = useState(false);
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (isAddingToCart || addedToCart) return;
+
+    setIsAddingToCart(true);
+
+    try {
+      const response = await fetch(`/api${basePath}/cart/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sku: product.sku, quantity: 1 }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setAddedToCart(true);
+        // Reset after 2 seconds
+        setTimeout(() => setAddedToCart(false), 2000);
+      }
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
   const productUrl = `${basePath}/product?sku=${product.sku}`;
   const { onMouseEnter, onFocus } = usePrefetchOnHover(productUrl);
   const { addProduct, removeProduct, isInCompare, canAdd } = useCompare();
@@ -133,6 +166,11 @@ export default function ProductCard({ product, basePath, index = 0, onQuickView 
 
           {/* Badges */}
           <div className="absolute top-3 left-3 flex flex-col gap-2">
+            {showSameDayBadge && product.available && (
+              <span className="px-2.5 py-1 bg-sage-600 text-white text-[10px] font-semibold uppercase tracking-wider rounded-full">
+                Same-Day
+              </span>
+            )}
             {hasDiscount && (
               <span className="px-2.5 py-1 bg-rose-500 text-white text-[10px] font-semibold uppercase tracking-wider rounded-full">
                 Sale
@@ -142,14 +180,51 @@ export default function ProductCard({ product, basePath, index = 0, onQuickView 
 
           {/* Quick View Overlay */}
           <div
-            className="absolute inset-0 bg-forest-900/0 flex items-center justify-center
+            className="absolute inset-0 bg-forest-900/0 flex items-center justify-center gap-2
                         opacity-0 group-hover:opacity-100 group-hover:bg-forest-900/10
                         transition-all duration-300"
           >
+            {product.available && (
+              <button
+                onClick={handleAddToCart}
+                disabled={isAddingToCart}
+                className={`px-4 py-2.5 rounded-full text-sm font-medium
+                         transform translate-y-4 group-hover:translate-y-0
+                         transition-all duration-300 shadow-soft
+                         ${addedToCart
+                           ? 'bg-sage-600 text-white'
+                           : 'bg-sage-600 text-white hover:bg-sage-700'
+                         }`}
+              >
+                {addedToCart ? (
+                  <span className="flex items-center gap-1.5">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Added
+                  </span>
+                ) : isAddingToCart ? (
+                  <span className="flex items-center gap-1.5">
+                    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Adding
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add to Cart
+                  </span>
+                )}
+              </button>
+            )}
             {onQuickView ? (
               <button
                 onClick={handleQuickView}
-                className="px-5 py-3 bg-white/95 backdrop-blur-sm rounded-full
+                className="px-4 py-2.5 bg-white/95 backdrop-blur-sm rounded-full
                          text-sm font-medium text-forest-900
                          transform translate-y-4 group-hover:translate-y-0
                          transition-transform duration-300 shadow-soft
@@ -159,7 +234,7 @@ export default function ProductCard({ product, basePath, index = 0, onQuickView 
               </button>
             ) : (
               <span
-                className="px-5 py-3 bg-white/95 backdrop-blur-sm rounded-full
+                className="px-4 py-2.5 bg-white/95 backdrop-blur-sm rounded-full
                          text-sm font-medium text-forest-900
                          transform translate-y-4 group-hover:translate-y-0
                          transition-transform duration-300 shadow-soft"
