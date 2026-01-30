@@ -8,3 +8,7 @@ export {
   usePrefetchVisible,
   usePrefetchOnIdle,
 } from './usePrefetch';
+
+// Recently viewed products
+export { useRecentlyViewed } from './useRecentlyViewed';
+export type { RecentlyViewedProduct } from './useRecentlyViewed';

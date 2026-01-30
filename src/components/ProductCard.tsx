@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Product } from '@/types/floristOne';
 import WishlistButton from './WishlistButton';
 import { usePrefetchOnHover } from '@/hooks/usePrefetch';
+import { useCompare } from '@/context/CompareContext';
 
 interface ProductCardProps {
   product: Product;
@@ -16,11 +17,29 @@ export default function ProductCard({ product, basePath, index = 0, onQuickView 
   const hasDiscount = product.originalPrice && product.originalPrice > product.price;
   const productUrl = `${basePath}/product?sku=${product.sku}`;
   const { onMouseEnter, onFocus } = usePrefetchOnHover(productUrl);
+  const { addProduct, removeProduct, isInCompare, canAdd } = useCompare();
+  const inCompare = isInCompare(product.sku);
 
   const handleQuickView = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     onQuickView?.(product);
+  };
+
+  const handleCompareToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (inCompare) {
+      removeProduct(product.sku);
+    } else {
+      addProduct({
+        sku: product.sku,
+        name: product.name,
+        price: product.price,
+        image: product.images.medium || product.images.small || '',
+        description: product.description,
+      });
+    }
   };
 
   return (
@@ -31,8 +50,8 @@ export default function ProductCard({ product, basePath, index = 0, onQuickView 
         animationFillMode: 'forwards',
       }}
     >
-      {/* Wishlist Button */}
-      <div className="absolute top-3 right-3 z-10">
+      {/* Action Buttons */}
+      <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
         <WishlistButton
           sku={product.sku}
           name={product.name}
@@ -40,6 +59,22 @@ export default function ProductCard({ product, basePath, index = 0, onQuickView 
           image={product.images.medium || product.images.small || ''}
           size="sm"
         />
+        {/* Compare Button */}
+        <button
+          onClick={handleCompareToggle}
+          disabled={!canAdd && !inCompare}
+          className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 shadow-sm
+            ${inCompare
+              ? 'bg-sage-600 text-white'
+              : 'bg-white/90 backdrop-blur-sm text-forest-800/60 hover:text-sage-600 hover:bg-white disabled:opacity-50'
+            }`}
+          title={inCompare ? 'Remove from compare' : canAdd ? 'Add to compare' : 'Compare list full (4 max)'}
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </button>
       </div>
 
       <Link

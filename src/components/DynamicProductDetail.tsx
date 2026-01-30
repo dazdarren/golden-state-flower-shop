@@ -6,6 +6,8 @@ import AddToCartButton from '@/app/[state]/[city]/product/[sku]/AddToCartButton'
 import StarRating from '@/components/StarRating';
 import CustomerReviews from '@/components/CustomerReviews';
 import TrustBadges from '@/components/TrustBadges';
+import RecentlyViewed from '@/components/RecentlyViewed';
+import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 
 interface ApiProduct {
   sku: string;
@@ -51,6 +53,7 @@ export default function DynamicProductDetail({
   const [product, setProduct] = useState<ApiProduct | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { addProduct: trackRecentlyViewed } = useRecentlyViewed();
 
   // Generate consistent rating based on SKU (deterministic pseudo-random)
   const productRating = useMemo(() => {
@@ -59,6 +62,18 @@ export default function DynamicProductDetail({
     const reviewCount = 15 + (Math.abs(hash) % 150); // Range: 15 - 164
     return { rating: Math.min(5, rating), reviewCount };
   }, [sku]);
+
+  // Track product view
+  useEffect(() => {
+    if (product) {
+      trackRecentlyViewed({
+        sku: product.sku,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+      });
+    }
+  }, [product, trackRecentlyViewed]);
 
   useEffect(() => {
     async function fetchProduct() {
@@ -287,6 +302,14 @@ export default function DynamicProductDetail({
         productSku={product.sku}
         productName={product.name}
         className="bg-cream-50 border-t border-cream-200"
+      />
+
+      {/* Recently Viewed */}
+      <RecentlyViewed
+        basePath={basePath}
+        currentSku={product.sku}
+        maxItems={6}
+        className="bg-white border-t border-cream-200"
       />
     </>
   );
