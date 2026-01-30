@@ -2,23 +2,26 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Product } from '@/types/floristOne';
+import { useToast } from '@/components/ui/Toast';
 
 interface QuickViewModalProps {
   product: Product | null;
   basePath: string;
   onClose: () => void;
-  onAddToCart?: (product: Product) => void;
 }
 
 export default function QuickViewModal({
   product,
   basePath,
   onClose,
-  onAddToCart,
 }: QuickViewModalProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const { showToast } = useToast();
+  const router = useRouter();
 
   // Close on escape key
   useEffect(() => {
@@ -51,9 +54,44 @@ export default function QuickViewModal({
     if (e.target === e.currentTarget) onClose();
   };
 
-  const handleAddToCart = () => {
-    onAddToCart?.(product);
-    onClose();
+  const handleAddToCart = async () => {
+    if (!product || isAddingToCart) return;
+
+    setIsAddingToCart(true);
+
+    try {
+      const response = await fetch(`/api${basePath}/cart/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sku: product.sku,
+          quantity,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        showToast(data.error || 'Failed to add to cart', 'error');
+        return;
+      }
+
+      // Show success toast with action to view cart
+      showToast(`${product.name} added to cart!`, 'success', {
+        action: {
+          label: 'View Cart',
+          onClick: () => router.push(`${basePath}/cart`),
+        },
+      });
+
+      onClose();
+    } catch (err) {
+      showToast('Unable to add to cart. Please try again.', 'error');
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
   return (
@@ -187,16 +225,28 @@ export default function QuickViewModal({
             <div className="space-y-3">
               <button
                 onClick={handleAddToCart}
-                disabled={product.available === false}
+                disabled={product.available === false || isAddingToCart}
                 className="w-full py-4 bg-forest-900 text-white font-medium rounded-xl
                          hover:bg-forest-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
                          flex items-center justify-center gap-2"
               >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
-                Add to Cart - ${(product.price * quantity).toFixed(2)}
+                {isAddingToCart ? (
+                  <>
+                    <svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Adding...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    Add to Cart - ${(product.price * quantity).toFixed(2)}
+                  </>
+                )}
               </button>
 
               <Link

@@ -2,19 +2,23 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/components/ui/Toast';
 
 interface AddToCartButtonProps {
   sku: string;
   basePath: string;
+  productName?: string;
   disabled?: boolean;
 }
 
 export default function AddToCartButton({
   sku,
   basePath,
+  productName = 'Item',
   disabled = false,
 }: AddToCartButtonProps) {
   const router = useRouter();
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -39,13 +43,20 @@ export default function AddToCartButton({
 
       if (!response.ok || !data.success) {
         setError(data.error || 'Failed to add to cart');
+        showToast(data.error || 'Failed to add to cart', 'error');
         return;
       }
 
-      // Redirect to cart
-      router.push(`${basePath}/cart`);
+      // Show success toast with option to view cart
+      showToast(`${productName} added to cart!`, 'success', {
+        action: {
+          label: 'View Cart',
+          onClick: () => router.push(`${basePath}/cart`),
+        },
+      });
     } catch (err) {
       setError('Unable to add to cart. Please try again.');
+      showToast('Unable to add to cart. Please try again.', 'error');
     } finally {
       setLoading(false);
     }

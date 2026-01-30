@@ -11,3 +11,9 @@ export {
 
 // Form components
 export { FormField, SelectField } from './FormField';
+
+// Feedback components
+export { ToastProvider, useToast } from './Toast';
+
+// Image components
+export { OptimizedImage } from './OptimizedImage';

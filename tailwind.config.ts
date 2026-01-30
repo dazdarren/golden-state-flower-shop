@@ -88,6 +88,7 @@ const config: Config = {
         'float': 'float 6s ease-in-out infinite',
         'slide-up': 'slideUp 0.3s ease-out forwards',
         'slide-down': 'slideDown 0.3s ease-out forwards',
+        'shimmer': 'shimmer 2s infinite',
       },
       keyframes: {
         fadeUp: {
@@ -113,6 +114,10 @@ const config: Config = {
         slideDown: {
           '0%': { opacity: '1', transform: 'translateY(0)' },
           '100%': { opacity: '0', transform: 'translateY(100%)' },
+        },
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
         },
       },
       borderRadius: {

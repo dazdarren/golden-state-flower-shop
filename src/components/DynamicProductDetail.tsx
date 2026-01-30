@@ -243,6 +243,7 @@ export default function DynamicProductDetail({
                 <AddToCartButton
                   sku={product.sku}
                   basePath={basePath}
+                  productName={product.name}
                   disabled={false}
                 />
               </div>
