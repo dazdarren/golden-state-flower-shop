@@ -76,11 +76,12 @@ export default function BlogPage({ params }: BlogPageProps) {
             className="group block bg-white rounded-2xl overflow-hidden border border-cream-200 hover:border-sage-300 hover:shadow-soft-lg transition-all"
           >
             <div className="grid md:grid-cols-2">
-              <div className="aspect-[4/3] md:aspect-auto bg-gradient-to-br from-sage-100 to-cream-100 flex items-center justify-center">
-                <svg className="w-24 h-24 text-sage-300" viewBox="0 0 64 64" fill="none">
-                  <path d="M32 12c0 10-6 16-6 22s3 10 6 10 6-4 6-10-6-12-6-22z" fill="currentColor" opacity="0.3"/>
-                  <path d="M32 16c-5 6-10 12-10 18s3 8 10 8 10-2 10-8-5-12-10-18z" stroke="currentColor" strokeWidth="2" fill="none"/>
-                </svg>
+              <div className="aspect-[4/3] md:aspect-auto overflow-hidden">
+                <img
+                  src={featuredPost.image}
+                  alt={featuredPost.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
               </div>
               <div className="p-8 md:p-10 flex flex-col justify-center">
                 <span className="text-sage-600 text-sm font-medium uppercase tracking-wider mb-3">
@@ -117,11 +118,12 @@ export default function BlogPage({ params }: BlogPageProps) {
                 href={`${basePath}/blog/${post.slug}`}
                 className="group bg-white rounded-xl overflow-hidden border border-cream-200 hover:border-sage-300 hover:shadow-soft transition-all"
               >
-                <div className="aspect-[16/10] bg-gradient-to-br from-sage-100 to-cream-100 flex items-center justify-center">
-                  <svg className="w-16 h-16 text-sage-300" viewBox="0 0 64 64" fill="none">
-                    <path d="M32 12c0 10-6 16-6 22s3 10 6 10 6-4 6-10-6-12-6-22z" fill="currentColor" opacity="0.3"/>
-                    <path d="M32 16c-5 6-10 12-10 18s3 8 10 8 10-2 10-8-5-12-10-18z" stroke="currentColor" strokeWidth="2" fill="none"/>
-                  </svg>
+                <div className="aspect-[16/10] overflow-hidden">
+                  <img
+                    src={post.image}
+                    alt={post.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
                 </div>
                 <div className="p-6">
                   <span className="text-sage-600 text-xs font-medium uppercase tracking-wider">

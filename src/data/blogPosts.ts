@@ -46,7 +46,7 @@ Cheerful and bright, tulips represent perfect love. A bouquet of pink or purple 
 
 For the best selection and guaranteed delivery, we recommend ordering your Mother's Day flowers at least 3-5 days in advance. Same-day delivery is available for last-minute orders placed before our cutoff time.
     `.trim(),
-    image: '/images/blog/mothers-day-flowers.jpg',
+    image: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=1200&h=675&fit=crop',
     category: 'Gift Guide',
     publishedAt: '2024-04-15',
     readTime: 5,
@@ -97,7 +97,7 @@ Some flowers naturally have longer vase lives:
 - Lilies (10-14 days)
 - Roses (7-10 days with proper care)
     `.trim(),
-    image: '/images/blog/flower-care-tips.jpg',
+    image: 'https://images.unsplash.com/photo-1487530811176-3780de880c2d?w=1200&h=675&fit=crop',
     category: 'Flower Care',
     publishedAt: '2024-03-20',
     readTime: 6,
@@ -160,7 +160,7 @@ Don't be afraid to mix colors for a more nuanced message:
 - Yellow + Orange = Warm wishes and enthusiasm
 - Purple + White = Elegant admiration
     `.trim(),
-    image: '/images/blog/flower-colors-meaning.jpg',
+    image: 'https://images.unsplash.com/photo-1455659817273-f96807779a8a?w=1200&h=675&fit=crop',
     category: 'Flower Knowledge',
     publishedAt: '2024-02-28',
     readTime: 7,
@@ -224,7 +224,7 @@ Different traditions have varying customs:
 
 Consider sending flowers or a plant to the family's home a few weeks after the funeral. This is when support is often most needed and appreciated.
     `.trim(),
-    image: '/images/blog/sympathy-flowers.jpg',
+    image: 'https://images.unsplash.com/photo-1561181286-d3fee7d55364?w=1200&h=675&fit=crop',
     category: 'Etiquette',
     publishedAt: '2024-02-10',
     readTime: 8,
@@ -315,7 +315,7 @@ Some flowers are available throughout the year:
 
 When you order from us, we prioritize seasonal and locally-grown flowers whenever possible, ensuring you receive the freshest arrangements.
     `.trim(),
-    image: '/images/blog/seasonal-flowers.jpg',
+    image: 'https://images.unsplash.com/photo-1508610048659-a06b669e3321?w=1200&h=675&fit=crop',
     category: 'Flower Knowledge',
     publishedAt: '2024-01-15',
     readTime: 6,

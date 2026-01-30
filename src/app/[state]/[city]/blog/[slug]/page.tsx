@@ -156,12 +156,13 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
               </div>
             </header>
 
-            {/* Featured Image Placeholder */}
-            <div className="aspect-[16/9] bg-gradient-to-br from-sage-100 to-cream-100 rounded-2xl flex items-center justify-center mb-10 border border-cream-200">
-              <svg className="w-24 h-24 text-sage-300" viewBox="0 0 64 64" fill="none">
-                <path d="M32 12c0 10-6 16-6 22s3 10 6 10 6-4 6-10-6-12-6-22z" fill="currentColor" opacity="0.3"/>
-                <path d="M32 16c-5 6-10 12-10 18s3 8 10 8 10-2 10-8-5-12-10-18z" stroke="currentColor" strokeWidth="2" fill="none"/>
-              </svg>
+            {/* Featured Image */}
+            <div className="aspect-[16/9] rounded-2xl overflow-hidden mb-10 border border-cream-200">
+              <img
+                src={post.image}
+                alt={post.title}
+                className="w-full h-full object-cover"
+              />
             </div>
 
             {/* Content */}
@@ -222,11 +223,12 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                   href={`${basePath}/blog/${relatedPost.slug}`}
                   className="group flex gap-6 bg-cream-50 rounded-xl p-4 border border-cream-200 hover:border-sage-300 transition-colors"
                 >
-                  <div className="w-32 h-24 bg-gradient-to-br from-sage-100 to-cream-100 rounded-lg flex-shrink-0 flex items-center justify-center">
-                    <svg className="w-10 h-10 text-sage-300" viewBox="0 0 64 64" fill="none">
-                      <path d="M32 12c0 10-6 16-6 22s3 10 6 10 6-4 6-10-6-12-6-22z" fill="currentColor" opacity="0.3"/>
-                      <path d="M32 16c-5 6-10 12-10 18s3 8 10 8 10-2 10-8-5-12-10-18z" stroke="currentColor" strokeWidth="2" fill="none"/>
-                    </svg>
+                  <div className="w-32 h-24 rounded-lg flex-shrink-0 overflow-hidden">
+                    <img
+                      src={relatedPost.image}
+                      alt={relatedPost.title}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <span className="text-sage-600 text-xs font-medium uppercase tracking-wider">
