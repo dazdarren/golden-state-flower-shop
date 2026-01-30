@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { OCCASIONS, PRODUCT_TYPES, SEASONAL, getActiveSeasonalCollections } from '@/data/categories';
 
 interface MegaMenuProps {
@@ -14,10 +15,21 @@ export default function MegaMenu({ basePath }: MegaMenuProps) {
   const [activeSection, setActiveSection] = useState<MenuSection>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileExpandedSection, setMobileExpandedSection] = useState<MenuSection>(null);
+  const [mobileSearchQuery, setMobileSearchQuery] = useState('');
   const menuRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const router = useRouter();
 
   const activeSeasonalCollections = getActiveSeasonalCollections();
+
+  const handleMobileSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (mobileSearchQuery.trim()) {
+      router.push(`${basePath}/search?q=${encodeURIComponent(mobileSearchQuery.trim())}`);
+      setMobileMenuOpen(false);
+      setMobileSearchQuery('');
+    }
+  };
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -269,6 +281,59 @@ export default function MegaMenu({ basePath }: MegaMenuProps) {
       {mobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 top-20 bg-cream-100/95 backdrop-blur-md z-40 overflow-y-auto animate-fade-in">
           <div className="container-wide py-6">
+            {/* Mobile Search */}
+            <form onSubmit={handleMobileSearch} className="mb-6">
+              <div className="relative">
+                <svg
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-forest-800/40"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  value={mobileSearchQuery}
+                  onChange={(e) => setMobileSearchQuery(e.target.value)}
+                  placeholder="Search flowers, plants..."
+                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-cream-300 bg-white
+                           text-forest-900 placeholder:text-forest-800/40
+                           focus:outline-none focus:border-sage-400 focus:ring-2 focus:ring-sage-100"
+                />
+              </div>
+            </form>
+
+            {/* Cart & Account Links - Mobile only */}
+            <div className="flex gap-3 mb-6">
+              <Link
+                href={`${basePath}/cart`}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl
+                         bg-forest-900 text-cream-100 font-medium text-sm"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                Cart
+              </Link>
+              <Link
+                href={`/auth/login?redirect=${encodeURIComponent(basePath)}`}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl
+                         border border-cream-300 text-forest-800 font-medium text-sm
+                         hover:bg-white/50 transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Account
+              </Link>
+            </div>
+
             {/* Shop by Occasion */}
             <div className="border-b border-cream-300/50">
               <button

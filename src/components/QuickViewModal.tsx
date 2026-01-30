@@ -65,7 +65,7 @@ export default function QuickViewModal({
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm
+          className="absolute top-4 right-4 z-10 w-11 h-11 rounded-full bg-white/90 backdrop-blur-sm
                    flex items-center justify-center text-forest-800 hover:bg-white
                    shadow-soft transition-all hover:scale-110"
         >
@@ -161,7 +161,7 @@ export default function QuickViewModal({
                 <div className="flex items-center border border-cream-200 rounded-lg">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-10 h-10 flex items-center justify-center text-forest-800 hover:bg-cream-50 transition-colors"
+                    className="w-11 h-11 flex items-center justify-center text-forest-800 hover:bg-cream-50 transition-colors"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -170,7 +170,7 @@ export default function QuickViewModal({
                   <span className="w-12 text-center font-medium text-forest-900">{quantity}</span>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
-                    className="w-10 h-10 flex items-center justify-center text-forest-800 hover:bg-cream-50 transition-colors"
+                    className="w-11 h-11 flex items-center justify-center text-forest-800 hover:bg-cream-50 transition-colors"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

@@ -223,7 +223,7 @@ export default function CartClient({ basePath, cityName }: CartClientProps) {
               <button
                 onClick={() => handleRemoveItem(item.itemId)}
                 disabled={removingItem === item.itemId}
-                className="text-sm text-red-600 hover:text-red-700 mt-2 disabled:opacity-50"
+                className="text-sm text-red-600 hover:text-red-700 mt-2 disabled:opacity-50 py-2 px-3 -mr-3"
               >
                 {removingItem === item.itemId ? 'Removing...' : 'Remove'}
               </button>
@@ -235,7 +235,7 @@ export default function CartClient({ basePath, cityName }: CartClientProps) {
         <div className="pt-4">
           <button
             onClick={handleClearCart}
-            className="text-sm text-gray-500 hover:text-gray-700"
+            className="text-sm text-gray-500 hover:text-gray-700 py-2"
           >
             Clear Cart
           </button>
@@ -244,7 +244,7 @@ export default function CartClient({ basePath, cityName }: CartClientProps) {
 
       {/* Order Summary */}
       <div className="lg:col-span-1">
-        <div className="card p-6 sticky top-24">
+        <div className="card p-6 sticky top-20 lg:top-24">
           <h2 className="font-semibold text-gray-900 mb-4">Order Summary</h2>
 
           <div className="space-y-3 text-sm">

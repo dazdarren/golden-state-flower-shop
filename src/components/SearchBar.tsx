@@ -164,7 +164,7 @@ export default function SearchBar({ basePath, variant = 'icon' }: SearchBarProps
       <div ref={containerRef} className="relative">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="p-2 rounded-lg text-forest-800/70 hover:text-forest-900 hover:bg-sage-100/50 transition-colors"
+          className="p-2.5 rounded-lg text-forest-800/70 hover:text-forest-900 hover:bg-sage-100/50 transition-colors"
           aria-label="Search"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -173,8 +173,23 @@ export default function SearchBar({ basePath, variant = 'icon' }: SearchBarProps
           </svg>
         </button>
 
+        {/* Mobile backdrop overlay */}
         {isOpen && (
-          <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-lg border border-cream-200 overflow-hidden z-50 animate-fade-in">
+          <div
+            className="fixed inset-0 bg-forest-900/20 backdrop-blur-sm z-40 sm:hidden"
+            onClick={() => {
+              setIsOpen(false);
+              setShowResults(false);
+            }}
+          />
+        )}
+
+        {isOpen && (
+          <div className="fixed left-4 right-4 top-20 sm:absolute sm:right-0 sm:left-auto sm:top-full sm:mt-2 w-auto sm:w-96 bg-white rounded-2xl shadow-lg border border-cream-200 overflow-hidden z-50 animate-fade-in">
+            {/* Mobile swipe hint */}
+            <div className="sm:hidden text-center py-2 text-xs text-forest-800/40 border-b border-cream-100">
+              Tap outside to close
+            </div>
             <form onSubmit={handleSubmit} className="p-4 border-b border-cream-100">
               <div className="relative">
                 <svg
@@ -210,7 +225,7 @@ export default function SearchBar({ basePath, variant = 'icon' }: SearchBarProps
                       setResults([]);
                       setShowResults(false);
                     }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-cream-200 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-cream-200 transition-colors"
                   >
                     <svg className="w-4 h-4 text-forest-800/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -292,7 +307,7 @@ export default function SearchBar({ basePath, variant = 'icon' }: SearchBarProps
                           <button
                             key={i}
                             onClick={() => handleRecentSearchClick(search)}
-                            className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-left text-sm text-forest-800
+                            className="flex items-center gap-2 w-full px-4 py-2.5 rounded-lg text-left text-sm text-forest-800
                                      hover:bg-cream-50 transition-colors"
                           >
                             <svg className="w-4 h-4 text-forest-800/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">

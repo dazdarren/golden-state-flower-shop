@@ -107,7 +107,7 @@ export default function ProductCard({ product, basePath, index = 0, onQuickView 
             {onQuickView ? (
               <button
                 onClick={handleQuickView}
-                className="px-5 py-2.5 bg-white/95 backdrop-blur-sm rounded-full
+                className="px-5 py-3 bg-white/95 backdrop-blur-sm rounded-full
                          text-sm font-medium text-forest-900
                          transform translate-y-4 group-hover:translate-y-0
                          transition-transform duration-300 shadow-soft
@@ -117,7 +117,7 @@ export default function ProductCard({ product, basePath, index = 0, onQuickView 
               </button>
             ) : (
               <span
-                className="px-5 py-2.5 bg-white/95 backdrop-blur-sm rounded-full
+                className="px-5 py-3 bg-white/95 backdrop-blur-sm rounded-full
                          text-sm font-medium text-forest-900
                          transform translate-y-4 group-hover:translate-y-0
                          transition-transform duration-300 shadow-soft"

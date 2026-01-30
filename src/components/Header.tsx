@@ -43,7 +43,7 @@ export default function Header({ cityConfig }: HeaderProps) {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-500 ${
+      className={`sticky top-0 z-40 transition-all duration-500 ${
         scrolled
           ? 'bg-cream-100/95 backdrop-blur-md shadow-soft'
           : 'bg-transparent'

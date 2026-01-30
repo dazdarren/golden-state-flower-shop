@@ -392,7 +392,7 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-4 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
             <div>
               <label htmlFor="recipientCity" className="block text-sm font-medium text-forest-900 mb-1">
                 City *
@@ -609,7 +609,7 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
 
       {/* Right Column - Order Summary */}
       <div className="lg:col-span-1">
-        <div className="bg-white rounded-2xl border border-cream-200 p-6 sticky top-24">
+        <div className="bg-white rounded-2xl border border-cream-200 p-6 sticky top-20 lg:top-24">
           <h2 className="font-display text-xl font-semibold text-forest-900 mb-6">
             Order Summary
           </h2>
