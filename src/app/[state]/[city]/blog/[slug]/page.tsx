@@ -90,53 +90,89 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
 
   // Convert markdown-like content to HTML
   const formatContent = (content: string) => {
-    return content
-      .split('\n\n')
-      .map((paragraph, idx) => {
-        // Headers
-        if (paragraph.startsWith('## ')) {
-          return (
-            <h2 key={idx} className="font-display text-2xl font-semibold text-forest-900 mt-10 mb-4">
-              {parseInlineFormatting(paragraph.replace('## ', ''))}
+    const elements: React.ReactNode[] = [];
+    let keyIndex = 0;
+
+    content.split('\n\n').forEach((paragraph) => {
+      // Check if paragraph has a header with following content
+      if (paragraph.startsWith('## ') || paragraph.startsWith('### ')) {
+        const lines = paragraph.split('\n');
+        const headerLine = lines[0];
+        const restLines = lines.slice(1).join('\n').trim();
+
+        // Render header
+        if (headerLine.startsWith('## ')) {
+          elements.push(
+            <h2 key={keyIndex++} className="font-display text-2xl font-semibold text-forest-900 mt-10 mb-4">
+              {parseInlineFormatting(headerLine.replace('## ', ''))}
             </h2>
           );
-        }
-        if (paragraph.startsWith('### ')) {
-          return (
-            <h3 key={idx} className="font-display text-xl font-semibold text-forest-900 mt-8 mb-3">
-              {parseInlineFormatting(paragraph.replace('### ', ''))}
+        } else {
+          elements.push(
+            <h3 key={keyIndex++} className="font-display text-xl font-semibold text-forest-900 mt-8 mb-3">
+              {parseInlineFormatting(headerLine.replace('### ', ''))}
             </h3>
           );
         }
-        // Lists
-        if (paragraph.startsWith('- ')) {
-          const items = paragraph.split('\n').filter(Boolean);
-          return (
-            <ul key={idx} className="list-disc list-inside text-forest-800/80 space-y-2 mb-6 ml-4">
-              {items.map((item, i) => (
-                <li key={i}>{parseInlineFormatting(item.replace('- ', ''))}</li>
-              ))}
-            </ul>
-          );
+
+        // Render following content if any
+        if (restLines) {
+          // Check if it's a list
+          if (restLines.startsWith('- ')) {
+            const items = restLines.split('\n').filter(Boolean);
+            elements.push(
+              <ul key={keyIndex++} className="list-disc list-inside text-forest-800/80 space-y-2 mb-6 ml-4">
+                {items.map((item, i) => (
+                  <li key={i}>{parseInlineFormatting(item.replace('- ', ''))}</li>
+                ))}
+              </ul>
+            );
+          } else {
+            elements.push(
+              <p key={keyIndex++} className="text-forest-800/80 leading-relaxed mb-4">
+                {parseInlineFormatting(restLines)}
+              </p>
+            );
+          }
         }
-        // Numbered lists
-        if (/^\d+\./.test(paragraph)) {
-          const items = paragraph.split('\n').filter(Boolean);
-          return (
-            <ol key={idx} className="list-decimal list-inside text-forest-800/80 space-y-2 mb-6 ml-4">
-              {items.map((item, i) => (
-                <li key={i}>{parseInlineFormatting(item.replace(/^\d+\.\s*/, ''))}</li>
-              ))}
-            </ol>
-          );
-        }
-        // Regular paragraphs
-        return (
-          <p key={idx} className="text-forest-800/80 leading-relaxed mb-4">
-            {parseInlineFormatting(paragraph)}
-          </p>
+        return;
+      }
+
+      // Lists
+      if (paragraph.startsWith('- ')) {
+        const items = paragraph.split('\n').filter(Boolean);
+        elements.push(
+          <ul key={keyIndex++} className="list-disc list-inside text-forest-800/80 space-y-2 mb-6 ml-4">
+            {items.map((item, i) => (
+              <li key={i}>{parseInlineFormatting(item.replace('- ', ''))}</li>
+            ))}
+          </ul>
         );
-      });
+        return;
+      }
+
+      // Numbered lists
+      if (/^\d+\./.test(paragraph)) {
+        const items = paragraph.split('\n').filter(Boolean);
+        elements.push(
+          <ol key={keyIndex++} className="list-decimal list-inside text-forest-800/80 space-y-2 mb-6 ml-4">
+            {items.map((item, i) => (
+              <li key={i}>{parseInlineFormatting(item.replace(/^\d+\.\s*/, ''))}</li>
+            ))}
+          </ol>
+        );
+        return;
+      }
+
+      // Regular paragraphs
+      elements.push(
+        <p key={keyIndex++} className="text-forest-800/80 leading-relaxed mb-4">
+          {parseInlineFormatting(paragraph)}
+        </p>
+      );
+    });
+
+    return elements;
   };
 
   return (
