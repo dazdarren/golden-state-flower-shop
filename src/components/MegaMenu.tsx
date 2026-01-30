@@ -259,6 +259,15 @@ export default function MegaMenu({ basePath }: MegaMenuProps) {
         >
           Delivery
         </Link>
+
+        {/* Blog */}
+        <Link
+          href={`${basePath}/blog`}
+          className="px-4 py-2 font-body text-sm text-forest-800/80 hover:text-forest-900
+                   transition-colors duration-200 rounded-lg hover:bg-sage-100/50"
+        >
+          Blog
+        </Link>
       </nav>
 
       {/* Mobile Menu Button */}
@@ -464,6 +473,13 @@ export default function MegaMenu({ basePath }: MegaMenuProps) {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Delivery Info
+              </Link>
+              <Link
+                href={`${basePath}/blog`}
+                className="block px-3 py-3 rounded-lg hover:bg-white/50 transition-colors text-forest-800"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Blog & Tips
               </Link>
             </div>
           </div>

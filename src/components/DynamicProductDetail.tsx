@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import AddToCartButton from '@/app/[state]/[city]/product/[sku]/AddToCartButton';
 import StarRating from '@/components/StarRating';
+import CustomerReviews from '@/components/CustomerReviews';
 
 interface ApiProduct {
   sku: string;
@@ -276,6 +277,13 @@ export default function DynamicProductDetail({
           </div>
         </div>
       </section>
+
+      {/* Customer Reviews */}
+      <CustomerReviews
+        productSku={product.sku}
+        productName={product.name}
+        className="bg-cream-50 border-t border-cream-200"
+      />
     </>
   );
 }

@@ -58,11 +58,11 @@ export default function NewsletterSignup({
   if (variant === 'footer') {
     return (
       <div className={className}>
-        <h3 className="font-display text-lg font-semibold text-cream-100 mb-3">
-          Stay in Bloom
+        <h3 className="font-display text-lg font-semibold text-cream-100 mb-2">
+          Get 10% Off
         </h3>
         <p className="text-sm text-cream-200/70 mb-4">
-          Get exclusive offers and flower care tips delivered to your inbox.
+          Subscribe for your first-order discount plus exclusive offers and flower care tips.
         </p>
 
         {status === 'success' ? (
@@ -121,10 +121,10 @@ export default function NewsletterSignup({
             </svg>
           </div>
           <h3 className="font-display text-2xl font-semibold text-forest-900 mb-2">
-            Stay in Bloom
+            Get 10% Off Your First Order
           </h3>
           <p className="text-forest-800/60 mb-6">
-            Subscribe for exclusive offers, seasonal collections, and flower care tips.
+            Subscribe for your welcome discount plus exclusive offers and seasonal collections.
           </p>
 
           {status === 'success' ? (
