@@ -8,6 +8,10 @@ export interface CityConfig {
   cityName: string;
   stateName: string;
   stateAbbr: string;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
   primaryZipCodes: string[];
   neighborhoods: string[];
   featuredSkus: string[];

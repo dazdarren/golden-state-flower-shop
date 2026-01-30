@@ -6,6 +6,10 @@ export const irvine: CityConfig = {
   stateSlug: 'ca',
   stateName: 'California',
   stateAbbr: 'CA',
+  coordinates: {
+    lat: 33.6846,
+    lng: -117.8265,
+  },
   primaryZipCodes: [
     '92602', '92603', '92604', '92606', '92612', '92614', '92617',
     '92618', '92620',

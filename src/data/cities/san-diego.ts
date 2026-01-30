@@ -6,6 +6,10 @@ export const sanDiego: CityConfig = {
   stateSlug: 'ca',
   stateName: 'California',
   stateAbbr: 'CA',
+  coordinates: {
+    lat: 32.7157,
+    lng: -117.1611,
+  },
   primaryZipCodes: [
     '92101', '92102', '92103', '92104', '92105', '92106', '92107',
     '92108', '92109', '92110', '92111', '92113', '92114', '92115',

@@ -6,6 +6,10 @@ export const santaBarbara: CityConfig = {
   stateSlug: 'ca',
   stateName: 'California',
   stateAbbr: 'CA',
+  coordinates: {
+    lat: 34.4208,
+    lng: -119.6982,
+  },
   primaryZipCodes: [
     '93101', '93102', '93103', '93105', '93106', '93108', '93109',
     '93110', '93111', '93117',

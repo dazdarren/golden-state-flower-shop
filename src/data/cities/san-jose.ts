@@ -6,6 +6,10 @@ export const sanJose: CityConfig = {
   stateSlug: 'ca',
   stateName: 'California',
   stateAbbr: 'CA',
+  coordinates: {
+    lat: 37.3382,
+    lng: -121.8863,
+  },
   primaryZipCodes: [
     '95110', '95111', '95112', '95113', '95116', '95117', '95118',
     '95119', '95120', '95121', '95122', '95123', '95124', '95125',

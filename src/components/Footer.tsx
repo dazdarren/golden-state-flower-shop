@@ -16,7 +16,7 @@ export default function Footer({ cityConfig }: FooterProps) {
       <div className="h-1 bg-gradient-to-r from-sage-600 via-sage-400 to-sage-600" />
 
       <div className="container-wide py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10 lg:gap-8">
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link href={basePath} className="flex items-center gap-3 mb-5 group">
@@ -107,6 +107,31 @@ export default function Footer({ cityConfig }: FooterProps) {
                 { href: `${basePath}/contact`, label: 'Contact Us' },
                 { href: `${basePath}/privacy`, label: 'Privacy Policy' },
                 { href: `${basePath}/terms`, label: 'Terms of Service' },
+              ].map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-cream-200/70 hover:text-cream-100 transition-colors duration-200"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Guides */}
+          <div>
+            <h3 className="font-display text-lg font-semibold text-cream-100 mb-5">
+              Flower Guides
+            </h3>
+            <ul className="space-y-3">
+              {[
+                { href: `${basePath}/guides/flower-care`, label: 'Flower Care Tips' },
+                { href: `${basePath}/guides/sympathy-etiquette`, label: 'Sympathy Etiquette' },
+                { href: `${basePath}/guides/hospital-delivery`, label: 'Hospital Delivery' },
+                { href: `${basePath}/guides/flower-meanings`, label: 'Flower Meanings' },
+                { href: `${basePath}/guides`, label: 'View All Guides' },
               ].map((link) => (
                 <li key={link.href}>
                   <Link

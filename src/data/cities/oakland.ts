@@ -6,6 +6,10 @@ export const oakland: CityConfig = {
   stateSlug: 'ca',
   stateName: 'California',
   stateAbbr: 'CA',
+  coordinates: {
+    lat: 37.8044,
+    lng: -122.2712,
+  },
   primaryZipCodes: [
     '94601', '94602', '94603', '94605', '94606', '94607', '94608',
     '94609', '94610', '94611', '94612', '94613', '94618', '94619',

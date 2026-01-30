@@ -6,6 +6,10 @@ export const fresno: CityConfig = {
   stateSlug: 'ca',
   stateName: 'California',
   stateAbbr: 'CA',
+  coordinates: {
+    lat: 36.7378,
+    lng: -119.7871,
+  },
   primaryZipCodes: [
     '93701', '93702', '93703', '93704', '93705', '93706', '93710',
     '93711', '93720', '93721', '93722', '93723', '93726', '93727',

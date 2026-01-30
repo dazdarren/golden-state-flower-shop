@@ -6,6 +6,10 @@ export const losAngeles: CityConfig = {
   stateSlug: 'ca',
   stateName: 'California',
   stateAbbr: 'CA',
+  coordinates: {
+    lat: 34.0522,
+    lng: -118.2437,
+  },
   primaryZipCodes: [
     '90001', '90012', '90015', '90017', '90024', '90028', '90034',
     '90036', '90045', '90048', '90049', '90064', '90066', '90067',

@@ -6,6 +6,10 @@ export const sacramento: CityConfig = {
   stateSlug: 'ca',
   stateName: 'California',
   stateAbbr: 'CA',
+  coordinates: {
+    lat: 38.5816,
+    lng: -121.4944,
+  },
   primaryZipCodes: [
     '95814', '95815', '95816', '95817', '95818', '95819', '95820',
     '95821', '95822', '95823', '95824', '95825', '95826', '95827',

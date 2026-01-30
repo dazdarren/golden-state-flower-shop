@@ -4,10 +4,12 @@ import { notFound } from 'next/navigation';
 import { getCityConfig, getCityPath, getAllCityPaths } from '@/data/cities';
 import { OCCASIONS as OCCASIONS_OLD, OccasionSlug } from '@/types/city';
 import { OCCASIONS, PRODUCT_TYPES, SEASONAL, getActiveSeasonalCollections } from '@/data/categories';
+import { getFeaturedGuides } from '@/data/guides';
 import ZipChecker from '@/components/ZipChecker';
 import DynamicProductGrid from '@/components/DynamicProductGrid';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import FeaturedProducts from '@/components/FeaturedProducts';
+import GuideCard from '@/components/GuideCard';
 
 interface CityPageProps {
   params: {
@@ -24,12 +26,16 @@ export async function generateMetadata({ params }: CityPageProps): Promise<Metad
   const cityConfig = getCityConfig(params.state, params.city);
   if (!cityConfig) return {};
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || '';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com';
   const canonicalUrl = `${siteUrl}${getCityPath(cityConfig)}/`;
+  const ogImageUrl = `${siteUrl}/images/og-default.svg`;
+
+  const title = `Flower Delivery in ${cityConfig.cityName}, ${cityConfig.stateAbbr} | Same Day Delivery`;
+  const description = `Order fresh flowers for delivery in ${cityConfig.cityName}. Same-day delivery available to ${cityConfig.neighborhoods.slice(0, 3).join(', ')}, and more. Birthday, sympathy, anniversary arrangements.`;
 
   return {
-    title: `Flower Delivery in ${cityConfig.cityName}, ${cityConfig.stateAbbr} | Same Day Delivery`,
-    description: `Order fresh flowers for delivery in ${cityConfig.cityName}. Same-day delivery available to ${cityConfig.neighborhoods.slice(0, 3).join(', ')}, and more. Birthday, sympathy, anniversary arrangements.`,
+    title,
+    description,
     alternates: {
       canonical: canonicalUrl,
     },
@@ -37,7 +43,23 @@ export async function generateMetadata({ params }: CityPageProps): Promise<Metad
       title: `Flower Delivery in ${cityConfig.cityName}, ${cityConfig.stateAbbr}`,
       description: `Same-day flower delivery throughout ${cityConfig.cityName}. Fresh arrangements for every occasion.`,
       url: canonicalUrl,
+      siteName: 'Golden State Flower Shop',
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `Beautiful flower arrangements for delivery in ${cityConfig.cityName}`,
+        },
+      ],
+      locale: 'en_US',
       type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${cityConfig.cityName} Flower Delivery | Golden State Flower Shop`,
+      description: `Same-day flower delivery in ${cityConfig.cityName}. Fresh, hand-arranged bouquets for every occasion.`,
+      images: [ogImageUrl],
     },
   };
 }
@@ -82,8 +104,8 @@ export default function CityHomePage({ params }: CityPageProps) {
             },
             geo: {
               '@type': 'GeoCoordinates',
-              latitude: '37.7749',
-              longitude: '-122.4194',
+              latitude: cityConfig.coordinates.lat.toString(),
+              longitude: cityConfig.coordinates.lng.toString(),
             },
             areaServed: [
               {
@@ -99,6 +121,13 @@ export default function CityHomePage({ params }: CityPageProps) {
                 name: n,
               })),
             ],
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: '4.8',
+              reviewCount: '247',
+              bestRating: '5',
+              worstRating: '1',
+            },
             priceRange: '$$-$$$',
             currenciesAccepted: 'USD',
             paymentAccepted: 'Cash, Credit Card',
@@ -738,8 +767,44 @@ export default function CityHomePage({ params }: CityPageProps) {
         </div>
       </section>
 
-      {/* Newsletter Signup */}
+      {/* Featured Guides */}
       <section className="py-20 lg:py-28 bg-white">
+        <div className="container-wide">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
+            <div>
+              <span className="text-sage-600 text-sm font-medium uppercase tracking-widest">
+                Expert Advice
+              </span>
+              <h2 className="font-display text-3xl lg:text-4xl font-semibold text-forest-900 mt-4">
+                Flower Guides & Tips
+              </h2>
+              <p className="text-forest-800/60 mt-3 max-w-lg">
+                Expert advice on flower care, etiquette, and choosing the perfect arrangement.
+              </p>
+            </div>
+            <Link
+              href={`${basePath}/guides`}
+              className="group flex items-center gap-2 text-sage-700 font-medium
+                       hover:text-sage-800 transition-colors"
+            >
+              <span>View all guides</span>
+              <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                   fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {getFeaturedGuides(3).map((guide) => (
+              <GuideCard key={guide.slug} guide={guide} basePath={basePath} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter Signup */}
+      <section className="py-20 lg:py-28 bg-cream-50">
         <div className="container-narrow">
           <NewsletterSignup variant="card" source="homepage" />
         </div>

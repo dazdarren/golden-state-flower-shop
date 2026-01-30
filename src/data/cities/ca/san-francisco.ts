@@ -9,6 +9,10 @@ export const sanFranciscoConfig: CityConfig = {
   cityName: 'San Francisco',
   stateName: 'California',
   stateAbbr: 'CA',
+  coordinates: {
+    lat: 37.7749,
+    lng: -122.4194,
+  },
 
   primaryZipCodes: [
     '94102', // Civic Center / Tenderloin

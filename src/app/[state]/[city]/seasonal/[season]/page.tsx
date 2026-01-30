@@ -24,14 +24,16 @@ export async function generateMetadata({ params }: SeasonalPageProps): Promise<M
 
   if (!cityConfig || !seasonal) return {};
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || '';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com';
   const basePath = getCityPath(cityConfig);
   const canonicalUrl = `${siteUrl}${basePath}/seasonal/${params.season}/`;
+  const ogImageUrl = `${siteUrl}/images/og-default.svg`;
 
   const description = seasonal.metaDescription.replace('{cityName}', cityConfig.cityName);
+  const title = `${seasonal.title} in ${cityConfig.cityName}, ${cityConfig.stateAbbr}`;
 
   return {
-    title: `${seasonal.title} in ${cityConfig.cityName}, ${cityConfig.stateAbbr}`,
+    title,
     description,
     alternates: {
       canonical: canonicalUrl,
@@ -40,7 +42,23 @@ export async function generateMetadata({ params }: SeasonalPageProps): Promise<M
       title: `${seasonal.title} - ${cityConfig.cityName} Delivery`,
       description,
       url: canonicalUrl,
+      siteName: 'Golden State Flower Shop',
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${seasonal.name} flower arrangements in ${cityConfig.cityName}`,
+        },
+      ],
+      locale: 'en_US',
       type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${seasonal.title} in ${cityConfig.cityName} | Golden State Flower Shop`,
+      description,
+      images: [ogImageUrl],
     },
   };
 }

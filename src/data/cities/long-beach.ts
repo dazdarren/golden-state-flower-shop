@@ -6,6 +6,10 @@ export const longBeach: CityConfig = {
   stateSlug: 'ca',
   stateName: 'California',
   stateAbbr: 'CA',
+  coordinates: {
+    lat: 33.7701,
+    lng: -118.1937,
+  },
   primaryZipCodes: [
     '90801', '90802', '90803', '90804', '90805', '90806', '90807',
     '90808', '90810', '90813', '90814', '90815', '90822',

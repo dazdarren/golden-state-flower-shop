@@ -3,7 +3,9 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCityConfig, getCityPath } from '@/data/cities';
 import { OCCASIONS, OccasionSlug } from '@/types/city';
+import { getGuidesByOccasion } from '@/data/guides';
 import DynamicProductGrid from '@/components/DynamicProductGrid';
+import GuideCard from '@/components/GuideCard';
 
 interface OccasionPageProps {
   params: {
@@ -25,14 +27,16 @@ export async function generateMetadata({ params }: OccasionPageProps): Promise<M
 
   if (!cityConfig || !occasion) return {};
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || '';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com';
   const basePath = getCityPath(cityConfig);
   const canonicalUrl = `${siteUrl}${basePath}/flowers/${params.occasion}/`;
+  const ogImageUrl = `${siteUrl}/images/og-default.svg`;
 
   const description = occasion.metaDescription.replace('{cityName}', cityConfig.cityName);
+  const title = `${occasion.title} in ${cityConfig.cityName}, ${cityConfig.stateAbbr}`;
 
   return {
-    title: `${occasion.title} in ${cityConfig.cityName}, ${cityConfig.stateAbbr}`,
+    title,
     description,
     alternates: {
       canonical: canonicalUrl,
@@ -41,7 +45,23 @@ export async function generateMetadata({ params }: OccasionPageProps): Promise<M
       title: `${occasion.title} - ${cityConfig.cityName} Delivery`,
       description,
       url: canonicalUrl,
+      siteName: 'Golden State Flower Shop',
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${occasion.name} flower arrangements in ${cityConfig.cityName}`,
+        },
+      ],
+      locale: 'en_US',
       type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${occasion.title} in ${cityConfig.cityName} | Golden State Flower Shop`,
+      description,
+      images: [ogImageUrl],
     },
   };
 }
@@ -165,6 +185,38 @@ export default function OccasionPage({ params }: OccasionPageProps) {
           </div>
         </div>
       </section>
+
+      {/* Related Guides */}
+      {getGuidesByOccasion(params.occasion).length > 0 && (
+        <section className="py-12 lg:py-16 bg-white">
+          <div className="container-wide">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8">
+              <div>
+                <h2 className="font-display text-2xl font-semibold text-forest-900">
+                  Helpful Guides
+                </h2>
+                <p className="text-forest-800/60 mt-2">
+                  Expert tips and advice for {occasion.name.toLowerCase()} flowers.
+                </p>
+              </div>
+              <Link
+                href={`${basePath}/guides`}
+                className="text-sage-600 hover:text-sage-700 font-medium text-sm flex items-center gap-1"
+              >
+                View all guides
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {getGuidesByOccasion(params.occasion).slice(0, 3).map((guide) => (
+                <GuideCard key={guide.slug} guide={guide} basePath={basePath} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Related occasions */}
       <section className="py-12 lg:py-16">

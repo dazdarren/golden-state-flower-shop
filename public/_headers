@@ -1,0 +1,36 @@
+# Cloudflare Pages Headers Configuration
+# https://developers.cloudflare.com/pages/platform/headers
+
+# Static assets - cache for 1 year (immutable)
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Images - cache for 1 week
+/images/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+
+# SVG icons - cache for 1 day
+/*.svg
+  Cache-Control: public, max-age=86400
+
+# Favicon
+/icon.svg
+  Cache-Control: public, max-age=86400
+
+/apple-icon.svg
+  Cache-Control: public, max-age=86400
+
+# Fonts - cache for 1 year
+/_next/static/media/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# API routes - no cache
+/api/*
+  Cache-Control: no-store, no-cache, must-revalidate
+
+# HTML pages - cache for 1 hour with revalidation
+/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin

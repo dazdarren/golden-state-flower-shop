@@ -6,6 +6,10 @@ export const palmSprings: CityConfig = {
   stateSlug: 'ca',
   stateName: 'California',
   stateAbbr: 'CA',
+  coordinates: {
+    lat: 33.8303,
+    lng: -116.5453,
+  },
   primaryZipCodes: [
     '92262', '92263', '92264',
   ],
