@@ -79,7 +79,7 @@ export default function ProductCard({ product, basePath, index = 0, onQuickView,
     <div
       className="group product-card flex flex-col opacity-0 animate-fade-up relative"
       style={{
-        animationDelay: `${index * 80}ms`,
+        animationDelay: `${index * 100}ms`,
         animationFillMode: 'forwards',
       }}
     >

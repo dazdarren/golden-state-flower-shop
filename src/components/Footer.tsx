@@ -48,7 +48,7 @@ export default function Footer({ cityConfig }: FooterProps) {
                 </span>
               </div>
             </Link>
-            <p className="text-sm text-cream-200/70 leading-relaxed">
+            <p className="text-sm text-cream-200/50 leading-relaxed">
               Same-day flower delivery throughout {cityConfig.cityName}. Fresh, beautiful
               arrangements crafted by local artisan florists.
             </p>
@@ -70,7 +70,7 @@ export default function Footer({ cityConfig }: FooterProps) {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-cream-200/70 hover:text-cream-100 transition-colors duration-200"
+                    className="text-sm text-cream-200/50 hover:text-cream-100 transition-colors duration-200"
                   >
                     {link.label}
                   </Link>
@@ -87,7 +87,7 @@ export default function Footer({ cityConfig }: FooterProps) {
             <ul className="space-y-3">
               {cityConfig.neighborhoods.slice(0, 6).map((neighborhood) => (
                 <li key={neighborhood}>
-                  <span className="text-sm text-cream-200/70">
+                  <span className="text-sm text-cream-200/50">
                     {neighborhood}
                   </span>
                 </li>
@@ -111,7 +111,7 @@ export default function Footer({ cityConfig }: FooterProps) {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-cream-200/70 hover:text-cream-100 transition-colors duration-200"
+                    className="text-sm text-cream-200/50 hover:text-cream-100 transition-colors duration-200"
                   >
                     {link.label}
                   </Link>
@@ -136,7 +136,7 @@ export default function Footer({ cityConfig }: FooterProps) {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-cream-200/70 hover:text-cream-100 transition-colors duration-200"
+                    className="text-sm text-cream-200/50 hover:text-cream-100 transition-colors duration-200"
                   >
                     {link.label}
                   </Link>

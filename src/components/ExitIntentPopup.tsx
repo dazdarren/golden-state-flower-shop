@@ -230,7 +230,7 @@ export default function ExitIntentPopup({ delay = 5000, mobileScrollThreshold = 
               onClick={handleClose}
               className="mt-4 text-sm text-forest-800/50 hover:text-forest-800/70 transition-colors w-full text-center"
             >
-              No thanks, I'll pay full price
+              No thanks
             </button>
           </div>
         </div>

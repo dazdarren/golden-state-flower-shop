@@ -193,13 +193,13 @@ export default function CityHomePage({ params }: CityPageProps) {
 
             <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold
                          text-forest-900 leading-[1.1] tracking-tight mb-4">
-              Fresh, Hand-Arranged
-              <span className="block text-sage-600">Bouquets</span>
+              Same-Day Flower Delivery
+              <span className="block text-sage-600">in {cityConfig.cityName}</span>
             </h1>
 
-            {/* Starting price */}
+            {/* Value proposition */}
             <p className="text-lg sm:text-xl text-forest-800/70 leading-relaxed mb-6">
-              Starting at <span className="font-semibold text-forest-900">$49</span> with free delivery on orders over $75
+              Fresh arrangements. Local florists. Guaranteed satisfaction. Bouquets from <span className="font-semibold text-forest-900">$49</span>
             </p>
 
             {/* Star Rating - Social Proof */}
@@ -218,7 +218,7 @@ export default function CityHomePage({ params }: CityPageProps) {
             {/* Primary CTAs */}
             <div className="flex flex-wrap justify-center gap-3 mb-8">
               <Link href={`${basePath}/flowers/birthday`} className="btn-primary">
-                <span>Shop Birthday</span>
+                <span>Birthday Flowers</span>
                 <svg className="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
@@ -231,7 +231,7 @@ export default function CityHomePage({ params }: CityPageProps) {
                 className="px-5 py-2.5 rounded-full border border-rose-300 text-rose-600 font-medium
                          hover:bg-rose-50 transition-colors"
               >
-                Romance
+                Romantic Flowers
               </Link>
             </div>
 

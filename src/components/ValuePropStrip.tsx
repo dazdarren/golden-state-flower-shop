@@ -23,8 +23,8 @@ export default function ValuePropStrip({ cutoffTime = '2:00 PM' }: ValuePropStri
                 d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
         </svg>
       ),
-      title: 'Farm-Fresh Flowers',
-      description: 'Hand-arranged daily',
+      title: 'Fresh Flowers',
+      description: 'Arranged today, delivered today',
     },
     {
       icon: (
@@ -33,8 +33,8 @@ export default function ValuePropStrip({ cutoffTime = '2:00 PM' }: ValuePropStri
                 d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
         </svg>
       ),
-      title: '100% Satisfaction',
-      description: 'Or your money back',
+      title: 'Satisfaction Guaranteed',
+      description: 'Full refund if not happy',
     },
   ];
 

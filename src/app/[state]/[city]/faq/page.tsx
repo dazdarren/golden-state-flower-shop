@@ -36,15 +36,15 @@ const faqs = [
     questions: [
       {
         q: 'How do I place an order?',
-        a: 'Simply browse our flower arrangements, add items to your cart, and proceed to checkout. You\'ll need to provide delivery details and your payment information.',
+        a: 'Browse arrangements, add to cart, and check out. You\'ll enter delivery details and payment info. We\'ll email you a confirmation with your order number.',
       },
       {
         q: 'Can I customize my order?',
-        a: 'You can add a personalized card message with your order. For specific customization requests, please contact us directly.',
+        a: 'Every order includes a free card message. Type your message at checkout and we\'ll include a printed card. For other requests (specific colors, no fragrant flowers), add a note at checkout or call us.',
       },
       {
         q: 'What payment methods do you accept?',
-        a: 'We accept all major credit cards including Visa, Mastercard, American Express, and Discover.',
+        a: 'We accept Visa, Mastercard, American Express, Discover, and Apple Pay. All payments are processed securely.',
       },
     ],
   },
@@ -53,23 +53,23 @@ const faqs = [
     questions: [
       {
         q: 'What is the cutoff time for same-day delivery?',
-        a: 'Order by 2:00 PM PST for same-day delivery. Orders placed after the cutoff will be delivered the next business day.',
+        a: 'Order by 2pm for same-day delivery. Orders placed after 2pm will be delivered the next business day. Cutoff times may vary on holidays.',
       },
       {
         q: 'Do you deliver on weekends?',
-        a: 'Yes, we deliver on Saturdays. Sunday delivery is limited to select arrangements. Check delivery availability at checkout.',
+        a: 'Yes, we deliver on Saturdays. Sunday delivery is available for select arrangements in some areas. You\'ll see availability at checkout.',
       },
       {
         q: 'Can you deliver to a hospital?',
-        a: 'Yes! We deliver to all major hospitals. Please include the patient\'s full name and room number for faster delivery.',
+        a: 'Yes. We deliver to all major hospitals. Some ICU and maternity wards have restrictions, so we call ahead to confirm. Include the patient\'s full name and room number if you have it.',
       },
       {
         q: 'What if no one is home?',
-        a: 'For residential deliveries, our driver may leave the arrangement in a safe location. For sensitive locations, we\'ll attempt redelivery or contact you.',
+        a: 'For residential deliveries, our driver may leave flowers in a safe spot (covered porch, with a neighbor). If that\'s not possible, we\'ll contact you to reschedule. No extra charge for redelivery.',
       },
       {
         q: 'Do you deliver to businesses?',
-        a: 'Absolutely! We deliver to offices, restaurants, hotels, and other businesses during their operating hours.',
+        a: 'Yes. We deliver to offices, restaurants, and hotels during business hours. Tip: include the recipient\'s name and company name for smooth delivery.',
       },
     ],
   },
@@ -78,15 +78,15 @@ const faqs = [
     questions: [
       {
         q: 'Are your flowers fresh?',
-        a: 'Yes, all our flowers are sourced fresh and arranged by local florists to ensure maximum freshness and longevity.',
+        a: 'Yes. Flowers are sourced fresh and arranged by local florists the same day. We guarantee freshness for 7 days. If flowers wilt early, we\'ll replace them.',
       },
       {
         q: 'What is your substitution policy?',
-        a: 'If any flower in your arrangement is unavailable, we may substitute with a similar flower of equal or greater value. The overall style and color scheme will be maintained.',
+        a: 'If a flower is unavailable, we\'ll substitute with a similar bloom of equal or greater value. We keep the same style, colors, and overall look. No substitutions without your OK? Add a note at checkout.',
       },
       {
         q: 'How long will my flowers last?',
-        a: 'With proper care (fresh water, cool location, away from direct sunlight), most arrangements last 5-7 days or longer.',
+        a: 'Most arrangements last 5-7 days with proper care. Keep them in fresh water, away from direct sunlight and heat. Trim stems every few days. We include care instructions with delivery.',
       },
     ],
   },
@@ -95,15 +95,15 @@ const faqs = [
     questions: [
       {
         q: 'Can I change my order after placing it?',
-        a: 'Contact us as soon as possible. We can make changes if the order hasn\'t been sent to the florist yet.',
+        a: 'Call us right away at (510) 485-9113. We can usually make changes if the order hasn\'t gone to the florist yet. Same-day orders are harder to change, so call as soon as possible.',
       },
       {
         q: 'Can I cancel my order?',
-        a: 'Orders can be cancelled before they are sent to the florist. Same-day orders typically cannot be cancelled due to the short turnaround.',
+        a: 'Orders can be cancelled before they go to the florist. Same-day orders typically can\'t be cancelled because florists start preparing immediately. Call us to check.',
       },
       {
         q: 'What if my flowers arrive damaged?',
-        a: 'Please contact us within 24 hours with photos of the damage. We\'ll arrange a replacement or refund.',
+        a: 'Contact us within 24 hours with photos. We\'ll send a replacement or issue a full refund. No need to return the damaged flowers. Call (510) 485-9113 or email support@goldenstateflowershop.com.',
       },
     ],
   },

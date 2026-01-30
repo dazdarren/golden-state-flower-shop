@@ -120,7 +120,7 @@ export default function Header({ cityConfig }: HeaderProps) {
             {/* Phone Number - Desktop only */}
             <a
               href="tel:+15104859113"
-              className="hidden lg:flex items-center gap-1.5 px-3 py-2 text-sm text-forest-800/70
+              className="hidden lg:flex items-center gap-1.5 px-3 py-2 text-sm text-forest-800/50
                        hover:text-forest-900 transition-colors"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -135,7 +135,7 @@ export default function Header({ cityConfig }: HeaderProps) {
               {/* Mobile Search Button */}
               <button
                 onClick={() => setMobileSearchOpen(true)}
-                className="p-2.5 rounded-full text-forest-800/70 hover:bg-sage-100/50 transition-colors"
+                className="p-2.5 rounded-full text-forest-800/50 hover:bg-sage-100/50 transition-colors"
                 aria-label="Search"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -147,7 +147,7 @@ export default function Header({ cityConfig }: HeaderProps) {
               {/* Mobile Cart Button */}
               <Link
                 href={`${basePath}/cart`}
-                className="relative p-2.5 rounded-full text-forest-800/70 hover:bg-sage-100/50 transition-colors"
+                className="relative p-2.5 rounded-full text-forest-800/50 hover:bg-sage-100/50 transition-colors"
                 aria-label="Shopping cart"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -288,7 +288,7 @@ export default function Header({ cityConfig }: HeaderProps) {
                   setMobileSearchQuery('');
                 }}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full
-                         text-forest-800/60 hover:text-forest-900 hover:bg-cream-200"
+                         text-forest-800/50 hover:text-forest-900 hover:bg-cream-200"
                 aria-label="Close search"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

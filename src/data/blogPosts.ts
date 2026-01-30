@@ -5,7 +5,6 @@ export interface BlogPost {
   content: string;
   image: string;
   category: string;
-  author: string;
   publishedAt: string;
   readTime: number;
   tags: string[];
@@ -49,7 +48,6 @@ For the best selection and guaranteed delivery, we recommend ordering your Mothe
     `.trim(),
     image: '/images/blog/mothers-day-flowers.jpg',
     category: 'Gift Guide',
-    author: 'Emily Rose',
     publishedAt: '2024-04-15',
     readTime: 5,
     tags: ["Mother's Day", 'Gift Ideas', 'Roses', 'Spring Flowers'],
@@ -101,7 +99,6 @@ Some flowers naturally have longer vase lives:
     `.trim(),
     image: '/images/blog/flower-care-tips.jpg',
     category: 'Flower Care',
-    author: 'Michael Chen',
     publishedAt: '2024-03-20',
     readTime: 6,
     tags: ['Flower Care', 'Tips', 'Fresh Flowers', 'How To'],
@@ -165,7 +162,6 @@ Don't be afraid to mix colors for a more nuanced message:
     `.trim(),
     image: '/images/blog/flower-colors-meaning.jpg',
     category: 'Flower Knowledge',
-    author: 'Sarah Williams',
     publishedAt: '2024-02-28',
     readTime: 7,
     tags: ['Flower Meanings', 'Color Guide', 'Gift Ideas', 'Symbolism'],
@@ -230,7 +226,6 @@ Consider sending flowers or a plant to the family's home a few weeks after the f
     `.trim(),
     image: '/images/blog/sympathy-flowers.jpg',
     category: 'Etiquette',
-    author: 'Emily Rose',
     publishedAt: '2024-02-10',
     readTime: 8,
     tags: ['Sympathy', 'Etiquette', 'Funeral Flowers', 'Condolences'],
@@ -322,7 +317,6 @@ When you order from us, we prioritize seasonal and locally-grown flowers wheneve
     `.trim(),
     image: '/images/blog/seasonal-flowers.jpg',
     category: 'Flower Knowledge',
-    author: 'Michael Chen',
     publishedAt: '2024-01-15',
     readTime: 6,
     tags: ['Seasonal', 'California', 'Fresh Flowers', 'Guide'],

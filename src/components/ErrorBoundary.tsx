@@ -60,10 +60,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               </svg>
             </div>
             <h2 className="font-display text-2xl font-semibold text-forest-900 mb-3">
-              Something went wrong
+              Something didn't work
             </h2>
             <p className="text-forest-800/60 mb-6">
-              We apologize for the inconvenience. Please try again or contact support if the problem persists.
+              Try again or call us at (510) 485-9113 if the problem continues.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button

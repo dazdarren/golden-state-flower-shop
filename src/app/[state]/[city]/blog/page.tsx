@@ -93,8 +93,6 @@ export default function BlogPage({ params }: BlogPageProps) {
                   {featuredPost.excerpt}
                 </p>
                 <div className="flex items-center gap-4 text-sm text-forest-800/50">
-                  <span>{featuredPost.author}</span>
-                  <span>•</span>
                   <span>{new Date(featuredPost.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                   <span>•</span>
                   <span>{featuredPost.readTime} min read</span>

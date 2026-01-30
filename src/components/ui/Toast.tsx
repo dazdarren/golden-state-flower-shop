@@ -141,7 +141,7 @@ function ToastItem({
   return (
     <div
       className={`
-        pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg
+        pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border shadow-soft-lg
         transition-all duration-200 ease-out
         ${bgColors[toast.type]}
         ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}

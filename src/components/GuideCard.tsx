@@ -9,9 +9,9 @@ interface GuideCardProps {
 const categoryColors: Record<string, string> = {
   'Flower Care': 'bg-sage-100 text-sage-700',
   'Etiquette': 'bg-rose-100 text-rose-700',
-  'Delivery Guide': 'bg-sky-100 text-sky-700',
-  'Flower Meanings': 'bg-purple-100 text-purple-700',
-  'Holiday Guide': 'bg-pink-100 text-pink-700',
+  'Delivery Guide': 'bg-cream-300 text-forest-800',
+  'Flower Meanings': 'bg-gold-100 text-gold-700',
+  'Holiday Guide': 'bg-rose-100 text-rose-700',
 };
 
 const categoryIcons: Record<string, JSX.Element> = {
@@ -74,7 +74,7 @@ export default function GuideCard({ guide, basePath }: GuideCardProps) {
         </h3>
 
         {/* Excerpt */}
-        <p className="text-sm text-forest-800/60 line-clamp-3 mb-4">
+        <p className="text-sm text-forest-800/50 line-clamp-3 mb-4">
           {guide.excerpt}
         </p>
 

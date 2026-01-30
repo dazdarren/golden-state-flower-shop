@@ -66,7 +66,7 @@ export async function sendWelcomeEmail(
   return resend.emails.send({
     from: getFromAddress(env),
     to,
-    subject: 'Welcome to Golden State Flower Shop!',
+    subject: "You're in! Here's what's next",
     html: `
 <!DOCTYPE html>
 <html>
@@ -153,7 +153,7 @@ export async function sendOrderConfirmationEmail(
   return resend.emails.send({
     from: getFromAddress(env),
     to,
-    subject: `Order Confirmed - #${orderNumber}`,
+    subject: `Got it! Your flowers are on the way - #${orderNumber}`,
     html: `
 <!DOCTYPE html>
 <html>
@@ -426,10 +426,9 @@ export async function sendAbandonedCartEmail(
     }>;
     cartTotal: string;
     recoveryUrl: string;
-    discountCode?: string;
   }
 ) {
-  const { to, customerName, items, cartTotal, recoveryUrl, discountCode, env } = params;
+  const { to, customerName, items, cartTotal, recoveryUrl, env } = params;
 
   const itemsHtml = items.map(item => `
     <div style="display: flex; align-items: center; padding: 15px 0; border-bottom: 1px solid #e5e7e3;">
@@ -440,16 +439,10 @@ export async function sendAbandonedCartEmail(
     </div>
   `).join('');
 
-  const discountHtml = discountCode ? `
-    <div style="background-color: #fff3cd; padding: 15px; border-radius: 10px; margin: 25px 0; text-align: center;">
-      <p style="margin: 0; font-size: 14px;">Use code <strong>${discountCode}</strong> for 10% off your order!</p>
-    </div>
-  ` : '';
-
   return resend.emails.send({
     from: getFromAddress(env),
     to,
-    subject: 'You left something beautiful behind...',
+    subject: 'Still thinking it over?',
     html: `
 <!DOCTYPE html>
 <html>
@@ -467,7 +460,7 @@ export async function sendAbandonedCartEmail(
       ${customerName ? `Hi ${customerName},` : 'Hi there,'}
     </h2>
 
-    <p style="text-align: center;">You left some beautiful flowers in your cart! They're waiting for you.</p>
+    <p style="text-align: center;">You have items in your cart. No rush - they'll be here when you're ready.</p>
 
     <div style="background-color: #f9faf8; padding: 20px; border-radius: 15px; margin: 25px 0;">
       ${itemsHtml}
@@ -476,8 +469,6 @@ export async function sendAbandonedCartEmail(
         <span>${cartTotal}</span>
       </div>
     </div>
-
-    ${discountHtml}
 
     <div style="text-align: center; margin: 30px 0;">
       <a href="${recoveryUrl}"

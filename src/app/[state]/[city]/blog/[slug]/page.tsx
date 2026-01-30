@@ -150,13 +150,6 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                 {post.title}
               </h1>
               <div className="flex flex-wrap items-center gap-4 text-forest-800/60">
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 bg-sage-100 rounded-full flex items-center justify-center">
-                    <span className="text-sage-600 font-medium">{post.author.charAt(0)}</span>
-                  </div>
-                  <span className="font-medium text-forest-900">{post.author}</span>
-                </div>
-                <span>•</span>
                 <span>{new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                 <span>•</span>
                 <span>{post.readTime} min read</span>

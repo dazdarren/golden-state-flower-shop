@@ -96,7 +96,7 @@ export default function MegaMenu({ basePath }: MegaMenuProps) {
           {/* Occasions Dropdown */}
           {activeSection === 'occasions' && (
             <div
-              className="absolute top-full left-0 mt-2 w-[480px] bg-white rounded-2xl shadow-lg border border-cream-200 p-6 z-50 animate-fade-in"
+              className="absolute top-full left-0 mt-2 w-[480px] bg-white rounded-2xl shadow-soft-lg border border-cream-200 p-6 z-50 animate-fade-in"
               onMouseEnter={handleDropdownMouseEnter}
               onMouseLeave={handleMouseLeave}
             >
@@ -151,7 +151,7 @@ export default function MegaMenu({ basePath }: MegaMenuProps) {
           {/* Types Dropdown */}
           {activeSection === 'types' && (
             <div
-              className="absolute top-full left-0 mt-2 w-[320px] bg-white rounded-2xl shadow-lg border border-cream-200 p-6 z-50 animate-fade-in"
+              className="absolute top-full left-0 mt-2 w-[320px] bg-white rounded-2xl shadow-soft-lg border border-cream-200 p-6 z-50 animate-fade-in"
               onMouseEnter={handleDropdownMouseEnter}
               onMouseLeave={handleMouseLeave}
             >
@@ -212,7 +212,7 @@ export default function MegaMenu({ basePath }: MegaMenuProps) {
           {/* Seasonal Dropdown */}
           {activeSection === 'seasonal' && (
             <div
-              className="absolute top-full left-0 mt-2 w-[320px] bg-white rounded-2xl shadow-lg border border-cream-200 p-6 z-50 animate-fade-in"
+              className="absolute top-full left-0 mt-2 w-[320px] bg-white rounded-2xl shadow-soft-lg border border-cream-200 p-6 z-50 animate-fade-in"
               onMouseEnter={handleDropdownMouseEnter}
               onMouseLeave={handleMouseLeave}
             >
@@ -359,7 +359,7 @@ export default function MegaMenu({ basePath }: MegaMenuProps) {
               >
                 <span className="font-display text-lg font-medium text-forest-900">Shop by Occasion</span>
                 <svg
-                  className={`w-5 h-5 text-forest-800/60 transition-transform ${mobileExpandedSection === 'occasions' ? 'rotate-180' : ''}`}
+                  className={`w-5 h-5 text-forest-800/50 transition-transform ${mobileExpandedSection === 'occasions' ? 'rotate-180' : ''}`}
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -394,7 +394,7 @@ export default function MegaMenu({ basePath }: MegaMenuProps) {
               >
                 <span className="font-display text-lg font-medium text-forest-900">Shop by Type</span>
                 <svg
-                  className={`w-5 h-5 text-forest-800/60 transition-transform ${mobileExpandedSection === 'types' ? 'rotate-180' : ''}`}
+                  className={`w-5 h-5 text-forest-800/50 transition-transform ${mobileExpandedSection === 'types' ? 'rotate-180' : ''}`}
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -429,7 +429,7 @@ export default function MegaMenu({ basePath }: MegaMenuProps) {
               >
                 <span className="font-display text-lg font-medium text-forest-900">Seasonal</span>
                 <svg
-                  className={`w-5 h-5 text-forest-800/60 transition-transform ${mobileExpandedSection === 'seasonal' ? 'rotate-180' : ''}`}
+                  className={`w-5 h-5 text-forest-800/50 transition-transform ${mobileExpandedSection === 'seasonal' ? 'rotate-180' : ''}`}
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
