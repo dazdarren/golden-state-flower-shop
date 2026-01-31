@@ -87,12 +87,15 @@ export default function CartZipChecker({
 
       const totalData: GetTotalResponse = await totalResponse.json();
 
-      let fee = 14.99; // Fallback only if API fails completely
-      if (totalResponse.ok && totalData.success && totalData.data) {
-        // Use the REAL delivery fee from Florist One API
-        fee = totalData.data.delivery;
+      // Must have real delivery fee from API - no fallbacks
+      if (!totalResponse.ok || !totalData.success || !totalData.data) {
+        setError('Unable to calculate delivery fee. Please try again.');
+        setValidated(false);
+        return;
       }
 
+      // Use the REAL delivery fee from Florist One API
+      const fee = totalData.data.delivery;
       setDeliveryFee(fee);
       setValidated(true);
       setValidatedZip(trimmedZip);
