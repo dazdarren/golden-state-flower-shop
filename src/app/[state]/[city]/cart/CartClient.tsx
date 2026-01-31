@@ -18,7 +18,7 @@ interface Cart {
   cartId: string | null;
   items: CartItem[];
   subtotal: number;
-  deliveryFee: number;
+  deliveryFee: number | null; // null = not yet known (ZIP not validated)
   serviceFee: number;
   total: number;
   isEmpty: boolean;
@@ -291,8 +291,6 @@ export default function CartClient({ basePath, cityName, primaryZipCodes = [] }:
                     ? validatedDeliveryFee === 0
                       ? 'Free'
                       : `$${validatedDeliveryFee.toFixed(2)}`
-                    : cart.deliveryFee > 0
-                    ? `$${cart.deliveryFee.toFixed(2)}`
                     : 'Enter ZIP above'}
                 </span>
               </div>
@@ -305,7 +303,9 @@ export default function CartClient({ basePath, cityName, primaryZipCodes = [] }:
               <div className="border-t pt-3 flex justify-between">
                 <span className="font-semibold">Total</span>
                 <span className="font-bold text-lg">
-                  ${((validatedDeliveryFee ?? cart.deliveryFee) + cart.subtotal + cart.serviceFee).toFixed(2)}
+                  {validatedDeliveryFee !== null
+                    ? `$${(validatedDeliveryFee + cart.subtotal + cart.serviceFee).toFixed(2)}`
+                    : `$${cart.subtotal.toFixed(2)}+`}
                 </span>
               </div>
             </div>

@@ -29,9 +29,9 @@ interface CartResponse {
   cartId: string | null;
   items: CartItem[];
   subtotal: number;
-  deliveryFee: number;
+  deliveryFee: number | null; // null = not yet known (ZIP not validated)
   serviceFee: number;
-  total: number;
+  total: number; // subtotal only until delivery fee is known
   isEmpty: boolean;
 }
 
@@ -84,7 +84,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       (sum, item) => sum + item.price * item.quantity,
       0
     );
-    const deliveryFee = mockCartData.items.length > 0 ? 14.99 : 0;
 
     const mockCart: CartResponse = {
       cartId,
@@ -97,9 +96,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         image: '/images/placeholder-flower.svg',
       })),
       subtotal,
-      deliveryFee,
+      deliveryFee: null, // Unknown until ZIP is validated via get-total API
       serviceFee: 0,
-      total: subtotal + deliveryFee,
+      total: subtotal, // Delivery fee added after ZIP validation
       isEmpty: mockCartData.items.length === 0,
     };
 
@@ -147,9 +146,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         image: `https://cdn.floristone.com/small/${item.sku}_t1.jpg`,
       })),
       subtotal,
-      deliveryFee: products.length > 0 ? 14.99 : 0,
+      deliveryFee: null, // Unknown until ZIP is validated via get-total API
       serviceFee: 0,
-      total: subtotal + (products.length > 0 ? 14.99 : 0),
+      total: subtotal, // Delivery fee added after ZIP validation
       isEmpty: items.length === 0,
     };
 

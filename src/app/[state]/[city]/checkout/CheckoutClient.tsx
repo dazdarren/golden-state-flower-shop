@@ -25,7 +25,7 @@ interface Cart {
   cartId: string | null;
   items: CartItem[];
   subtotal: number;
-  deliveryFee: number;
+  deliveryFee: number | null; // null = not yet known (ZIP not validated)
   serviceFee: number;
   total: number;
   isEmpty: boolean;
@@ -726,7 +726,9 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
               <div className="flex justify-between text-sm">
                 <span className="text-forest-800/60">Delivery</span>
                 <span className="text-forest-900">
-                  ${(orderTotal?.delivery ?? cart.deliveryFee).toFixed(2)}
+                  {orderTotal?.delivery !== undefined
+                    ? `$${orderTotal.delivery.toFixed(2)}`
+                    : 'Enter ZIP & date'}
                 </span>
               </div>
               {(orderTotal?.tax ?? 0) > 0 && (

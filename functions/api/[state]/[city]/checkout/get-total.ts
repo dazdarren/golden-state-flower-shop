@@ -111,27 +111,30 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         deliveryDate,
         product.PRICE
       );
-      // Check for API error
+      // Check for API error - fail rather than use estimates
       if (totalResult.error) {
-        // Fall back to estimate for display purposes
-        const productSubtotal = product.PRICE;
-        subtotalSum += productSubtotal;
-        // Estimate CA tax at 8.625%
-        taxSum += Math.round(productSubtotal * 0.08625 * 100) / 100;
-        if (!deliveryCharge) deliveryCharge = 14.99;
-        continue;
+        return errorResponse(`Unable to calculate total: ${totalResult.error}`, 500);
       }
 
-      // Use values from API response
+      // Use values from API response - these are the authoritative values from Florist One
       if (typeof totalResult.ORDERTOTAL === 'number' && totalResult.ORDERTOTAL > 0) {
         orderTotal += totalResult.ORDERTOTAL;
       }
       subtotalSum += totalResult.SUBTOTAL || product.PRICE;
       taxSum += totalResult.FLORISTONETAX || totalResult.TAXTOTAL || 0;
 
+      // Get delivery charge from API - must have a real value
       if (!deliveryCharge) {
-        deliveryCharge = totalResult.FLORISTONEDELIVERYCHARGE || totalResult.DELIVERYCHARGETOTAL || 14.99;
+        const apiDeliveryCharge = totalResult.FLORISTONEDELIVERYCHARGE || totalResult.DELIVERYCHARGETOTAL;
+        if (typeof apiDeliveryCharge === 'number' && apiDeliveryCharge > 0) {
+          deliveryCharge = apiDeliveryCharge;
+        }
       }
+    }
+
+    // Ensure we have a valid delivery charge from API
+    if (deliveryCharge === 0) {
+      return errorResponse('Unable to determine delivery fee. Please try again.', 500);
     }
 
     // Use ORDERTOTAL if we got it, otherwise calculate

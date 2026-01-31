@@ -121,7 +121,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       (sum, item) => sum + item.price * item.quantity,
       0
     );
-    const deliveryFee = mockCart.items.length > 0 ? 9.99 : 0;
 
     const response = successResponse({
       cartId,
@@ -134,7 +133,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         quantity: item.quantity,
       })),
       subtotal,
-      total: subtotal + deliveryFee,
+      deliveryFee: null, // Unknown until ZIP validated via get-total API
+      total: subtotal, // Delivery fee added after ZIP validation
       isEmpty: mockCart.items.length === 0,
     });
 
@@ -213,7 +213,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         quantity: item.quantity,
       })),
       subtotal,
-      total: subtotal + (items.length > 0 ? 14.99 : 0),
+      deliveryFee: null, // Unknown until ZIP validated via get-total API
+      total: subtotal, // Delivery fee added after ZIP validation
       isEmpty: items.length === 0,
     });
   } catch (error) {

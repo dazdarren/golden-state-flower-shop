@@ -152,7 +152,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         quantity: item.quantity,
       })),
       subtotal,
-      total: subtotal + 14.99, // Add mock delivery fee
+      deliveryFee: null, // Unknown until ZIP validated via get-total API
+      total: subtotal, // Delivery fee added after ZIP validation
     });
 
     // Set both cart ID and cart data cookies
@@ -217,7 +218,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         image: `https://cdn.floristone.com/small/${item.sku}_t1.jpg`,
       })),
       subtotal,
-      total: subtotal,
+      deliveryFee: null, // Unknown until ZIP validated via get-total API
+      total: subtotal, // Delivery fee added after ZIP validation
     });
 
     // Set cookie if cart was just created

@@ -258,7 +258,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     }
 
     // Calculate order total by calling FlowerShop API gettotal for each product
+    // Also capture subtotal, delivery fee, and tax from API response
     let orderTotalFromApi = 0;
+    let subtotalFromApi = 0;
+    let deliveryFeeFromApi = 0;
+    let taxFromApi = 0;
 
     for (const product of products) {
       const totalResult = await client.getTotal(
@@ -279,9 +283,20 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         // API didn't return ORDERTOTAL - this is a critical error
         return errorResponse('Unable to calculate order total. Please try again.', 500);
       }
+
+      // Capture the breakdown from API (for database storage)
+      subtotalFromApi += totalResult.SUBTOTAL || product.PRICE;
+      taxFromApi += totalResult.FLORISTONETAX || totalResult.TAXTOTAL || 0;
+      // Delivery fee is typically the same for all items, take from first product
+      if (deliveryFeeFromApi === 0) {
+        deliveryFeeFromApi = totalResult.FLORISTONEDELIVERYCHARGE || totalResult.DELIVERYCHARGETOTAL || 0;
+      }
     }
 
     const orderTotal = Math.round(orderTotalFromApi * 100) / 100;
+    const subtotal = Math.round(subtotalFromApi * 100) / 100;
+    const deliveryFee = Math.round(deliveryFeeFromApi * 100) / 100;
+    const tax = Math.round(taxFromApi * 100) / 100;
 
     // Get client IP
     const clientIp = request.headers.get('cf-connecting-ip') ||
@@ -355,12 +370,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           }
         }
 
-        // Calculate totals - derive from the order total we already have
-        // The delivery fee is typically $14.99 from our site
-        const deliveryFee = 14.99;
-        const subtotal = Math.round((orderTotal - deliveryFee) * 100) / 100;
-        const tax = 0; // Tax is included in Florist One's ORDERTOTAL
-
+        // Use the real breakdown values from Florist One API (captured earlier)
         // Save order to database
         const savedOrder = await createDatabaseOrder(
           supabase,
@@ -369,9 +379,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
             guest_email: userId ? undefined : sender.email,
             florist_one_order_id: actualOrderId,
             florist_one_confirmation: confirmationNumber,
-            subtotal,
+            subtotal: subtotal,
             delivery_fee: deliveryFee,
-            tax,
+            tax: tax,
             total: orderTotal,
             customer_name: `${sender.firstName} ${sender.lastName}`,
             customer_email: sender.email,
