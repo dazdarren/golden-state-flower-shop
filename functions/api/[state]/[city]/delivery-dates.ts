@@ -25,7 +25,6 @@ interface DeliveryDateResult {
   date: string;
   formatted: string;
   available: boolean;
-  price: number;
 }
 
 interface CachedDeliveryDates {
@@ -101,9 +100,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     }
 
     // Transform dates from MM/DD/YYYY to ISO format and include formatted version
-    // Standard delivery fee - this is the base delivery charge
-    const STANDARD_DELIVERY_FEE = 14.99;
-
     const dates: DeliveryDateResult[] = response.DATES.map((dateStr) => {
       // Parse MM/DD/YYYY
       const [month, day, year] = dateStr.split('/');
@@ -118,7 +114,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           day: 'numeric',
         }),
         available: true,
-        price: STANDARD_DELIVERY_FEE,
       };
     });
 
@@ -148,7 +143,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 function generateMockDeliveryDates(): DeliveryDateResult[] {
   const dates: DeliveryDateResult[] = [];
   const today = new Date();
-  const STANDARD_DELIVERY_FEE = 14.99;
 
   for (let i = 0; i < 14; i++) {
     const date = new Date(today);
@@ -168,7 +162,6 @@ function generateMockDeliveryDates(): DeliveryDateResult[] {
       date: isoDate,
       formatted,
       available: true,
-      price: STANDARD_DELIVERY_FEE,
     });
   }
 

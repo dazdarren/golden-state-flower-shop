@@ -12,8 +12,19 @@ interface CartZipCheckerProps {
 interface DeliveryDate {
   date: string;
   formatted: string;
-  price: number;
   available: boolean;
+}
+
+interface GetTotalResponse {
+  success: boolean;
+  data?: {
+    subtotal: number;
+    delivery: number;
+    tax: number;
+    total: number;
+    mock?: boolean;
+  };
+  error?: string;
 }
 
 export default function CartZipChecker({
@@ -46,19 +57,20 @@ export default function CartZipChecker({
     setLoading(true);
 
     try {
-      const response = await fetch(
+      // Step 1: Check if ZIP is deliverable and get available dates
+      const datesResponse = await fetch(
         `/api${basePath}/delivery-dates?zip=${encodeURIComponent(trimmedZip)}`
       );
 
-      const data = await response.json();
+      const datesData = await datesResponse.json();
 
-      if (!response.ok || !data.success) {
-        setError(data.error || 'We don\'t deliver to this ZIP code');
+      if (!datesResponse.ok || !datesData.success) {
+        setError(datesData.error || 'We don\'t deliver to this ZIP code');
         setValidated(false);
         return;
       }
 
-      const dates: DeliveryDate[] = data.data.dates;
+      const dates: DeliveryDate[] = datesData.data.dates;
       const availableDates = dates.filter((d) => d.available);
 
       if (availableDates.length === 0) {
@@ -67,8 +79,20 @@ export default function CartZipChecker({
         return;
       }
 
-      // Get the delivery fee from the first available date
-      const fee = availableDates[0].price;
+      // Step 2: Get the REAL delivery fee from the get-total API (calls Florist One gettotal)
+      const firstAvailableDate = availableDates[0].date;
+      const totalResponse = await fetch(
+        `/api${basePath}/checkout/get-total?zip=${encodeURIComponent(trimmedZip)}&date=${encodeURIComponent(firstAvailableDate)}`
+      );
+
+      const totalData: GetTotalResponse = await totalResponse.json();
+
+      let fee = 14.99; // Fallback only if API fails completely
+      if (totalResponse.ok && totalData.success && totalData.data) {
+        // Use the REAL delivery fee from Florist One API
+        fee = totalData.data.delivery;
+      }
+
       setDeliveryFee(fee);
       setValidated(true);
       setValidatedZip(trimmedZip);
