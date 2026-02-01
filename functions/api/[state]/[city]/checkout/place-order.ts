@@ -9,6 +9,7 @@ import {
   createSupabaseClient,
   hasSupabaseCredentials,
   createOrder as createDatabaseOrder,
+  getOrderByIdempotencyKey,
   extractBearerToken,
   getUserFromToken,
   markCartRecovered,
@@ -39,11 +40,14 @@ import {
   getCartIdFromCookies,
   clearCartCookie,
   addCookieToResponse,
+  getMockCartData,
 } from '../../../../lib/cookies';
 
 interface Env extends FloristOneEnv, Partial<SupabaseEnv>, Partial<EmailEnv> {}
 
 interface PlaceOrderBody {
+  idempotencyKey?: string;
+  expectedTotal?: number;
   deliveryDate: string;
   recipient: {
     firstName: string;
@@ -153,11 +157,48 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     return errorResponse('Payment information is required', 400);
   }
 
+  // Validate expected total is provided (prevents price mismatch attacks)
+  if (typeof body.expectedTotal !== 'number' || body.expectedTotal <= 0) {
+    return errorResponse('Expected total is required', 400);
+  }
+
   const isProduction = request.url.startsWith('https://');
+
+  // Check for duplicate order using idempotency key
+  if (body.idempotencyKey && hasSupabaseCredentials(env)) {
+    try {
+      const supabase = createSupabaseClient(env as SupabaseEnv);
+      const existingOrder = await getOrderByIdempotencyKey(supabase, body.idempotencyKey);
+      if (existingOrder) {
+        // Return the existing order instead of creating a duplicate
+        return successResponse({
+          orderId: existingOrder.florist_one_order_id,
+          confirmationNumber: existingOrder.florist_one_confirmation,
+          databaseOrderId: existingOrder.id,
+          duplicate: true,
+          message: 'Order already processed',
+        });
+      }
+    } catch (idempotencyError) {
+      // Log but don't fail - idempotency is a safety feature, not critical path
+      console.error('Idempotency check failed:', idempotencyError);
+    }
+  }
 
   // Handle mock carts
   if (cartId.startsWith('mock_cart_')) {
     const mockOrderId = `MOCK_${Date.now()}_${Math.random().toString(36).substring(7).toUpperCase()}`;
+
+    // Get actual cart data for mock order
+    const mockCartData = getMockCartData(request);
+    const mockSubtotal = mockCartData.items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+    // Use expected total from client for mock orders (they already calculated it)
+    const mockDeliveryFee = 14.99; // Mock delivery fee
+    const mockTax = Math.round(mockSubtotal * 0.0875 * 100) / 100; // 8.75% mock tax
+    const mockTotal = body.expectedTotal || (mockSubtotal + mockDeliveryFee + mockTax);
 
     // Still save mock orders to database for testing order history
     let savedOrderId: string | undefined;
@@ -178,7 +219,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           }
         }
 
-        // Create a mock order in database
+        // Create a mock order in database using actual cart items
         const savedOrder = await createDatabaseOrder(
           supabase,
           {
@@ -186,10 +227,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
             guest_email: userId ? undefined : sender.email,
             florist_one_order_id: mockOrderId,
             florist_one_confirmation: mockOrderId,
-            subtotal: 59.99, // Mock subtotal
-            delivery_fee: 14.99,
-            tax: 0,
-            total: 74.98,
+            idempotency_key: body.idempotencyKey,
+            subtotal: mockSubtotal,
+            delivery_fee: mockDeliveryFee,
+            tax: mockTax,
+            total: mockTotal,
             customer_name: `${sender.firstName} ${sender.lastName}`,
             customer_email: sender.email,
             customer_phone: sender.phone,
@@ -200,10 +242,10 @@ export const onRequest: PagesFunction<Env> = async (context) => {
               zip: body.sender.zip || recipient.zip,
             },
           },
-          [{
-            product_code: 'MOCK_PRODUCT',
-            product_name: 'Mock Flower Arrangement',
-            price: 59.99,
+          mockCartData.items.map((item) => ({
+            product_code: item.sku,
+            product_name: item.name,
+            price: item.price,
             delivery_date: dateResult.data!,
             recipient_name: `${recipient.firstName} ${recipient.lastName}`,
             recipient_address: {
@@ -217,7 +259,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
               ? `${card.message}\n\n${card.signature}`
               : card.message,
             special_instructions: instructionsResult.data,
-          }]
+          }))
         );
         savedOrderId = savedOrder.id;
       } catch (dbError) {
@@ -298,6 +340,21 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const deliveryFee = Math.round(deliveryFeeFromApi * 100) / 100;
     const tax = Math.round(taxFromApi * 100) / 100;
 
+    // CRITICAL: Validate that the calculated total is within acceptable range of expected total
+    // This prevents charging customers significantly more than what was displayed
+    const expectedTotal = body.expectedTotal!;
+    const priceDifference = Math.abs(orderTotal - expectedTotal);
+    const maxAllowedDifference = expectedTotal * 0.05; // Allow 5% variance for tax/rounding
+
+    if (priceDifference > maxAllowedDifference && priceDifference > 5) {
+      // Price changed significantly - don't charge the wrong amount
+      console.error(`Price mismatch: expected ${expectedTotal}, got ${orderTotal}, diff ${priceDifference}`);
+      return errorResponse(
+        `Price has changed since you started checkout. Expected $${expectedTotal.toFixed(2)} but calculated $${orderTotal.toFixed(2)}. Please refresh and try again.`,
+        409 // Conflict
+      );
+    }
+
     // Get client IP
     const clientIp = request.headers.get('cf-connecting-ip') ||
                      request.headers.get('x-forwarded-for')?.split(',')[0] ||
@@ -371,7 +428,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         }
 
         // Use the real breakdown values from Florist One API (captured earlier)
-        // Save order to database
+        // Save order to database with idempotency key to prevent duplicates
         const savedOrder = await createDatabaseOrder(
           supabase,
           {
@@ -379,6 +436,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
             guest_email: userId ? undefined : sender.email,
             florist_one_order_id: actualOrderId,
             florist_one_confirmation: confirmationNumber,
+            idempotency_key: body.idempotencyKey,
             subtotal: subtotal,
             delivery_fee: deliveryFee,
             tax: tax,
@@ -414,8 +472,18 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         );
         savedOrderId = savedOrder.id;
       } catch (dbError) {
-        // Log but don't fail the order - the Florist One order already succeeded
-        console.error('Failed to save order to database:', dbError);
+        // Log with full context - this is a critical issue even though we don't fail
+        // The Florist One order succeeded and customer was charged, but we have no record
+        console.error('CRITICAL: Failed to save order to database. Customer charged but no DB record!', {
+          floristOneOrderId: actualOrderId,
+          confirmationNumber,
+          customerEmail: sender.email,
+          orderTotal,
+          error: dbError,
+        });
+        // Note: We don't fail here because the customer was already charged.
+        // The order exists in Florist One's system, so the flowers will be delivered.
+        // Manual intervention required to add to database.
       }
     }
 

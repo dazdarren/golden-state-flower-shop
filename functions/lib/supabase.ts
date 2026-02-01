@@ -240,6 +240,28 @@ export async function getOrderById(
   return data;
 }
 
+/**
+ * Check if an order with the given idempotency key already exists
+ */
+export async function getOrderByIdempotencyKey(
+  supabase: SupabaseClient,
+  idempotencyKey: string
+): Promise<{ id: string; florist_one_order_id: string; florist_one_confirmation: string } | null> {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('id, florist_one_order_id, florist_one_confirmation')
+    .eq('idempotency_key', idempotencyKey)
+    .maybeSingle();
+
+  if (error) {
+    // Column might not exist yet - log and return null
+    console.error('Error checking idempotency key:', error);
+    return null;
+  }
+
+  return data;
+}
+
 export async function createOrder(
   supabase: SupabaseClient,
   order: {
@@ -247,6 +269,7 @@ export async function createOrder(
     guest_email?: string;
     florist_one_order_id?: string;
     florist_one_confirmation?: string;
+    idempotency_key?: string;
     subtotal: number;
     delivery_fee: number;
     tax: number;
@@ -286,7 +309,11 @@ export async function createOrder(
     .from('order_items')
     .insert(itemsWithOrderId);
 
-  if (itemsError) throw itemsError;
+  if (itemsError) {
+    // If items fail, try to delete the order to maintain consistency
+    await supabase.from('orders').delete().eq('id', orderData.id);
+    throw itemsError;
+  }
 
   return orderData;
 }

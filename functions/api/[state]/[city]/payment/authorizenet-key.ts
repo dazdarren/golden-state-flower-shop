@@ -15,8 +15,30 @@ import {
 
 interface Env extends FloristOneEnv {}
 
+// Allowed origins for payment endpoints (restrict API key access)
+const ALLOWED_ORIGINS = [
+  'https://goldenstateflowers.com',
+  'https://www.goldenstateflowers.com',
+  'http://localhost:3000',
+  'http://localhost:8788',
+];
+
 export const onRequest: PagesFunction<Env> = async (context) => {
   const { request, params, env } = context;
+
+  // Validate origin for payment endpoints (security measure)
+  const origin = request.headers.get('Origin');
+  const referer = request.headers.get('Referer');
+  const isValidOrigin = !origin || ALLOWED_ORIGINS.some(allowed =>
+    origin.startsWith(allowed) || referer?.startsWith(allowed)
+  );
+
+  // In production, reject requests from unknown origins
+  const isProduction = request.url.startsWith('https://');
+  if (isProduction && origin && !isValidOrigin) {
+    console.warn(`Rejected payment key request from origin: ${origin}`);
+    return errorResponse('Forbidden', 403);
+  }
 
   // Handle CORS preflight
   if (request.method === 'OPTIONS') {

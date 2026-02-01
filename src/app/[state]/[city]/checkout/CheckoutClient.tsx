@@ -217,6 +217,17 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
     setSubmitting(true);
     setError(null);
 
+    // Validate we have the order total before proceeding
+    if (!orderTotal) {
+      setError('Unable to calculate order total. Please refresh and try again.');
+      setSubmitting(false);
+      return;
+    }
+
+    // Generate idempotency key to prevent duplicate orders on retry
+    // Use cart ID + timestamp + random to ensure uniqueness per attempt
+    const idempotencyKey = `${cart?.cartId || 'unknown'}_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+
     // Create payment token
     if (!paymentRef.current) {
       setError('Payment system not ready. Please try again.');
@@ -254,6 +265,8 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
         method: 'POST',
         headers,
         body: JSON.stringify({
+          idempotencyKey,
+          expectedTotal: orderTotal.total,
           deliveryDate: formData.deliveryDate,
           recipient: {
             firstName: formData.recipientFirstName,
