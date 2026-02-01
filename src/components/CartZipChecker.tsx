@@ -82,7 +82,8 @@ export default function CartZipChecker({
       // Step 2: Get the REAL delivery fee from the get-total API (calls Florist One gettotal)
       const firstAvailableDate = availableDates[0].date;
       const totalResponse = await fetch(
-        `/api${basePath}/checkout/get-total?zip=${encodeURIComponent(trimmedZip)}&date=${encodeURIComponent(firstAvailableDate)}`
+        `/api${basePath}/checkout/get-total?zip=${encodeURIComponent(trimmedZip)}&date=${encodeURIComponent(firstAvailableDate)}`,
+        { credentials: 'same-origin' }
       );
 
       const totalData: GetTotalResponse = await totalResponse.json();
@@ -96,6 +97,13 @@ export default function CartZipChecker({
 
       // Use the REAL delivery fee from Florist One API
       const fee = totalData.data.delivery;
+
+      // Ensure delivery fee is a valid number
+      if (typeof fee !== 'number') {
+        setError('Unable to calculate delivery fee. Please try again.');
+        setValidated(false);
+        return;
+      }
       setDeliveryFee(fee);
       setValidated(true);
       setValidatedZip(trimmedZip);
@@ -130,7 +138,7 @@ export default function CartZipChecker({
                 Delivering to {validatedZip}
               </p>
               <p className="text-sm text-forest-800/60">
-                {deliveryFee === 0 ? 'Free delivery' : `Delivery fee: $${deliveryFee?.toFixed(2)}`}
+                {typeof deliveryFee === 'number' && deliveryFee === 0 ? 'Free delivery' : `Delivery fee: $${(deliveryFee || 0).toFixed(2)}`}
               </p>
             </div>
           </div>

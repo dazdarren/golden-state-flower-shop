@@ -51,7 +51,7 @@ export default function CartClient({ basePath, cityName, primaryZipCodes = [] }:
 
   const fetchCart = async () => {
     try {
-      const response = await fetch(`/api${basePath}/cart`);
+      const response = await fetch(`/api${basePath}/cart`, { credentials: 'same-origin' });
       const data = await response.json();
 
       if (!response.ok || !data.success) {
@@ -77,6 +77,7 @@ export default function CartClient({ basePath, cityName, primaryZipCodes = [] }:
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ itemId }),
+        credentials: 'same-origin',
       });
 
       const data = await response.json();
@@ -103,6 +104,7 @@ export default function CartClient({ basePath, cityName, primaryZipCodes = [] }:
     try {
       const response = await fetch(`/api${basePath}/cart/destroy`, {
         method: 'POST',
+        credentials: 'same-origin',
       });
 
       const data = await response.json();
@@ -228,7 +230,7 @@ export default function CartClient({ basePath, cityName, primaryZipCodes = [] }:
             {/* Price & Remove */}
             <div className="text-right">
               <p className="font-bold text-gray-900">
-                ${(item.price * item.quantity).toFixed(2)}
+                ${((item.price || 0) * (item.quantity || 1)).toFixed(2)}
               </p>
               <button
                 onClick={() => handleRemoveItem(item.itemId)}
@@ -282,12 +284,12 @@ export default function CartClient({ basePath, cityName, primaryZipCodes = [] }:
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Subtotal</span>
-                <span className="font-medium">${cart.subtotal.toFixed(2)}</span>
+                <span className="font-medium">${(cart.subtotal || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Delivery</span>
                 <span className="font-medium">
-                  {validatedDeliveryFee !== null
+                  {typeof validatedDeliveryFee === 'number'
                     ? validatedDeliveryFee === 0
                       ? 'Free'
                       : `$${validatedDeliveryFee.toFixed(2)}`
@@ -303,9 +305,9 @@ export default function CartClient({ basePath, cityName, primaryZipCodes = [] }:
               <div className="border-t pt-3 flex justify-between">
                 <span className="font-semibold">Total</span>
                 <span className="font-bold text-lg">
-                  {validatedDeliveryFee !== null
-                    ? `$${(validatedDeliveryFee + cart.subtotal + cart.serviceFee).toFixed(2)}`
-                    : `$${cart.subtotal.toFixed(2)}+`}
+                  {typeof validatedDeliveryFee === 'number'
+                    ? `$${(validatedDeliveryFee + cart.subtotal + (cart.serviceFee || 0)).toFixed(2)}`
+                    : `$${(cart.subtotal || 0).toFixed(2)}+`}
                 </span>
               </div>
             </div>
