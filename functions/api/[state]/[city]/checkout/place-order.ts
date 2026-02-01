@@ -42,6 +42,12 @@ import {
   addCookieToResponse,
   getMockCartData,
 } from '../../../../lib/cookies';
+import {
+  checkRateLimit,
+  getClientIp,
+  rateLimitHeaders,
+  RATE_LIMITS,
+} from '../../../../lib/rateLimit';
 
 interface Env extends FloristOneEnv, Partial<SupabaseEnv>, Partial<EmailEnv> {}
 
@@ -88,6 +94,25 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   // Only allow POST
   if (request.method !== 'POST') {
     return methodNotAllowedResponse(['POST', 'OPTIONS']);
+  }
+
+  // Rate limiting - prevent order spam
+  const clientIp = getClientIp(request);
+  const rateLimitResult = checkRateLimit(clientIp, RATE_LIMITS.placeOrder);
+  if (!rateLimitResult.allowed) {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: 'Too many order attempts. Please wait a moment and try again.',
+      }),
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          ...rateLimitHeaders(rateLimitResult),
+        },
+      }
+    );
   }
 
   // Validate route params

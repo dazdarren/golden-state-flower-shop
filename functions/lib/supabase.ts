@@ -318,6 +318,67 @@ export async function createOrder(
   return orderData;
 }
 
+/**
+ * Look up a guest order by email and order ID/confirmation number
+ */
+export async function getGuestOrder(
+  supabase: SupabaseClient,
+  email: string,
+  orderIdentifier: string
+): Promise<{
+  id: string;
+  florist_one_order_id: string;
+  florist_one_confirmation: string;
+  status: string;
+  subtotal: number;
+  delivery_fee: number;
+  tax: number;
+  total: number;
+  created_at: string;
+  items: Array<{
+    product_name: string;
+    price: number;
+    delivery_date: string;
+    recipient_name: string;
+  }>;
+} | null> {
+  // Try to find by florist_one_order_id or florist_one_confirmation
+  const { data: order, error } = await supabase
+    .from('orders')
+    .select(`
+      id,
+      florist_one_order_id,
+      florist_one_confirmation,
+      status,
+      subtotal,
+      delivery_fee,
+      tax,
+      total,
+      created_at,
+      order_items (
+        product_name,
+        price,
+        delivery_date,
+        recipient_name
+      )
+    `)
+    .eq('guest_email', email.toLowerCase())
+    .or(`florist_one_order_id.eq.${orderIdentifier},florist_one_confirmation.eq.${orderIdentifier}`)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error looking up guest order:', error);
+    return null;
+  }
+
+  if (!order) return null;
+
+  return {
+    ...order,
+    items: order.order_items || [],
+  };
+}
+
 // ============================================
 // Newsletter Operations
 // ============================================

@@ -14,9 +14,13 @@ export interface EmailEnv {
 
 let resendClient: Resend | null = null;
 
-// Using Resend's test domain until a custom domain is verified
+// Default from address - should be overridden with EMAIL_FROM_ADDRESS env var
+// The Resend test domain only works for sending to the account owner's email
 const DEFAULT_FROM_ADDRESS = 'onboarding@resend.dev';
 const DEFAULT_FROM_NAME = 'Golden State Flower Shop';
+
+// Track if we've warned about using default email
+let hasWarnedAboutDefaultEmail = false;
 
 /**
  * Create a Resend client
@@ -35,11 +39,30 @@ export function hasEmailCredentials(env: Partial<EmailEnv>): boolean {
 }
 
 /**
+ * Check if email is properly configured for production
+ * Returns true if using a custom domain, false if using test domain
+ */
+export function isEmailProductionReady(env: Partial<EmailEnv>): boolean {
+  return !!(env.EMAIL_FROM_ADDRESS && !env.EMAIL_FROM_ADDRESS.includes('resend.dev'));
+}
+
+/**
  * Get from address string
  */
 function getFromAddress(env: EmailEnv): string {
   const name = env.EMAIL_FROM_NAME || DEFAULT_FROM_NAME;
   const email = env.EMAIL_FROM_ADDRESS || DEFAULT_FROM_ADDRESS;
+
+  // Warn once if using default test domain
+  if (!env.EMAIL_FROM_ADDRESS && !hasWarnedAboutDefaultEmail) {
+    hasWarnedAboutDefaultEmail = true;
+    console.warn(
+      'WARNING: Using Resend test domain for emails. ' +
+      'Set EMAIL_FROM_ADDRESS environment variable to use a verified domain. ' +
+      'Test emails will only work for the account owner\'s email address.'
+    );
+  }
+
   return `${name} <${email}>`;
 }
 

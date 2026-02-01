@@ -13,11 +13,16 @@ import {
   serverErrorResponse,
 } from '../../../../lib/response';
 import { getCartIdFromCookies, getMockCartData } from '../../../../lib/cookies';
+import {
+  checkRateLimit,
+  getClientIp,
+  rateLimitHeaders,
+  RATE_LIMITS,
+} from '../../../../lib/rateLimit';
 
 interface Env extends FloristOneEnv {}
 
 export const onRequest: PagesFunction<Env> = async (context) => {
-  console.log('get-total called:', context.request.url);
   const { request, params, env } = context;
 
   // Handle CORS preflight
@@ -28,6 +33,25 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   // Only allow GET
   if (request.method !== 'GET') {
     return methodNotAllowedResponse(['GET', 'OPTIONS']);
+  }
+
+  // Rate limiting
+  const clientIp = getClientIp(request);
+  const rateLimitResult = checkRateLimit(clientIp, RATE_LIMITS.getTotal);
+  if (!rateLimitResult.allowed) {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: 'Too many requests. Please wait a moment.',
+      }),
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          ...rateLimitHeaders(rateLimitResult),
+        },
+      }
+    );
   }
 
   // Validate route params
