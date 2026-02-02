@@ -12,6 +12,7 @@ import {
   methodNotAllowedResponse,
   serverErrorResponse,
 } from '../../../lib/response';
+import { searchMockProducts } from '../../../lib/mockData';
 
 interface Env extends FloristOneEnv {}
 
@@ -25,16 +26,6 @@ interface ProductResult {
   dimension?: string;
   category?: string;
 }
-
-// Mock products for development without API credentials
-const MOCK_PRODUCTS: ProductResult[] = [
-  { sku: 'MOCK-001', name: 'Garden Splendor Bouquet', description: 'A beautiful mixed arrangement with roses and lilies', price: 59.99, image: '/images/placeholder-flower.svg', imageLarge: '/images/placeholder-flower.svg', category: 'mixed' },
-  { sku: 'MOCK-002', name: 'Classic Red Roses', description: 'Dozen stunning red roses', price: 79.99, image: '/images/placeholder-flower.svg', imageLarge: '/images/placeholder-flower.svg', category: 'roses' },
-  { sku: 'MOCK-003', name: 'Birthday Celebration', description: 'Colorful birthday flowers', price: 54.99, image: '/images/placeholder-flower.svg', imageLarge: '/images/placeholder-flower.svg', category: 'birthday' },
-  { sku: 'MOCK-004', name: 'Peace Lily Plant', description: 'Elegant peace lily plant', price: 64.99, image: '/images/placeholder-flower.svg', imageLarge: '/images/placeholder-flower.svg', category: 'plants' },
-  { sku: 'MOCK-005', name: 'Spring Garden Basket', description: 'Fresh spring flowers in a basket', price: 74.99, image: '/images/placeholder-flower.svg', imageLarge: '/images/placeholder-flower.svg', category: 'mixed' },
-  { sku: 'MOCK-006', name: 'Pink Rose Bouquet', description: 'Beautiful pink roses arrangement', price: 69.99, image: '/images/placeholder-flower.svg', imageLarge: '/images/placeholder-flower.svg', category: 'roses' },
-];
 
 // Categories to search across
 const SEARCH_CATEGORIES = ['bd', 'sy', 'an', 'gw', 'ty', 'lr', 'nb', 'ao', 'bs', 'ro', 'pl'];
@@ -74,13 +65,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
   // Check if credentials are configured
   if (!hasFloristOneCredentials(env)) {
-    // Filter mock products by query
-    const filtered = MOCK_PRODUCTS.filter(
-      (p) =>
-        p.name.toLowerCase().includes(query) ||
-        p.description.toLowerCase().includes(query) ||
-        (p.category && p.category.toLowerCase().includes(query))
-    );
+    // Search mock products
+    const filtered = searchMockProducts(query, count);
 
     return successResponse({
       products: filtered,

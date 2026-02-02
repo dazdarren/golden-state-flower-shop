@@ -20,6 +20,7 @@ import {
   createMockCartDataCookie,
   MockCartItem,
 } from '../../../../lib/cookies';
+import { getMockProductBySku } from '../../../../lib/mockData';
 
 interface Env extends FloristOneEnv {}
 
@@ -27,34 +28,6 @@ interface AddToCartBody {
   sku: string;
   quantity?: number;
 }
-
-// Mock product data for development
-const MOCK_PRODUCTS: Record<string, { name: string; price: number }> = {
-  'FTD-MIX001': { name: 'Garden Splendor Bouquet', price: 59.99 },
-  'FTD-MIX002': { name: 'Vibrant Celebration Arrangement', price: 69.99 },
-  'FTD-MIX003': { name: 'Sunshine Meadow Bouquet', price: 54.99 },
-  'FTD-MIX004': { name: 'Spring Garden Basket', price: 74.99 },
-  'FTD-MIX005': { name: 'Enchanted Fields Bouquet', price: 64.99 },
-  'FTD-MIX006': { name: 'Coastal Bloom Collection', price: 79.99 },
-  'FTD-ROSE001': { name: 'Classic Red Rose Dozen', price: 89.99 },
-  'FTD-ROSE002': { name: 'Pink Rose Garden', price: 79.99 },
-  'FTD-ROSE003': { name: 'White Rose Elegance', price: 84.99 },
-  'FTD-ROSE004': { name: 'Rainbow Rose Delight', price: 94.99 },
-  'FTD-ROSE005': { name: 'Lavender Rose Dreams', price: 74.99 },
-  'FTD-ROSE006': { name: 'Two Dozen Premium Roses', price: 149.99 },
-  'FTD-PLT001': { name: 'Peace Lily Plant', price: 64.99 },
-  'FTD-PLT002': { name: 'Orchid Garden', price: 79.99 },
-  'FTD-PLT003': { name: 'Succulent Collection', price: 49.99 },
-  'FTD-PLT004': { name: 'Blooming Azalea', price: 59.99 },
-  'FTD-SYM001': { name: 'Peaceful Memories Arrangement', price: 99.99 },
-  'FTD-SYM002': { name: 'Eternal Love Wreath', price: 149.99 },
-  'FTD-SYM003': { name: 'Serene Standing Spray', price: 179.99 },
-  'FTD-SYM004': { name: 'Comforting Grace Basket', price: 89.99 },
-  'FTD-SEA001': { name: 'Seasonal Best Seller', price: 69.99 },
-  'FTD-SEA002': { name: "Florist's Choice Deluxe", price: 84.99 },
-  'FTD-SEA003': { name: 'Local Favorites Bouquet', price: 59.99 },
-  'FTD-SEA004': { name: 'San Francisco Special', price: 74.99 },
-};
 
 export const onRequest: PagesFunction<Env> = async (context) => {
   const { request, params, env } = context;
@@ -122,7 +95,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const mockCart = getMockCartData(request);
 
     // Get product info
-    const productInfo = MOCK_PRODUCTS[sku] || { name: `Product ${sku}`, price: 49.99 };
+    const productInfo = getMockProductBySku(sku);
 
     // Check if item already in cart
     const existingIndex = mockCart.items.findIndex((item) => item.sku === sku);
