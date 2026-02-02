@@ -126,7 +126,7 @@ export const PRODUCT_TYPES: CategoryConfig[] = [
     description: 'Potted plants and succulents delivered in {cityName}. Long-lasting gifts that grow with them. Low-maintenance options available.',
     metaDescription: 'Order plants and succulents for delivery in {cityName}. Green gifts that last.',
     icon: 'plant',
-    apiCategory: 'pl',
+    apiCategory: 'p',
     priceRange: { low: 34.99, high: 149.99 },
   },
   {
@@ -136,7 +136,7 @@ export const PRODUCT_TYPES: CategoryConfig[] = [
     description: 'Rose bouquets in red, pink, white, and mixed colors. Classic elegance delivered same-day in {cityName}. From single stems to two dozen.',
     metaDescription: 'Send beautiful rose bouquets in {cityName}. Classic elegance delivered.',
     icon: 'rose',
-    apiCategory: 'ro',
+    apiCategory: 'r',
     priceRange: { low: 44.99, high: 199.99 },
   },
   {
@@ -159,6 +159,173 @@ export const PRODUCT_TYPES: CategoryConfig[] = [
     apiCategory: 'bs',
     priceRange: { low: 79.99, high: 349.99 },
   },
+  {
+    slug: 'centerpieces',
+    name: 'Centerpieces',
+    title: 'Floral Centerpieces',
+    description: 'Stunning floral centerpieces for tables and events in {cityName}. Perfect for dinner parties, weddings, and special occasions.',
+    metaDescription: 'Order floral centerpieces in {cityName}. Beautiful table arrangements delivered.',
+    icon: 'table',
+    apiCategory: 'c',
+    priceRange: { low: 49.99, high: 199.99 },
+  },
+  {
+    slug: 'vase-arrangements',
+    name: 'Vase Arrangements',
+    title: 'Vase Arrangements',
+    description: 'Beautiful flowers in elegant vases delivered in {cityName}. Ready to display, no additional vase needed. Perfect gifts.',
+    metaDescription: 'Order vase flower arrangements in {cityName}. Elegant displays delivered ready.',
+    icon: 'vase',
+    apiCategory: 'v',
+    priceRange: { low: 44.99, high: 179.99 },
+  },
+  {
+    slug: 'exotic-flowers',
+    name: 'Exotic Flowers',
+    title: 'Exotic Flower Arrangements',
+    description: 'Exotic and tropical flower arrangements in {cityName}. Orchids, birds of paradise, anthuriums, and unique blooms.',
+    metaDescription: 'Order exotic tropical flowers in {cityName}. Unique and stunning arrangements.',
+    icon: 'sparkles',
+    apiCategory: 'x',
+    priceRange: { low: 59.99, high: 249.99 },
+  },
+  {
+    slug: 'balloons',
+    name: 'Balloons',
+    title: 'Balloon Bouquets',
+    description: 'Festive balloon bouquets delivered in {cityName}. Birthday, congratulations, get well, and celebration balloons available.',
+    metaDescription: 'Order balloon bouquets in {cityName}. Festive balloons for any celebration.',
+    icon: 'balloon',
+    apiCategory: 'b',
+    priceRange: { low: 29.99, high: 89.99 },
+  },
+  {
+    slug: 'one-of-a-kind',
+    name: 'One of a Kind',
+    title: 'One of a Kind Arrangements',
+    description: 'Unique, designer-choice arrangements in {cityName}. Let our expert florists create something special with the freshest blooms.',
+    metaDescription: 'Order unique florist-designed arrangements in {cityName}. One of a kind creations.',
+    icon: 'star',
+    apiCategory: 'o',
+    priceRange: { low: 54.99, high: 199.99 },
+  },
+];
+
+// ============================================================================
+// FUNERAL COLLECTION - Sympathy and funeral-specific arrangements
+// ============================================================================
+
+export const FUNERAL_TYPES: CategoryConfig[] = [
+  {
+    slug: 'funeral-best-sellers',
+    name: 'Funeral Best Sellers',
+    title: 'Funeral Flower Best Sellers',
+    description: 'Our most popular funeral and sympathy arrangements in {cityName}. Appropriate for services, viewings, and memorials.',
+    metaDescription: 'Order popular funeral flowers in {cityName}. Tasteful sympathy arrangements.',
+    icon: 'heart-outline',
+    apiCategory: 'fbs',
+    priceRange: { low: 69.99, high: 249.99 },
+  },
+  {
+    slug: 'funeral-arrangements',
+    name: 'Funeral Arrangements',
+    title: 'Funeral Flower Arrangements',
+    description: 'Traditional funeral flower arrangements delivered in {cityName}. Suitable for funeral homes, churches, and memorial services.',
+    metaDescription: 'Order funeral flower arrangements in {cityName}. Traditional sympathy flowers.',
+    icon: 'flower',
+    apiCategory: 'fa',
+    priceRange: { low: 59.99, high: 199.99 },
+  },
+  {
+    slug: 'funeral-baskets',
+    name: 'Funeral Baskets',
+    title: 'Sympathy Flower Baskets',
+    description: 'Sympathy flower baskets for funerals and memorials in {cityName}. Appropriate for the service or sending to the family home.',
+    metaDescription: 'Order sympathy baskets in {cityName}. Comforting funeral flower baskets.',
+    icon: 'basket',
+    apiCategory: 'fb',
+    priceRange: { low: 59.99, high: 179.99 },
+  },
+  {
+    slug: 'funeral-sprays',
+    name: 'Funeral Sprays',
+    title: 'Funeral Sprays & Standing Arrangements',
+    description: 'Standing funeral sprays and large arrangements in {cityName}. Impressive tributes for services and viewings.',
+    metaDescription: 'Order funeral sprays in {cityName}. Standing sympathy arrangements.',
+    icon: 'spray',
+    apiCategory: 'fs',
+    priceRange: { low: 99.99, high: 349.99 },
+  },
+  {
+    slug: 'funeral-plants',
+    name: 'Sympathy Plants',
+    title: 'Sympathy Plants',
+    description: 'Long-lasting sympathy plants delivered in {cityName}. Peace lilies, orchids, and green plants as lasting memorials.',
+    metaDescription: 'Order sympathy plants in {cityName}. Lasting memorial plant gifts.',
+    icon: 'plant',
+    apiCategory: 'fp',
+    priceRange: { low: 49.99, high: 149.99 },
+  },
+  {
+    slug: 'funeral-floor-pieces',
+    name: 'Floor Pieces',
+    title: 'Funeral Floor Arrangements',
+    description: 'Large floor-standing funeral arrangements in {cityName}. Impressive displays for funeral services and viewings.',
+    metaDescription: 'Order funeral floor pieces in {cityName}. Large standing arrangements.',
+    icon: 'pedestal',
+    apiCategory: 'fl',
+    priceRange: { low: 129.99, high: 399.99 },
+  },
+  {
+    slug: 'funeral-wreaths',
+    name: 'Funeral Wreaths',
+    title: 'Funeral Wreaths',
+    description: 'Traditional funeral wreaths delivered in {cityName}. Circular arrangements symbolizing eternal life and continuity.',
+    metaDescription: 'Order funeral wreaths in {cityName}. Traditional circular tributes.',
+    icon: 'wreath',
+    apiCategory: 'fw',
+    priceRange: { low: 99.99, high: 299.99 },
+  },
+  {
+    slug: 'funeral-hearts',
+    name: 'Funeral Hearts',
+    title: 'Funeral Heart Arrangements',
+    description: 'Heart-shaped funeral arrangements in {cityName}. Express deep love and affection with this meaningful tribute.',
+    metaDescription: 'Order funeral heart arrangements in {cityName}. Heart-shaped tributes.',
+    icon: 'heart-filled',
+    apiCategory: 'fh',
+    priceRange: { low: 149.99, high: 349.99 },
+  },
+  {
+    slug: 'funeral-crosses',
+    name: 'Funeral Crosses',
+    title: 'Funeral Cross Arrangements',
+    description: 'Cross-shaped funeral arrangements in {cityName}. Traditional religious tributes for Christian services.',
+    metaDescription: 'Order funeral cross arrangements in {cityName}. Religious floral tributes.',
+    icon: 'cross',
+    apiCategory: 'fx',
+    priceRange: { low: 149.99, high: 399.99 },
+  },
+  {
+    slug: 'funeral-casket',
+    name: 'Casket Sprays',
+    title: 'Casket Spray Arrangements',
+    description: 'Elegant casket spray arrangements in {cityName}. Designed to grace the casket during services.',
+    metaDescription: 'Order casket sprays in {cityName}. Elegant casket flower arrangements.',
+    icon: 'casket',
+    apiCategory: 'fc',
+    priceRange: { low: 149.99, high: 499.99 },
+  },
+  {
+    slug: 'funeral-urn',
+    name: 'Urn Arrangements',
+    title: 'Cremation Urn Flowers',
+    description: 'Flower arrangements for cremation urns in {cityName}. Appropriate displays for memorial services and celebrations of life.',
+    metaDescription: 'Order urn flower arrangements in {cityName}. Cremation memorial flowers.',
+    icon: 'urn',
+    apiCategory: 'fu',
+    priceRange: { low: 79.99, high: 199.99 },
+  },
 ];
 
 // ============================================================================
@@ -179,11 +346,24 @@ export const SEASONAL: SeasonalConfig[] = [
     description: "Valentine's Day flowers delivered in {cityName}. Red roses, romantic bouquets, and premium arrangements. Order early for guaranteed delivery.",
     metaDescription: "Order Valentine's Day flowers for delivery in {cityName}. Romantic arrangements available.",
     icon: 'heart-filled',
-    apiCategory: 'lr',
+    apiCategory: 'vd',
     timing: 'January - February',
     activeMonths: [1, 2],
     bannerColor: 'rose',
     priceRange: { low: 49.99, high: 299.99 },
+  },
+  {
+    slug: 'easter',
+    name: 'Easter',
+    title: 'Easter Flowers',
+    description: 'Easter flowers and spring arrangements in {cityName}. Lilies, tulips, and pastel bouquets perfect for Easter celebrations and springtime.',
+    metaDescription: 'Order Easter flowers in {cityName}. Spring lilies and arrangements delivered.',
+    icon: 'flower',
+    apiCategory: 'ea',
+    timing: 'March - April',
+    activeMonths: [3, 4],
+    bannerColor: 'lavender',
+    priceRange: { low: 44.99, high: 149.99 },
   },
   {
     slug: 'mothers-day',
@@ -205,7 +385,7 @@ export const SEASONAL: SeasonalConfig[] = [
     description: 'Holiday flowers and arrangements in festive reds, greens, and winter whites. Delivered in {cityName}. Perfect for hosts and holiday gatherings.',
     metaDescription: 'Order Christmas and holiday flowers in {cityName}. Festive arrangements delivered.',
     icon: 'tree',
-    apiCategory: 'ch',
+    apiCategory: 'cm',
     timing: 'November - December',
     activeMonths: [11, 12],
     bannerColor: 'forest',
@@ -227,6 +407,53 @@ export const SEASONAL: SeasonalConfig[] = [
 ];
 
 // ============================================================================
+// PRICE RANGE CATEGORIES
+// ============================================================================
+
+export const PRICE_RANGES: CategoryConfig[] = [
+  {
+    slug: 'under-60',
+    name: 'Under $60',
+    title: 'Flowers Under $60',
+    description: 'Beautiful flower arrangements under $60 in {cityName}. Affordable quality without compromising on freshness or design.',
+    metaDescription: 'Order affordable flowers under $60 in {cityName}. Budget-friendly arrangements.',
+    icon: 'dollar',
+    apiCategory: 'u60',
+    priceRange: { low: 29.99, high: 59.99 },
+  },
+  {
+    slug: 'price-60-80',
+    name: '$60 - $80',
+    title: 'Flowers $60 to $80',
+    description: 'Mid-range flower arrangements $60-$80 in {cityName}. Great value with fuller arrangements and premium blooms.',
+    metaDescription: 'Order flowers $60-$80 in {cityName}. Mid-range quality arrangements.',
+    icon: 'dollar',
+    apiCategory: '60t80',
+    priceRange: { low: 60, high: 80 },
+  },
+  {
+    slug: 'price-80-100',
+    name: '$80 - $100',
+    title: 'Flowers $80 to $100',
+    description: 'Premium flower arrangements $80-$100 in {cityName}. Impressive size and quality for special occasions.',
+    metaDescription: 'Order premium flowers $80-$100 in {cityName}. Quality arrangements.',
+    icon: 'dollar',
+    apiCategory: '80t100',
+    priceRange: { low: 80, high: 100 },
+  },
+  {
+    slug: 'over-100',
+    name: 'Over $100',
+    title: 'Luxury Flowers Over $100',
+    description: 'Luxury flower arrangements over $100 in {cityName}. Stunning displays with the finest blooms and exceptional design.',
+    metaDescription: 'Order luxury flowers over $100 in {cityName}. Premium arrangements.',
+    icon: 'diamond',
+    apiCategory: 'a100',
+    priceRange: { low: 100, high: 500 },
+  },
+];
+
+// ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
 
@@ -238,15 +465,25 @@ export function getProductTypeBySlug(slug: string): CategoryConfig | undefined {
   return PRODUCT_TYPES.find((p) => p.slug === slug);
 }
 
+export function getFuneralTypeBySlug(slug: string): CategoryConfig | undefined {
+  return FUNERAL_TYPES.find((f) => f.slug === slug);
+}
+
 export function getSeasonalBySlug(slug: string): SeasonalConfig | undefined {
   return SEASONAL.find((s) => s.slug === slug);
+}
+
+export function getPriceRangeBySlug(slug: string): CategoryConfig | undefined {
+  return PRICE_RANGES.find((p) => p.slug === slug);
 }
 
 export function getCategoryBySlug(slug: string): CategoryConfig | undefined {
   return (
     getOccasionBySlug(slug) ||
     getProductTypeBySlug(slug) ||
-    getSeasonalBySlug(slug)
+    getFuneralTypeBySlug(slug) ||
+    getSeasonalBySlug(slug) ||
+    getPriceRangeBySlug(slug)
   );
 }
 
@@ -259,7 +496,9 @@ export function getAllCategorySlugs(): string[] {
   return [
     ...OCCASIONS.map((o) => o.slug),
     ...PRODUCT_TYPES.map((p) => p.slug),
+    ...FUNERAL_TYPES.map((f) => f.slug),
     ...SEASONAL.map((s) => s.slug),
+    ...PRICE_RANGES.map((p) => p.slug),
   ];
 }
 
@@ -268,6 +507,8 @@ export function getNavigationCategories() {
   return {
     occasions: OCCASIONS,
     productTypes: PRODUCT_TYPES,
+    funeralTypes: FUNERAL_TYPES,
     seasonal: SEASONAL,
+    priceRanges: PRICE_RANGES,
   };
 }

@@ -222,6 +222,11 @@ function getProductTypeGradient(slug: string): string {
     'rose-bouquets': 'bg-gradient-to-br from-rose-50 to-cream-50',
     'mixed-arrangements': 'bg-gradient-to-br from-amber-50 to-cream-50',
     'premium-collection': 'bg-gradient-to-br from-gold-50 to-cream-50',
+    centerpieces: 'bg-gradient-to-br from-amber-50 to-cream-50',
+    'vase-arrangements': 'bg-gradient-to-br from-sky-50 to-cream-50',
+    'exotic-flowers': 'bg-gradient-to-br from-purple-50 to-cream-50',
+    balloons: 'bg-gradient-to-br from-pink-50 to-cream-50',
+    'one-of-a-kind': 'bg-gradient-to-br from-indigo-50 to-cream-50',
   };
   return gradients[slug] || 'bg-gradient-to-br from-cream-50 to-white';
 }
@@ -260,6 +265,46 @@ function getProductTypeIcon(slug: string): JSX.Element {
         </svg>
       </div>
     ),
+    centerpieces: (
+      <div className="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center">
+        <svg className="w-7 h-7 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+        </svg>
+      </div>
+    ),
+    'vase-arrangements': (
+      <div className="w-14 h-14 rounded-2xl bg-sky-100 flex items-center justify-center">
+        <svg className="w-7 h-7 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+      </div>
+    ),
+    'exotic-flowers': (
+      <div className="w-14 h-14 rounded-2xl bg-purple-100 flex items-center justify-center">
+        <svg className="w-7 h-7 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+        </svg>
+      </div>
+    ),
+    balloons: (
+      <div className="w-14 h-14 rounded-2xl bg-pink-100 flex items-center justify-center">
+        <svg className="w-7 h-7 text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                d="M12 3c-2.76 0-5 2.69-5 6 0 2.76 1.79 5.1 4.25 5.79V18H9v2h6v-2h-2.25v-3.21C15.21 14.1 17 11.76 17 9c0-3.31-2.24-6-5-6z" />
+        </svg>
+      </div>
+    ),
+    'one-of-a-kind': (
+      <div className="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center">
+        <svg className="w-7 h-7 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+      </div>
+    ),
   };
   return icons[slug] || icons['plants'];
 }
@@ -290,6 +335,36 @@ function getSmallProductTypeIcon(slug: string): JSX.Element {
               d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
       </svg>
     ),
+    centerpieces: (
+      <svg className="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+              d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+      </svg>
+    ),
+    'vase-arrangements': (
+      <svg className="w-6 h-6 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+      </svg>
+    ),
+    'exotic-flowers': (
+      <svg className="w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+              d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+      </svg>
+    ),
+    balloons: (
+      <svg className="w-6 h-6 text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+              d="M12 3c-2.76 0-5 2.69-5 6 0 2.76 1.79 5.1 4.25 5.79V18H9v2h6v-2h-2.25v-3.21C15.21 14.1 17 11.76 17 9c0-3.31-2.24-6-5-6z" />
+      </svg>
+    ),
+    'one-of-a-kind': (
+      <svg className="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+              d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+      </svg>
+    ),
   };
   return icons[slug] || icons['plants'];
 }
@@ -300,6 +375,11 @@ function getProductTypeIntro(slug: string, cityName: string): string {
     'rose-bouquets': `Express your feelings with classic rose bouquets delivered in ${cityName}. Choose from red, pink, white, yellow, and mixed rose arrangements - the timeless choice for any occasion.`,
     'mixed-arrangements': `Explore our vibrant mixed flower arrangements for delivery throughout ${cityName}. These colorful bouquets combine the best seasonal blooms for a stunning, varied display.`,
     'premium-collection': `Indulge in our luxury premium flower collection, featuring the finest blooms and expert craftsmanship. These exceptional arrangements are perfect for making a lasting impression in ${cityName}.`,
+    centerpieces: `Stunning floral centerpieces for tables and events in ${cityName}. Perfect for dinner parties, weddings, corporate events, and special occasions. Make your gathering unforgettable.`,
+    'vase-arrangements': `Beautiful flowers in elegant vases delivered in ${cityName}. Ready to display with no additional vase needed - the perfect hassle-free gift that arrives complete.`,
+    'exotic-flowers': `Discover unique tropical and exotic flower arrangements in ${cityName}. Orchids, birds of paradise, anthuriums, and rare blooms that make a distinctive statement.`,
+    balloons: `Festive balloon bouquets delivered in ${cityName}. Add joy to birthdays, congratulations, get well wishes, and celebrations with colorful balloon arrangements.`,
+    'one-of-a-kind': `Let our expert florists create something truly special in ${cityName}. Designer-choice arrangements using the freshest available blooms - each one unique and stunning.`,
   };
   return intros[slug] || '';
 }
@@ -365,6 +445,81 @@ function getProductTypeContent(
             Perfect for special occasions, corporate gifts, or when only the best will do.
             Premium arrangements in {cityConfig.cityName} include complimentary gift packaging
             and a personalized card to make your gift truly memorable.
+          </p>
+        </>
+      );
+    case 'centerpieces':
+      return (
+        <>
+          <p>
+            Our floral centerpieces are designed to be the star of any table setting. Whether
+            you&apos;re hosting a dinner party, wedding reception, or corporate event in {cityConfig.cityName},
+            these arrangements create an elegant focal point.
+          </p>
+          <p>
+            Each centerpiece is crafted to complement your decor and occasion. Low arrangements
+            allow for easy conversation across the table, while taller designs make impressive
+            statements at buffets and display areas.
+          </p>
+        </>
+      );
+    case 'vase-arrangements':
+      return (
+        <>
+          <p>
+            Our vase arrangements arrive ready to display - no need for the recipient to find
+            a container. Each bouquet is expertly arranged in an elegant vase that complements
+            the flowers perfectly.
+          </p>
+          <p>
+            The ideal hassle-free gift for any occasion in {cityConfig.cityName}. From sleek
+            modern designs to classic crystal vases, we select containers that enhance each
+            arrangement&apos;s beauty.
+          </p>
+        </>
+      );
+    case 'exotic-flowers':
+      return (
+        <>
+          <p>
+            Make a bold statement with our exotic flower collection. Featuring tropical orchids,
+            birds of paradise, anthuriums, proteas, and other unique blooms that stand out
+            from traditional arrangements.
+          </p>
+          <p>
+            These distinctive flowers are perfect for those who appreciate the unusual and
+            beautiful. Delivery available throughout {cityConfig.cityName} with special care
+            to protect these precious blooms.
+          </p>
+        </>
+      );
+    case 'balloons':
+      return (
+        <>
+          <p>
+            Add extra joy to any celebration with our balloon bouquets. Perfect for birthdays,
+            congratulations, get well wishes, new baby celebrations, and more. Available for
+            same-day delivery in {cityConfig.cityName}.
+          </p>
+          <p>
+            Our balloon arrangements feature high-quality helium balloons that stay festive
+            for days. Combine with flowers for an extra special surprise that&apos;s sure to
+            bring smiles.
+          </p>
+        </>
+      );
+    case 'one-of-a-kind':
+      return (
+        <>
+          <p>
+            Trust our talented florists to create something truly special. Designer-choice
+            arrangements let our experts showcase their creativity using the freshest and
+            most beautiful blooms available that day.
+          </p>
+          <p>
+            Perfect when you want a unique gift that no one else will have. Each one-of-a-kind
+            arrangement in {cityConfig.cityName} is a personal work of art, tailored to
+            your budget and the occasion.
           </p>
         </>
       );

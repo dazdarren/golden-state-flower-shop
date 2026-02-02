@@ -254,6 +254,7 @@ export default function SeasonalPage({ params }: SeasonalPageProps) {
 function getSeasonalGradient(slug: string): string {
   const gradients: Record<string, string> = {
     'valentines-day': 'bg-gradient-to-br from-rose-100 via-rose-50 to-cream-50',
+    easter: 'bg-gradient-to-br from-purple-100 via-lavender-50 to-cream-50',
     'mothers-day': 'bg-gradient-to-br from-pink-100 via-pink-50 to-cream-50',
     christmas: 'bg-gradient-to-br from-forest-100 via-sage-50 to-cream-50',
     'seasonal-specials': 'bg-gradient-to-br from-amber-100 via-amber-50 to-cream-50',
@@ -264,6 +265,7 @@ function getSeasonalGradient(slug: string): string {
 function getSeasonalCardGradient(slug: string): string {
   const gradients: Record<string, string> = {
     'valentines-day': 'bg-gradient-to-br from-rose-50 to-cream-50 border border-rose-100',
+    easter: 'bg-gradient-to-br from-purple-50 to-cream-50 border border-purple-100',
     'mothers-day': 'bg-gradient-to-br from-pink-50 to-cream-50 border border-pink-100',
     christmas: 'bg-gradient-to-br from-sage-50 to-cream-50 border border-sage-100',
     'seasonal-specials': 'bg-gradient-to-br from-amber-50 to-cream-50 border border-amber-100',
@@ -274,6 +276,7 @@ function getSeasonalCardGradient(slug: string): string {
 function getSeasonalBadgeStyle(slug: string): string {
   const styles: Record<string, string> = {
     'valentines-day': 'bg-rose-100 text-rose-700 border border-rose-200',
+    easter: 'bg-purple-100 text-purple-700 border border-purple-200',
     'mothers-day': 'bg-pink-100 text-pink-700 border border-pink-200',
     christmas: 'bg-forest-100 text-forest-700 border border-forest-200',
     'seasonal-specials': 'bg-amber-100 text-amber-700 border border-amber-200',
@@ -293,6 +296,20 @@ function getSeasonalDecoration(slug: string): JSX.Element {
         <div className="absolute bottom-10 left-10 w-48 h-48 opacity-5 rotate-12">
           <svg viewBox="0 0 200 200" fill="none" className="w-full h-full text-rose-400">
             <path d="M100 180 C20 100, 20 40, 100 40 C180 40, 180 100, 100 180Z" fill="currentColor" />
+          </svg>
+        </div>
+      </>
+    ),
+    easter: (
+      <>
+        <div className="absolute top-10 right-10 w-64 h-64 opacity-10">
+          <svg viewBox="0 0 200 200" fill="none" className="w-full h-full text-purple-500">
+            <ellipse cx="100" cy="110" rx="60" ry="80" fill="currentColor" />
+          </svg>
+        </div>
+        <div className="absolute bottom-10 left-10 w-48 h-48 opacity-5 rotate-12">
+          <svg viewBox="0 0 200 200" fill="none" className="w-full h-full text-purple-400">
+            <ellipse cx="100" cy="110" rx="60" ry="80" fill="currentColor" />
           </svg>
         </div>
       </>
@@ -345,6 +362,14 @@ function getSeasonalIcon(slug: string): JSX.Element {
         </svg>
       </div>
     ),
+    easter: (
+      <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+        <svg className="w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                d="M12 14c-2.21 0-4-2.24-4-5s1.79-5 4-5 4 2.24 4 5-1.79 5-4 5zm0 0v6m-3-3h6" />
+        </svg>
+      </div>
+    ),
     'mothers-day': (
       <div className="w-12 h-12 rounded-xl bg-pink-100 flex items-center justify-center">
         <svg className="w-6 h-6 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -390,6 +415,21 @@ function getSeasonalContent(
             Order early to secure same-day delivery on February 14th. Our Valentine&apos;s arrangements
             are available for delivery to {cityConfig.neighborhoods.slice(0, 3).join(', ')}, and all
             {cityConfig.cityName} neighborhoods.
+          </p>
+        </>
+      );
+    case 'easter':
+      return (
+        <>
+          <p>
+            Celebrate the joy of spring with our Easter flower collection. Featuring beautiful
+            lilies, colorful tulips, and pastel arrangements perfect for Easter celebrations
+            and springtime gatherings in {cityConfig.cityName}.
+          </p>
+          <p>
+            Our Easter flowers make wonderful gifts for hosts, family gatherings, and church
+            celebrations. Order early for delivery before Easter Sunday to {cityConfig.neighborhoods.slice(0, 3).join(', ')},
+            and all {cityConfig.cityName} neighborhoods.
           </p>
         </>
       );

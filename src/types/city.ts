@@ -54,9 +54,42 @@ export type OccasionSlug =
   | 'just-because'
   | 'congratulations';
 
-export type ProductTypeSlug = 'plants' | 'rose-bouquets' | 'mixed-arrangements' | 'premium-collection';
+export type ProductTypeSlug =
+  | 'plants'
+  | 'rose-bouquets'
+  | 'mixed-arrangements'
+  | 'premium-collection'
+  | 'centerpieces'
+  | 'vase-arrangements'
+  | 'exotic-flowers'
+  | 'balloons'
+  | 'one-of-a-kind';
 
-export type SeasonalSlug = 'valentines-day' | 'mothers-day' | 'christmas' | 'seasonal-specials';
+export type FuneralTypeSlug =
+  | 'funeral-best-sellers'
+  | 'funeral-arrangements'
+  | 'funeral-baskets'
+  | 'funeral-sprays'
+  | 'funeral-plants'
+  | 'funeral-floor-pieces'
+  | 'funeral-wreaths'
+  | 'funeral-hearts'
+  | 'funeral-crosses'
+  | 'funeral-casket'
+  | 'funeral-urn';
+
+export type SeasonalSlug =
+  | 'valentines-day'
+  | 'easter'
+  | 'mothers-day'
+  | 'christmas'
+  | 'seasonal-specials';
+
+export type PriceRangeSlug =
+  | 'under-60'
+  | 'price-60-80'
+  | 'price-80-100'
+  | 'over-100';
 
 export const OCCASIONS: Record<OccasionSlug, OccasionConfig> = {
   birthday: {

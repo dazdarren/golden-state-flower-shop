@@ -109,16 +109,43 @@ export const OCCASION_TO_CATEGORY: Record<string, string> = {
   'congratulations': 'ao',
   'everyday': 'ao',
   'best-sellers': 'bs',
-  // Product Types (using related categories)
-  'plants': 'pl',
-  'rose-bouquets': 'ro',
+
+  // Product Types
+  'plants': 'p',
+  'rose-bouquets': 'r',
   'mixed-arrangements': 'ao',
   'premium-collection': 'bs',
+  'centerpieces': 'c',
+  'vase-arrangements': 'v',
+  'exotic-flowers': 'x',
+  'balloons': 'b',
+  'one-of-a-kind': 'o',
+
+  // Funeral & Sympathy Collection
+  'funeral-best-sellers': 'fbs',
+  'funeral-arrangements': 'fa',
+  'funeral-baskets': 'fb',
+  'funeral-sprays': 'fs',
+  'funeral-plants': 'fp',
+  'funeral-floor-pieces': 'fl',
+  'funeral-wreaths': 'fw',
+  'funeral-hearts': 'fh',
+  'funeral-crosses': 'fx',
+  'funeral-casket': 'fc',
+  'funeral-urn': 'fu',
+
   // Seasonal (mapping to appropriate API categories)
-  'valentines-day': 'lr',
+  'valentines-day': 'vd',
   'mothers-day': 'md',
-  'christmas': 'ch',
+  'christmas': 'cm',
+  'easter': 'ea',
   'seasonal-specials': 'ao',
+
+  // Price Ranges
+  'under-60': 'u60',
+  'price-60-80': '60t80',
+  'price-80-100': '80t100',
+  'over-100': 'a100',
 };
 
 /**
