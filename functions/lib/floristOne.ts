@@ -402,6 +402,7 @@ export class FloristOneClient {
     }>;
     ccinfo: {
       authorizenet_token: string;
+      authorizenet_descriptor?: string;
     };
     ordertotal: number;
   }): Promise<FloristOneOrderResponse> {
@@ -442,6 +443,7 @@ export class FloristOneClient {
 
     const ccinfoObj = {
       AUTHORIZENET_TOKEN: orderData.ccinfo.authorizenet_token,
+      AUTHORIZENET_DESCRIPTOR: orderData.ccinfo.authorizenet_descriptor || 'COMMON.ACCEPT.INAPP.PAYMENT',
     };
 
     // Florist One expects stringified JSON for these fields

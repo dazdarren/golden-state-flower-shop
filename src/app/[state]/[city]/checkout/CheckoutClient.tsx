@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AuthorizeNetCardElement, { AuthorizeNetCardRef } from '@/components/AuthorizeNetCardElement';
 import { supabase } from '@/lib/supabase';
 import { PaymentIcons } from '@/components/TrustBadges';
+import RadarAddressAutocomplete from '@/components/RadarAddressAutocomplete';
 
 interface DeliveryDate {
   date: string;
@@ -224,6 +225,23 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
     setError(null);
   };
 
+  // Handle address selection from Radar autocomplete
+  const handleAddressSelect = useCallback((address: {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+  }) => {
+    setFormData((prev) => ({
+      ...prev,
+      recipientAddress1: address.street,
+      recipientCity: address.city,
+      recipientState: address.state,
+      recipientZip: address.zip,
+    }));
+    setError(null);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -308,6 +326,7 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
           },
           specialInstructions: formData.specialInstructions || undefined,
           paymentToken: tokenResult.token,
+          paymentDescriptor: tokenResult.dataDescriptor,
         }),
       });
 
@@ -473,16 +492,12 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
               <label htmlFor="recipientAddress1" className="block text-sm font-medium text-forest-900 mb-1">
                 Delivery Address *
               </label>
-              <input
-                type="text"
-                id="recipientAddress1"
-                name="recipientAddress1"
-                value={formData.recipientAddress1}
-                onChange={handleInputChange}
-                autoComplete="street-address"
+              <RadarAddressAutocomplete
+                onAddressSelect={handleAddressSelect}
+                onManualChange={(value) => setFormData(prev => ({ ...prev, recipientAddress1: value }))}
+                defaultValue={formData.recipientAddress1}
+                placeholder="Start typing an address..."
                 className="w-full px-4 py-3 rounded-xl border border-cream-300 focus:border-sage-400 focus:ring-2 focus:ring-sage-100 transition-colors"
-                placeholder="Street address"
-                required
               />
             </div>
 

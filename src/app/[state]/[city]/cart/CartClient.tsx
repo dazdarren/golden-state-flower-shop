@@ -101,6 +101,7 @@ export default function CartClient({ basePath, cityName, primaryZipCodes = [] }:
     if (newQuantity < 0 || newQuantity > 99) return;
 
     setUpdatingQuantity(sku);
+    setError(null);
 
     try {
       const response = await fetch(`/api${basePath}/cart/update-quantity`, {
@@ -119,8 +120,13 @@ export default function CartClient({ basePath, cityName, primaryZipCodes = [] }:
         return;
       }
 
-      // Refresh cart
-      fetchCart();
+      // Use the returned cart data directly instead of making another fetch
+      if (data.data) {
+        setCart(data.data);
+      } else {
+        // Fallback to refetching if no data returned
+        fetchCart();
+      }
     } catch (err) {
       setError('Unable to update quantity. Please try again.');
     } finally {

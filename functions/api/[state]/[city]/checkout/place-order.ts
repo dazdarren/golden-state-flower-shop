@@ -81,6 +81,7 @@ interface PlaceOrderBody {
   };
   specialInstructions?: string;
   paymentToken: string;
+  paymentDescriptor?: string;
 }
 
 export const onRequest: PagesFunction<Env> = async (context) => {
@@ -411,6 +412,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       products: orderProducts,
       ccinfo: {
         authorizenet_token: body.paymentToken,
+        authorizenet_descriptor: body.paymentDescriptor || 'COMMON.ACCEPT.INAPP.PAYMENT',
       },
       ordertotal: orderTotal,
     });

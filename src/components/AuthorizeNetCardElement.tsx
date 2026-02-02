@@ -38,7 +38,11 @@ interface AuthorizeNetResponse {
 }
 
 export interface AuthorizeNetCardRef {
-  createToken: () => Promise<{ token?: string; error?: string }>;
+  createToken: () => Promise<{
+    token?: string;
+    dataDescriptor?: string;
+    error?: string;
+  }>;
 }
 
 interface AuthorizeNetCardElementProps {
@@ -175,8 +179,11 @@ const AuthorizeNetCardElement = forwardRef<AuthorizeNetCardRef, AuthorizeNetCard
               setError(errorMessage);
               resolve({ error: errorMessage });
             } else if (response.opaqueData) {
-              // The token is the dataValue
-              resolve({ token: response.opaqueData.dataValue });
+              // Return both dataValue (token) and dataDescriptor
+              resolve({
+                token: response.opaqueData.dataValue,
+                dataDescriptor: response.opaqueData.dataDescriptor,
+              });
             } else {
               resolve({ error: 'Failed to process payment' });
             }
