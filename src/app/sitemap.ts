@@ -118,6 +118,36 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: 0.6,
       });
     }
+
+    // Hospital delivery pages (~7 hospitals × 11 cities = ~77 pages)
+    for (const hospital of city.hospitals) {
+      const hospitalSlug = hospital
+        .toLowerCase()
+        .replace(/['']/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+      urls.push({
+        url: `${siteUrl}${cityPath}/hospital/${hospitalSlug}/`,
+        lastModified: currentDate,
+        changeFrequency: 'monthly',
+        priority: 0.6,
+      });
+    }
+
+    // Neighborhood delivery pages (~15 neighborhoods × 11 cities = ~165 pages)
+    for (const neighborhood of city.neighborhoods) {
+      const neighborhoodSlug = neighborhood
+        .toLowerCase()
+        .replace(/['']/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+      urls.push({
+        url: `${siteUrl}${cityPath}/neighborhood/${neighborhoodSlug}/`,
+        lastModified: currentDate,
+        changeFrequency: 'monthly',
+        priority: 0.6,
+      });
+    }
   }
 
   return urls;
