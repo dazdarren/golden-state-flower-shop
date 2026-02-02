@@ -198,10 +198,7 @@ export default function CityHomePage({ params }: CityPageProps) {
             {/* Primary CTAs */}
             <div className="flex flex-wrap justify-center gap-3 mb-8">
               <Link href={`${basePath}/flowers/birthday`} className="btn-primary">
-                <span>Birthday Flowers</span>
-                <svg className="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
+                Birthday Flowers
               </Link>
               <Link href={`${basePath}/flowers/sympathy`} className="btn-secondary">
                 Sympathy Flowers
