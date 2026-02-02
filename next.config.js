@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  output: 'export', // Static export for Cloudflare Pages
   trailingSlash: true,
   images: {
     unoptimized: true,
