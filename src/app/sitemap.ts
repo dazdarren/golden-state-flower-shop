@@ -163,6 +163,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: 0.6,
       });
     }
+
+    // Venue/event delivery pages (~8 venues × 11 cities = ~88 pages)
+    for (const venue of city.venues) {
+      const venueSlug = venue
+        .toLowerCase()
+        .replace(/['']/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+      urls.push({
+        url: `${siteUrl}${cityPath}/venue/${venueSlug}/`,
+        lastModified: currentDate,
+        changeFrequency: 'monthly',
+        priority: 0.6,
+      });
+    }
   }
 
   return urls;
