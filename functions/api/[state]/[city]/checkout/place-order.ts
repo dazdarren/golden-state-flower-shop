@@ -167,11 +167,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     return errorResponse(`Card: ${cardResult.error}`);
   }
 
-  // Validate optional special instructions
+  // Validate optional special instructions (matches UI maxLength of 500)
   const instructionsResult = validateOptionalString(
     body.specialInstructions,
     'Special instructions',
-    100
+    500
   );
   if (!instructionsResult.success) {
     return errorResponse(instructionsResult.error!);
@@ -356,9 +356,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     // This prevents charging customers significantly more than what was displayed
     const expectedTotal = body.expectedTotal!;
     const priceDifference = Math.abs(orderTotal - expectedTotal);
-    const maxAllowedDifference = expectedTotal * 0.05; // Allow 5% variance for tax/rounding
+    // Allow 5% variance OR $2 max (whichever is greater) for tax/rounding differences
+    // Using OR instead of AND ensures small orders are also protected
+    const maxAllowedDifference = Math.max(expectedTotal * 0.05, 2);
 
-    if (priceDifference > maxAllowedDifference && priceDifference > 5) {
+    if (priceDifference > maxAllowedDifference) {
       // Price changed significantly - don't charge the wrong amount
       console.error(`Price mismatch: expected ${expectedTotal}, got ${orderTotal}, diff ${priceDifference}`);
       return errorResponse(

@@ -109,6 +109,7 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
   });
   const [deliveryDates, setDeliveryDates] = useState<DeliveryDate[]>([]);
   const [loadingDates, setLoadingDates] = useState(false);
+  const [datesError, setDatesError] = useState<string | null>(null);
   const [orderTotal, setOrderTotal] = useState<OrderTotal | null>(null);
   const [loadingTotal, setLoadingTotal] = useState(false);
 
@@ -140,6 +141,7 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
       fetchDeliveryDates(formData.recipientZip);
     } else {
       setDeliveryDates([]);
+      setDatesError(null);
       setFormData((prev) => ({ ...prev, deliveryDate: '' }));
     }
   }, [formData.recipientZip]);
@@ -170,6 +172,7 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
 
   const fetchDeliveryDates = async (zip: string) => {
     setLoadingDates(true);
+    setDatesError(null);
     try {
       const response = await fetch(
         `/api${basePath}/delivery-dates?zip=${encodeURIComponent(zip)}`
@@ -177,10 +180,19 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
       const data = await response.json();
 
       if (data.success && data.data?.dates) {
-        setDeliveryDates(data.data.dates.filter((d: DeliveryDate) => d.available));
+        const availableDates = data.data.dates.filter((d: DeliveryDate) => d.available);
+        setDeliveryDates(availableDates);
+        if (availableDates.length === 0) {
+          setDatesError('No delivery dates available for this ZIP code.');
+        }
+      } else {
+        setDatesError(data.error || 'Unable to fetch delivery dates. Please try again.');
+        setDeliveryDates([]);
       }
     } catch (err) {
       console.error('Failed to fetch dates:', err);
+      setDatesError('Unable to fetch delivery dates. Please check your connection.');
+      setDeliveryDates([]);
     } finally {
       setLoadingDates(false);
     }
@@ -217,16 +229,23 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
     setSubmitting(true);
     setError(null);
 
-    // Validate we have the order total before proceeding
-    if (!orderTotal) {
-      setError('Unable to calculate order total. Please refresh and try again.');
+    // Validate we have the order total before proceeding (prevents race condition)
+    if (!orderTotal || loadingTotal) {
+      setError('Please wait for the order total to finish calculating.');
       setSubmitting(false);
       return;
     }
 
-    // Generate idempotency key to prevent duplicate orders on retry
-    // Use cart ID + timestamp + random to ensure uniqueness per attempt
-    const idempotencyKey = `${cart?.cartId || 'unknown'}_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+    // Validate delivery date is still valid
+    if (!formData.deliveryDate || !deliveryDates.some(d => d.date === formData.deliveryDate)) {
+      setError('Please select a valid delivery date.');
+      setSubmitting(false);
+      return;
+    }
+
+    // Generate idempotency key - use cart + total + date for stable key per order attempt
+    // This ensures retries use the same key, but new orders get new keys
+    const idempotencyKey = `${cart?.cartId || 'unknown'}_${orderTotal.total.toFixed(2)}_${formData.deliveryDate}`;
 
     // Create payment token
     if (!paymentRef.current) {
@@ -553,6 +572,10 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
                 </svg>
                 <span>Loading available dates...</span>
               </div>
+            ) : datesError ? (
+              <p className="text-red-600 text-sm">
+                {datesError}
+              </p>
             ) : deliveryDates.length === 0 ? (
               <p className="text-red-600 text-sm">
                 No delivery dates available for this ZIP code.
@@ -779,7 +802,7 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
 
             <button
               type="submit"
-              disabled={submitting || deliveryDates.length === 0 || !cardComplete}
+              disabled={submitting || deliveryDates.length === 0 || !cardComplete || loadingTotal || !orderTotal || !formData.deliveryDate}
               className="w-full mt-6 py-4 bg-sage-600 hover:bg-sage-700 disabled:bg-cream-300
                        text-white disabled:text-forest-800/40 font-semibold rounded-xl
                        transition-colors duration-200 flex items-center justify-center gap-2"
@@ -832,7 +855,7 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
             type="submit"
             form="checkout-form"
             onClick={handleSubmit as unknown as React.MouseEventHandler<HTMLButtonElement>}
-            disabled={submitting || deliveryDates.length === 0 || !cardComplete}
+            disabled={submitting || deliveryDates.length === 0 || !cardComplete || loadingTotal || !orderTotal || !formData.deliveryDate}
             className="px-6 py-3 bg-sage-600 hover:bg-sage-700 disabled:bg-cream-300
                      text-white disabled:text-forest-800/40 font-semibold rounded-xl
                      transition-colors duration-200 flex items-center gap-2"

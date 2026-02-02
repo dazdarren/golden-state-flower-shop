@@ -140,8 +140,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const taxSum = totalResult.FLORISTONETAX || totalResult.TAXTOTAL || 0;
     const deliveryCharge = totalResult.FLORISTONEDELIVERYCHARGE || totalResult.DELIVERYCHARGETOTAL || 0;
 
-    // Ensure we have a valid delivery charge from API
-    if (deliveryCharge === 0) {
+    // Note: deliveryCharge === 0 is valid for free delivery promotions
+    // Only error if the API didn't return a valid response at all
+    if (totalResult.FLORISTONEDELIVERYCHARGE === undefined && totalResult.DELIVERYCHARGETOTAL === undefined) {
       return errorResponse('Unable to determine delivery fee. Please try again.', 500);
     }
 
