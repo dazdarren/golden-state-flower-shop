@@ -324,41 +324,28 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       return errorResponse('Cart is empty', 400);
     }
 
-    // Calculate order total by calling FlowerShop API gettotal for each product
-    // Also capture subtotal, delivery fee, and tax from API response
-    let orderTotalFromApi = 0;
-    let subtotalFromApi = 0;
-    let deliveryFeeFromApi = 0;
-    let taxFromApi = 0;
+    // Calculate order total by calling FlowerShop API gettotal with ALL products at once
+    // This ensures delivery fee is only charged once for the entire order
+    const totalResult = await client.getCartTotal(
+      products.map(p => ({ code: p.CODE, price: p.PRICE })),
+      recipientResult.data!.zip
+    );
 
-    for (const product of products) {
-      const totalResult = await client.getTotal(
-        product.CODE,
-        recipientResult.data!.zip,
-        dateResult.data!,
-        product.PRICE
-      );
-      // Check for API error
-      if (totalResult.error) {
-        return errorResponse(`Unable to calculate order total: ${totalResult.error}`, 500);
-      }
-
-      // ORDERTOTAL is the authoritative total from Florist One - we MUST use it
-      if (typeof totalResult.ORDERTOTAL === 'number' && totalResult.ORDERTOTAL > 0) {
-        orderTotalFromApi += totalResult.ORDERTOTAL;
-      } else {
-        // API didn't return ORDERTOTAL - this is a critical error
-        return errorResponse('Unable to calculate order total. Please try again.', 500);
-      }
-
-      // Capture the breakdown from API (for database storage)
-      subtotalFromApi += totalResult.SUBTOTAL || product.PRICE;
-      taxFromApi += totalResult.FLORISTONETAX || totalResult.TAXTOTAL || 0;
-      // Delivery fee is typically the same for all items, take from first product
-      if (deliveryFeeFromApi === 0) {
-        deliveryFeeFromApi = totalResult.FLORISTONEDELIVERYCHARGE || totalResult.DELIVERYCHARGETOTAL || 0;
-      }
+    // Check for API error
+    if (totalResult.error) {
+      return errorResponse(`Unable to calculate order total: ${totalResult.error}`, 500);
     }
+
+    // ORDERTOTAL is the authoritative total from Florist One - we MUST use it
+    if (typeof totalResult.ORDERTOTAL !== 'number' || totalResult.ORDERTOTAL <= 0) {
+      return errorResponse('Unable to calculate order total. Please try again.', 500);
+    }
+
+    // Capture values from API response
+    const orderTotalFromApi = totalResult.ORDERTOTAL;
+    const subtotalFromApi = totalResult.SUBTOTAL || products.reduce((sum, p) => sum + p.PRICE, 0);
+    const deliveryFeeFromApi = totalResult.FLORISTONEDELIVERYCHARGE || totalResult.DELIVERYCHARGETOTAL || 0;
+    const taxFromApi = totalResult.FLORISTONETAX || totalResult.TAXTOTAL || 0;
 
     const orderTotal = Math.round(orderTotalFromApi * 100) / 100;
     const subtotal = Math.round(subtotalFromApi * 100) / 100;

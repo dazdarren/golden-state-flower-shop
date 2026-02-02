@@ -236,7 +236,7 @@ export class FloristOneClient {
   }
 
   /**
-   * Get order total
+   * Get order total for a single product (legacy method)
    * FlowerShop API gettotal format:
    * products=[{"CODE":"X","PRICE":70,"RECIPIENT":{"ZIPCODE":"12345"}}]
    * Note: deliveryDate is kept in signature for backward compatibility but is not sent
@@ -259,6 +259,26 @@ export class FloristOneClient {
     }];
     const products = JSON.stringify(productData);
     const url = `${FLOWERSHOP_API_URL}/gettotal?products=${encodeURIComponent(products)}`;
+    return this.request<FloristOneTotalResponse>('GET', url);
+  }
+
+  /**
+   * Get order total for multiple products at once
+   * This is the correct way to calculate cart total - delivery fee is only charged once
+   */
+  async getCartTotal(
+    products: Array<{ code: string; price: number }>,
+    zipcode: string
+  ): Promise<FloristOneTotalResponse> {
+    const productData = products.map(p => ({
+      CODE: p.code,
+      PRICE: Math.round(p.price * 100) / 100,
+      RECIPIENT: {
+        ZIPCODE: zipcode,
+      },
+    }));
+    const productsJson = JSON.stringify(productData);
+    const url = `${FLOWERSHOP_API_URL}/gettotal?products=${encodeURIComponent(productsJson)}`;
     return this.request<FloristOneTotalResponse>('GET', url);
   }
 

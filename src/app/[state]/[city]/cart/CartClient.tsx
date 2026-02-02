@@ -36,6 +36,7 @@ export default function CartClient({ basePath, cityName, primaryZipCodes = [] }:
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [removingItem, setRemovingItem] = useState<string | null>(null);
+  const [updatingQuantity, setUpdatingQuantity] = useState<string | null>(null);
   const [zipValidated, setZipValidated] = useState(false);
   const [validatedDeliveryFee, setValidatedDeliveryFee] = useState<number | null>(null);
 
@@ -93,6 +94,37 @@ export default function CartClient({ basePath, cityName, primaryZipCodes = [] }:
       setError('Unable to remove item. Please try again.');
     } finally {
       setRemovingItem(null);
+    }
+  };
+
+  const handleUpdateQuantity = async (sku: string, newQuantity: number) => {
+    if (newQuantity < 0 || newQuantity > 99) return;
+
+    setUpdatingQuantity(sku);
+
+    try {
+      const response = await fetch(`/api${basePath}/cart/update-quantity`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sku, quantity: newQuantity }),
+        credentials: 'same-origin',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        setError(data.error || 'Failed to update quantity');
+        return;
+      }
+
+      // Refresh cart
+      fetchCart();
+    } catch (err) {
+      setError('Unable to update quantity. Please try again.');
+    } finally {
+      setUpdatingQuantity(null);
     }
   };
 
@@ -224,7 +256,40 @@ export default function CartClient({ basePath, cityName, primaryZipCodes = [] }:
                 {item.name}
               </Link>
               <p className="text-sm text-gray-500 mt-1">SKU: {item.sku}</p>
-              <p className="text-sm text-gray-600 mt-1">Qty: {item.quantity}</p>
+
+              {/* Quantity Selector */}
+              <div className="flex items-center gap-2 mt-2">
+                <button
+                  onClick={() => handleUpdateQuantity(item.sku, item.quantity - 1)}
+                  disabled={updatingQuantity === item.sku || item.quantity <= 1}
+                  className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:bg-gray-100 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  aria-label="Decrease quantity"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                  </svg>
+                </button>
+                <span className="w-8 text-center font-medium text-gray-900">
+                  {updatingQuantity === item.sku ? (
+                    <svg className="w-4 h-4 animate-spin mx-auto text-primary-600" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  ) : (
+                    item.quantity
+                  )}
+                </span>
+                <button
+                  onClick={() => handleUpdateQuantity(item.sku, item.quantity + 1)}
+                  disabled={updatingQuantity === item.sku || item.quantity >= 99}
+                  className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:bg-gray-100 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  aria-label="Increase quantity"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             {/* Price & Remove */}
@@ -232,9 +297,12 @@ export default function CartClient({ basePath, cityName, primaryZipCodes = [] }:
               <p className="font-bold text-gray-900">
                 ${((item.price || 0) * (item.quantity || 1)).toFixed(2)}
               </p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                ${(item.price || 0).toFixed(2)} each
+              </p>
               <button
                 onClick={() => handleRemoveItem(item.itemId)}
-                disabled={removingItem === item.itemId}
+                disabled={removingItem === item.itemId || updatingQuantity === item.sku}
                 className="text-sm text-red-600 hover:text-red-700 mt-2 disabled:opacity-50 py-2 px-3 -mr-3"
               >
                 {removingItem === item.itemId ? 'Removing...' : 'Remove'}

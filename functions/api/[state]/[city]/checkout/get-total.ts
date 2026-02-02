@@ -122,39 +122,23 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       });
     }
 
-    // Call FlowerShop API gettotal for each product
-    let subtotalSum = 0;
-    let taxSum = 0;
-    let deliveryCharge = 0;
-    let orderTotal = 0;
+    // Call FlowerShop API gettotal with ALL products at once
+    // This ensures delivery fee is only charged once for the entire order
+    const totalResult = await client.getCartTotal(
+      products.map(p => ({ code: p.CODE, price: p.PRICE })),
+      zip
+    );
 
-    for (const product of products) {
-      const totalResult = await client.getTotal(
-        product.CODE,
-        zip,
-        deliveryDate,
-        product.PRICE
-      );
-      // Check for API error - fail rather than use estimates
-      if (totalResult.error) {
-        return errorResponse(`Unable to calculate total: ${totalResult.error}`, 500);
-      }
-
-      // Use values from API response - these are the authoritative values from Florist One
-      if (typeof totalResult.ORDERTOTAL === 'number' && totalResult.ORDERTOTAL > 0) {
-        orderTotal += totalResult.ORDERTOTAL;
-      }
-      subtotalSum += totalResult.SUBTOTAL || product.PRICE;
-      taxSum += totalResult.FLORISTONETAX || totalResult.TAXTOTAL || 0;
-
-      // Get delivery charge from API - must have a real value
-      if (!deliveryCharge) {
-        const apiDeliveryCharge = totalResult.FLORISTONEDELIVERYCHARGE || totalResult.DELIVERYCHARGETOTAL;
-        if (typeof apiDeliveryCharge === 'number' && apiDeliveryCharge > 0) {
-          deliveryCharge = apiDeliveryCharge;
-        }
-      }
+    // Check for API error - fail rather than use estimates
+    if (totalResult.error) {
+      return errorResponse(`Unable to calculate total: ${totalResult.error}`, 500);
     }
+
+    // Use values from API response - these are the authoritative values from Florist One
+    const orderTotal = totalResult.ORDERTOTAL || 0;
+    const subtotalSum = totalResult.SUBTOTAL || products.reduce((sum, p) => sum + p.PRICE, 0);
+    const taxSum = totalResult.FLORISTONETAX || totalResult.TAXTOTAL || 0;
+    const deliveryCharge = totalResult.FLORISTONEDELIVERYCHARGE || totalResult.DELIVERYCHARGETOTAL || 0;
 
     // Ensure we have a valid delivery charge from API
     if (deliveryCharge === 0) {
