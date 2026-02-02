@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next';
 import { getAllCities } from '@/data/cities';
-import { OCCASIONS, PRODUCT_TYPES, SEASONAL } from '@/data/categories';
+import { OCCASIONS, PRODUCT_TYPES, SEASONAL, FUNERAL_TYPES } from '@/data/categories';
 import { GUIDES } from '@/data/guides';
+import { getAllBlogSlugs } from '@/data/blogPosts';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com';
@@ -40,7 +41,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       });
     }
 
-    // Product type pages (4 types × 11 cities = 44 pages)
+    // Product type pages (9 types × 11 cities = 99 pages)
     for (const productType of PRODUCT_TYPES) {
       urls.push({
         url: `${siteUrl}${cityPath}/shop/${productType.slug}/`,
@@ -50,7 +51,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       });
     }
 
-    // Seasonal pages (4 seasonal × 11 cities = 44 pages)
+    // Seasonal pages (5 seasonal × 11 cities = 55 pages)
     for (const seasonal of SEASONAL) {
       urls.push({
         url: `${siteUrl}${cityPath}/seasonal/${seasonal.slug}/`,
@@ -83,6 +84,35 @@ export default function sitemap(): MetadataRoute.Sitemap {
     for (const guide of GUIDES) {
       urls.push({
         url: `${siteUrl}${cityPath}/guides/${guide.slug}/`,
+        lastModified: currentDate,
+        changeFrequency: 'monthly',
+        priority: 0.6,
+      });
+    }
+
+    // Funeral collection pages (11 types × 11 cities = 121 pages)
+    for (const funeral of FUNERAL_TYPES) {
+      urls.push({
+        url: `${siteUrl}${cityPath}/funeral/${funeral.slug}/`,
+        lastModified: currentDate,
+        changeFrequency: 'weekly',
+        priority: 0.7,
+      });
+    }
+
+    // Blog hub page (11 cities = 11 pages)
+    urls.push({
+      url: `${siteUrl}${cityPath}/blog/`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    });
+
+    // Individual blog posts (14 posts × 11 cities = 154 pages)
+    const blogSlugs = getAllBlogSlugs();
+    for (const slug of blogSlugs) {
+      urls.push({
+        url: `${siteUrl}${cityPath}/blog/${slug}/`,
         lastModified: currentDate,
         changeFrequency: 'monthly',
         priority: 0.6,
