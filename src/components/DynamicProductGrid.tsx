@@ -91,6 +91,7 @@ export default function DynamicProductGrid({
           category: occasion,
           occasions: [occasion],
           available: true,
+          dimension: p.dimension,
         }));
         setProducts(transformedProducts);
         setTotalCount(data.data.total || transformedProducts.length);

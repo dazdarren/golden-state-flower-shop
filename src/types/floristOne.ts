@@ -34,6 +34,7 @@ export interface Product {
   category: string;
   occasions: string[];
   available: boolean;
+  dimension?: string; // Size/dimension info e.g. "18\"H x 12\"W" or stem count
 }
 
 export interface ProductResponse {

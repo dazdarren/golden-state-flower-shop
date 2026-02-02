@@ -10,6 +10,7 @@ interface ApiProduct {
   price: number;
   image: string;
   imageLarge: string;
+  dimension?: string;
 }
 
 interface FeaturedProductsProps {
@@ -192,9 +193,14 @@ export default function FeaturedProducts({
 
               {/* Content */}
               <div className="p-4">
-                <h3 className={`font-display text-lg font-medium leading-snug line-clamp-2 mb-2 ${variant === 'dark' ? 'text-cream-100' : 'text-forest-900'}`}>
+                <h3 className={`font-display text-lg font-medium leading-snug line-clamp-2 mb-1 ${variant === 'dark' ? 'text-cream-100' : 'text-forest-900'}`}>
                   {product.name}
                 </h3>
+                {product.dimension && (
+                  <p className={`text-xs mb-2 ${variant === 'dark' ? 'text-cream-100/50' : 'text-forest-800/50'}`}>
+                    {product.dimension}
+                  </p>
+                )}
                 <p className={`font-display text-xl font-semibold ${styles.price}`}>
                   ${product.price.toFixed(2)}
                 </p>

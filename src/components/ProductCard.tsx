@@ -247,9 +247,15 @@ export default function ProductCard({ product, basePath, index = 0, onQuickView,
 
         {/* Content */}
         <div className="flex flex-col flex-1 p-4 sm:p-5">
-          <h3 className="font-display text-lg font-medium text-forest-900 leading-snug line-clamp-2 mb-2">
+          <h3 className="font-display text-lg font-medium text-forest-900 leading-snug line-clamp-2 mb-1">
             {product.name}
           </h3>
+
+          {product.dimension && (
+            <p className="text-xs text-forest-800/50 mb-2">
+              {product.dimension}
+            </p>
+          )}
 
           <div className="mt-auto flex items-baseline gap-2">
             <span className="font-display text-xl font-semibold text-forest-900">
