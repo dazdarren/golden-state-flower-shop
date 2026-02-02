@@ -155,17 +155,12 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         }
       }
     } else if (newQuantity < currentQuantity) {
-      // Need to remove items - Florist One removes all, so we remove all then re-add
-      const removeResult = await client.removeFromCart(cartId, sku);
-      if (removeResult.error) {
-        return errorResponse(removeResult.error, 500);
-      }
-
-      // Re-add the desired quantity
-      for (let i = 0; i < newQuantity; i++) {
-        const addResult = await client.addToCart(cartId, sku);
-        if (addResult.error) {
-          return errorResponse(addResult.error, 500);
+      // Need to remove items - Florist One removes one item per call
+      const toRemove = currentQuantity - newQuantity;
+      for (let i = 0; i < toRemove; i++) {
+        const removeResult = await client.removeFromCart(cartId, sku);
+        if (removeResult.error) {
+          return errorResponse(removeResult.error, 500);
         }
       }
     }
