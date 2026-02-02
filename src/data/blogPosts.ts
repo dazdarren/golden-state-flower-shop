@@ -6,8 +6,14 @@ export interface BlogPost {
   image: string;
   category: string;
   publishedAt: string;
+  dateModified?: string;
   readTime: number;
   tags: string[];
+  // Location-specific content (use {cityName} placeholder)
+  localTitle?: string;
+  localExcerpt?: string;
+  localIntro?: string;
+  localOutro?: string;
 }
 
 export const blogPosts: BlogPost[] = [
@@ -51,6 +57,10 @@ For the best selection and guaranteed delivery, we recommend ordering your Mothe
     publishedAt: '2024-04-15',
     readTime: 5,
     tags: ["Mother's Day", 'Gift Ideas', 'Roses', 'Spring Flowers'],
+    localTitle: "Best Mother's Day Flowers in {cityName}",
+    localExcerpt: "Find the perfect Mother's Day flowers for delivery in {cityName}. Discover which blooms convey love, gratitude, and appreciation for Mom.",
+    localIntro: "Looking for the perfect Mother's Day flowers in {cityName}? You're in the right place. We deliver beautiful arrangements to moms throughout the {cityName} area, with same-day delivery available for last-minute orders.",
+    localOutro: "Ready to order Mother's Day flowers in {cityName}? Browse our Mother's Day collection and schedule delivery to any address in the {cityName} area. Order early to guarantee delivery on Mom's special day!",
   },
   {
     slug: 'how-to-keep-flowers-fresh-longer',
@@ -102,6 +112,10 @@ Some flowers naturally have longer vase lives:
     publishedAt: '2024-03-20',
     readTime: 6,
     tags: ['Flower Care', 'Tips', 'Fresh Flowers', 'How To'],
+    localTitle: 'How to Keep Flowers Fresh in {cityName}',
+    localExcerpt: "Learn professional florist secrets to extend the life of your cut flowers in {cityName}'s climate and enjoy your beautiful arrangement longer.",
+    localIntro: "When you receive fresh flowers delivered in {cityName}, you want them to last as long as possible. The local climate can affect how long your blooms stay fresh, but with these professional tips, you can enjoy your arrangement for weeks.",
+    localOutro: "Order fresh flowers for delivery anywhere in {cityName} and put these tips to use! Our arrangements arrive with care instructions and flower food to help your blooms last longer in your home.",
   },
   {
     slug: 'meaning-of-flower-colors',
@@ -229,6 +243,10 @@ Consider sending flowers or a plant to the family's home a few weeks after the f
     publishedAt: '2024-02-10',
     readTime: 8,
     tags: ['Sympathy', 'Etiquette', 'Funeral Flowers', 'Condolences'],
+    localTitle: 'Sympathy Flowers Etiquette in {cityName}',
+    localExcerpt: 'Navigate sending sympathy flowers in {cityName} with grace. Learn what to send, when, and how to express condolences with thoughtful flower delivery.',
+    localIntro: "Sending sympathy flowers in {cityName} is a meaningful way to show support during difficult times. We deliver to all {cityName} funeral homes, churches, and private residences with same-day service available.",
+    localOutro: "We understand how important it is to send your condolences with care. Our {cityName} sympathy flower delivery includes a personal card message and delivery confirmation. We're here to help you through this difficult time.",
   },
   {
     slug: 'seasonal-flowers-guide',
@@ -384,6 +402,10 @@ Avoid generic messages. A few heartfelt words you actually mean beat a lengthy q
     publishedAt: '2024-01-28',
     readTime: 7,
     tags: ["Valentine's Day", 'Roses', 'Romance', 'Gift Ideas'],
+    localTitle: "Valentine's Day Flowers in {cityName}: What to Send",
+    localExcerpt: "Find the perfect Valentine's Day flowers for delivery in {cityName}. Our complete guide to romantic blooms, color meanings, and ordering tips.",
+    localIntro: "Valentine's Day is the biggest flower-giving holiday of the year, and {cityName} is no exception. Whether you're sending roses to a downtown office or surprising someone at home, we deliver romantic arrangements throughout the {cityName} area.",
+    localOutro: "Order your Valentine's Day flowers for {cityName} delivery now. We recommend ordering at least a week in advance to secure your preferred arrangement and delivery time slot. Same-day delivery available for orders placed before 2pm.",
   },
   {
     slug: 'anniversary-flowers-by-year',
@@ -560,6 +582,10 @@ For extended recoveries, consider a flower subscription or follow-up delivery a 
     publishedAt: '2024-06-05',
     readTime: 7,
     tags: ['Get Well', 'Hospital', 'Recovery', 'Etiquette'],
+    localTitle: 'Get Well Flowers: Hospital Delivery in {cityName}',
+    localExcerpt: "Learn which flowers are appropriate for hospital visits in {cityName}, delivery tips, and how to brighten someone's recovery.",
+    localIntro: "Sending get-well flowers to someone recovering in {cityName}? We deliver to all major hospitals in the area and can help you choose the perfect arrangement. Here's what you need to know about hospital flower delivery.",
+    localOutro: "Ready to send get-well wishes? We deliver to all {cityName} hospitals and medical centers. Our team calls ahead to confirm delivery policies and ensure your flowers arrive safely. Order before 2pm for same-day hospital delivery.",
   },
   {
     slug: 'wedding-flowers-complete-guide',
@@ -916,6 +942,10 @@ Consider pairing flowers with:
     publishedAt: '2024-05-01',
     readTime: 6,
     tags: ['Graduation', 'Celebration', 'Achievement', 'School'],
+    localTitle: 'Graduation Flowers in {cityName}: Celebrate Their Achievement',
+    localExcerpt: 'Find the perfect graduation flowers for delivery in {cityName}. From high school to PhD, tips for delivery, presentation, and school colors.',
+    localIntro: "Graduation season in {cityName} is a time of celebration! Whether your graduate is finishing high school, college, or an advanced degree, flowers are a classic way to honor their achievement. We deliver to graduation venues and homes throughout {cityName}.",
+    localOutro: "Celebrate your graduate with beautiful flowers delivered anywhere in {cityName}. We offer same-day delivery for last-minute orders and can coordinate delivery to graduation venues. Browse our congratulations collection to find the perfect arrangement!",
   },
   {
     slug: 'thank-you-flowers-when-how',

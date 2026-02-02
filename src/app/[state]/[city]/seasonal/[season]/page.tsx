@@ -27,7 +27,6 @@ export async function generateMetadata({ params }: SeasonalPageProps): Promise<M
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com';
   const basePath = getCityPath(cityConfig);
   const canonicalUrl = `${siteUrl}${basePath}/seasonal/${params.season}/`;
-  const ogImageUrl = `${siteUrl}/images/og-default.svg`;
 
   const description = seasonal.metaDescription.replace('{cityName}', cityConfig.cityName);
   const title = `${seasonal.title} in ${cityConfig.cityName}, ${cityConfig.stateAbbr}`;
@@ -43,14 +42,6 @@ export async function generateMetadata({ params }: SeasonalPageProps): Promise<M
       description,
       url: canonicalUrl,
       siteName: 'Golden State Flower Shop',
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: `${seasonal.name} flower arrangements in ${cityConfig.cityName}`,
-        },
-      ],
       locale: 'en_US',
       type: 'website',
     },
@@ -58,7 +49,6 @@ export async function generateMetadata({ params }: SeasonalPageProps): Promise<M
       card: 'summary_large_image',
       title: `${seasonal.title} in ${cityConfig.cityName} | Golden State Flower Shop`,
       description,
-      images: [ogImageUrl],
     },
   };
 }
@@ -107,7 +97,8 @@ export default function SeasonalPage({ params }: SeasonalPageProps) {
     ],
   };
 
-  // Collection Schema
+  // Collection Schema with AggregateOffer
+  const priceRange = seasonal.priceRange;
   const collectionSchema = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
@@ -121,6 +112,16 @@ export default function SeasonalPage({ params }: SeasonalPageProps) {
       numberOfItems: 12,
       itemListOrder: 'https://schema.org/ItemListOrderDescending',
     },
+    ...(priceRange && {
+      offers: {
+        '@type': 'AggregateOffer',
+        lowPrice: priceRange.low.toFixed(2),
+        highPrice: priceRange.high.toFixed(2),
+        priceCurrency: 'USD',
+        offerCount: 12,
+        availability: 'https://schema.org/InStock',
+      },
+    }),
   };
 
   return (

@@ -34,7 +34,6 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com';
   const basePath = getCityPath(cityConfig);
   const canonicalUrl = `${siteUrl}${basePath}/product/${params.sku}/`;
-  const ogImageUrl = `${siteUrl}/images/og-default.svg`;
 
   const title = `Flower Arrangement - Delivery in ${cityConfig.cityName}`;
   const description = `Order beautiful flower arrangements for delivery in ${cityConfig.cityName}. Same-day delivery available.`;
@@ -50,14 +49,6 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       description,
       url: canonicalUrl,
       siteName: 'Golden State Flower Shop',
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: `Flower arrangement for delivery in ${cityConfig.cityName}`,
-        },
-      ],
       locale: 'en_US',
       type: 'website',
     },
@@ -65,7 +56,6 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       card: 'summary_large_image',
       title: `Flower Arrangement | ${cityConfig.cityName} Delivery`,
       description,
-      images: [ogImageUrl],
     },
   };
 }

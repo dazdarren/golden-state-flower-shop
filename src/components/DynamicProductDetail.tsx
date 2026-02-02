@@ -143,13 +143,22 @@ export default function DynamicProductDetail({
             '@type': 'Product',
             name: product.name,
             description: product.description,
-            image: product.imageLarge,
+            image: [product.imageLarge],
             sku: product.sku,
+            brand: {
+              '@type': 'Brand',
+              name: 'Golden State Flower Shop',
+            },
             offers: {
               '@type': 'Offer',
-              price: product.price,
+              url: `${typeof window !== 'undefined' ? window.location.origin : 'https://goldenstateflowershop.com'}${basePath}/product/${product.sku}`,
+              price: product.price.toFixed(2),
               priceCurrency: 'USD',
               availability: 'https://schema.org/InStock',
+              seller: {
+                '@type': 'Organization',
+                name: 'Golden State Flower Shop',
+              },
               areaServed: {
                 '@type': 'City',
                 name: cityName,

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCityConfig, getCityPath } from '@/data/cities';
 import { OCCASIONS, OccasionSlug } from '@/types/city';
+import { getOccasionBySlug } from '@/data/categories';
 import { getGuidesByOccasion } from '@/data/guides';
 import DynamicProductGrid from '@/components/DynamicProductGrid';
 import GuideCard from '@/components/GuideCard';
@@ -30,7 +31,6 @@ export async function generateMetadata({ params }: OccasionPageProps): Promise<M
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com';
   const basePath = getCityPath(cityConfig);
   const canonicalUrl = `${siteUrl}${basePath}/flowers/${params.occasion}/`;
-  const ogImageUrl = `${siteUrl}/images/og-default.svg`;
 
   const description = occasion.metaDescription.replace('{cityName}', cityConfig.cityName);
   const title = `${occasion.title} in ${cityConfig.cityName}, ${cityConfig.stateAbbr}`;
@@ -46,14 +46,6 @@ export async function generateMetadata({ params }: OccasionPageProps): Promise<M
       description,
       url: canonicalUrl,
       siteName: 'Golden State Flower Shop',
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: `${occasion.name} flower arrangements in ${cityConfig.cityName}`,
-        },
-      ],
       locale: 'en_US',
       type: 'website',
     },
@@ -61,7 +53,6 @@ export async function generateMetadata({ params }: OccasionPageProps): Promise<M
       card: 'summary_large_image',
       title: `${occasion.title} in ${cityConfig.cityName} | Golden State Flower Shop`,
       description,
-      images: [ogImageUrl],
     },
   };
 }
@@ -103,7 +94,11 @@ export default function OccasionPage({ params }: OccasionPageProps) {
     ],
   };
 
-  // Collection/ItemList Schema for product grid
+  // Get category config with price range
+  const categoryConfig = getOccasionBySlug(params.occasion);
+  const priceRange = categoryConfig?.priceRange;
+
+  // Collection/ItemList Schema for product grid with AggregateOffer
   const collectionSchema = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
@@ -117,6 +112,16 @@ export default function OccasionPage({ params }: OccasionPageProps) {
       numberOfItems: 12,
       itemListOrder: 'https://schema.org/ItemListOrderDescending',
     },
+    ...(priceRange && {
+      offers: {
+        '@type': 'AggregateOffer',
+        lowPrice: priceRange.low.toFixed(2),
+        highPrice: priceRange.high.toFixed(2),
+        priceCurrency: 'USD',
+        offerCount: 12,
+        availability: 'https://schema.org/InStock',
+      },
+    }),
   };
 
   return (

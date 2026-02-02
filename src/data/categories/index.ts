@@ -11,6 +11,10 @@ export interface CategoryConfig {
   metaDescription: string;
   icon?: string;
   apiCategory: string;
+  priceRange?: {
+    low: number;
+    high: number;
+  };
 }
 
 // ============================================================================
@@ -26,6 +30,7 @@ export const OCCASIONS: CategoryConfig[] = [
     metaDescription: 'Order birthday flowers for delivery in {cityName}. Same-day delivery available.',
     icon: 'cake',
     apiCategory: 'bd',
+    priceRange: { low: 39.99, high: 149.99 },
   },
   {
     slug: 'anniversary',
@@ -35,6 +40,7 @@ export const OCCASIONS: CategoryConfig[] = [
     metaDescription: 'Order anniversary flowers for delivery in {cityName}. Romantic arrangements available.',
     icon: 'heart',
     apiCategory: 'an',
+    priceRange: { low: 49.99, high: 199.99 },
   },
   {
     slug: 'love-romance',
@@ -44,6 +50,7 @@ export const OCCASIONS: CategoryConfig[] = [
     metaDescription: 'Send romantic flowers for delivery in {cityName}. Perfect for expressing love.',
     icon: 'hearts',
     apiCategory: 'lr',
+    priceRange: { low: 49.99, high: 249.99 },
   },
   {
     slug: 'new-baby',
@@ -53,6 +60,7 @@ export const OCCASIONS: CategoryConfig[] = [
     metaDescription: 'Order new baby flowers for delivery in {cityName}. Celebrate the new arrival.',
     icon: 'baby',
     apiCategory: 'nb',
+    priceRange: { low: 44.99, high: 129.99 },
   },
   {
     slug: 'thank-you',
@@ -62,6 +70,7 @@ export const OCCASIONS: CategoryConfig[] = [
     metaDescription: 'Send thank you flowers in {cityName}. Express your gratitude with same-day delivery.',
     icon: 'gift',
     apiCategory: 'ty',
+    priceRange: { low: 34.99, high: 119.99 },
   },
   {
     slug: 'get-well',
@@ -71,6 +80,7 @@ export const OCCASIONS: CategoryConfig[] = [
     metaDescription: 'Send get well flowers to hospitals and homes in {cityName}. Same-day delivery.',
     icon: 'sun',
     apiCategory: 'gw',
+    priceRange: { low: 39.99, high: 119.99 },
   },
   {
     slug: 'sympathy',
@@ -80,6 +90,7 @@ export const OCCASIONS: CategoryConfig[] = [
     metaDescription: 'Send sympathy flowers and funeral arrangements in {cityName}. Express delivery available.',
     icon: 'heart-outline',
     apiCategory: 'sy',
+    priceRange: { low: 59.99, high: 299.99 },
   },
   {
     slug: 'congratulations',
@@ -89,6 +100,7 @@ export const OCCASIONS: CategoryConfig[] = [
     metaDescription: 'Order congratulations flowers for delivery in {cityName}. Celebrate their success.',
     icon: 'star',
     apiCategory: 'ao',
+    priceRange: { low: 44.99, high: 149.99 },
   },
   {
     slug: 'just-because',
@@ -98,6 +110,7 @@ export const OCCASIONS: CategoryConfig[] = [
     metaDescription: 'Send just because flowers in {cityName}. No occasion needed to show you care.',
     icon: 'sparkles',
     apiCategory: 'ao',
+    priceRange: { low: 34.99, high: 129.99 },
   },
 ];
 
@@ -114,6 +127,7 @@ export const PRODUCT_TYPES: CategoryConfig[] = [
     metaDescription: 'Order plants and succulents for delivery in {cityName}. Green gifts that last.',
     icon: 'plant',
     apiCategory: 'pl',
+    priceRange: { low: 34.99, high: 149.99 },
   },
   {
     slug: 'rose-bouquets',
@@ -123,6 +137,7 @@ export const PRODUCT_TYPES: CategoryConfig[] = [
     metaDescription: 'Send beautiful rose bouquets in {cityName}. Classic elegance delivered.',
     icon: 'rose',
     apiCategory: 'ro',
+    priceRange: { low: 44.99, high: 199.99 },
   },
   {
     slug: 'mixed-arrangements',
@@ -132,6 +147,7 @@ export const PRODUCT_TYPES: CategoryConfig[] = [
     metaDescription: 'Order mixed flower arrangements in {cityName}. Colorful variety delivered fresh.',
     icon: 'bouquet',
     apiCategory: 'ao',
+    priceRange: { low: 39.99, high: 149.99 },
   },
   {
     slug: 'premium-collection',
@@ -141,6 +157,7 @@ export const PRODUCT_TYPES: CategoryConfig[] = [
     metaDescription: 'Order premium luxury flowers in {cityName}. Exceptional quality and design.',
     icon: 'diamond',
     apiCategory: 'bs',
+    priceRange: { low: 79.99, high: 349.99 },
   },
 ];
 
@@ -166,6 +183,7 @@ export const SEASONAL: SeasonalConfig[] = [
     timing: 'January - February',
     activeMonths: [1, 2],
     bannerColor: 'rose',
+    priceRange: { low: 49.99, high: 299.99 },
   },
   {
     slug: 'mothers-day',
@@ -178,6 +196,7 @@ export const SEASONAL: SeasonalConfig[] = [
     timing: 'April - May',
     activeMonths: [4, 5],
     bannerColor: 'pink',
+    priceRange: { low: 44.99, high: 199.99 },
   },
   {
     slug: 'christmas',
@@ -190,6 +209,7 @@ export const SEASONAL: SeasonalConfig[] = [
     timing: 'November - December',
     activeMonths: [11, 12],
     bannerColor: 'forest',
+    priceRange: { low: 44.99, high: 179.99 },
   },
   {
     slug: 'seasonal-specials',
@@ -202,6 +222,7 @@ export const SEASONAL: SeasonalConfig[] = [
     timing: 'Year-round',
     activeMonths: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     bannerColor: 'sage',
+    priceRange: { low: 39.99, high: 149.99 },
   },
 ];
 

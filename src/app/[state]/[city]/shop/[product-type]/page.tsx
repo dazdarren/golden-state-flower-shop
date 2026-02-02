@@ -88,7 +88,8 @@ export default function ProductTypePage({ params }: ProductTypePageProps) {
     ],
   };
 
-  // Collection Schema
+  // Collection Schema with AggregateOffer
+  const priceRange = productType.priceRange;
   const collectionSchema = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
@@ -102,6 +103,16 @@ export default function ProductTypePage({ params }: ProductTypePageProps) {
       numberOfItems: 12,
       itemListOrder: 'https://schema.org/ItemListOrderDescending',
     },
+    ...(priceRange && {
+      offers: {
+        '@type': 'AggregateOffer',
+        lowPrice: priceRange.low.toFixed(2),
+        highPrice: priceRange.high.toFixed(2),
+        priceCurrency: 'USD',
+        offerCount: 12,
+        availability: 'https://schema.org/InStock',
+      },
+    }),
   };
 
   return (

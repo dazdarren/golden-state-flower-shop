@@ -29,6 +29,12 @@ export function generateStaticParams() {
   return params;
 }
 
+// Helper to localize content with city name
+function localize(text: string | undefined, cityName: string): string {
+  if (!text) return '';
+  return text.replace(/\{cityName\}/g, cityName);
+}
+
 export function generateMetadata({ params }: BlogPostPageProps): Metadata {
   const post = getBlogPost(params.slug);
   const cityConfig = getCityConfig(params.state, params.city);
@@ -37,9 +43,48 @@ export function generateMetadata({ params }: BlogPostPageProps): Metadata {
     return { title: 'Blog Post Not Found' };
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com';
+  const basePath = `/${cityConfig.stateSlug}/${cityConfig.citySlug}`;
+  const canonicalUrl = `${siteUrl}${basePath}/blog/${post.slug}`;
+
+  // Use localized title/excerpt if available
+  const displayTitle = post.localTitle
+    ? localize(post.localTitle, cityConfig.cityName)
+    : post.title;
+  const displayExcerpt = post.localExcerpt
+    ? localize(post.localExcerpt, cityConfig.cityName)
+    : post.excerpt;
+
   return {
-    title: `${post.title} | ${cityConfig.cityName} Flower Blog`,
-    description: post.excerpt,
+    title: `${displayTitle} | ${cityConfig.cityName} Flower Blog`,
+    description: displayExcerpt,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: displayTitle,
+      description: displayExcerpt,
+      url: canonicalUrl,
+      siteName: 'Golden State Flower Shop',
+      images: [
+        {
+          url: post.image,
+          width: 1200,
+          height: 675,
+          alt: displayTitle,
+        },
+      ],
+      type: 'article',
+      publishedTime: post.publishedAt,
+      modifiedTime: post.dateModified || post.publishedAt,
+      authors: ['Golden State Flower Shop'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: displayTitle,
+      description: displayExcerpt,
+      images: [post.image],
+    },
   };
 }
 
@@ -53,6 +98,17 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
 
   const basePath = `/${cityConfig.stateSlug}/${cityConfig.citySlug}`;
   const recentPosts = getRecentPosts(3).filter((p) => p.slug !== post.slug).slice(0, 2);
+
+  // Localized content
+  const displayTitle = post.localTitle
+    ? localize(post.localTitle, cityConfig.cityName)
+    : post.title;
+  const localIntro = post.localIntro
+    ? localize(post.localIntro, cityConfig.cityName)
+    : null;
+  const localOutro = post.localOutro
+    ? localize(post.localOutro, cityConfig.cityName)
+    : null;
 
   // Helper to parse inline bold markdown
   const parseInlineFormatting = (text: string): React.ReactNode => {
@@ -175,8 +231,44 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
     return elements;
   };
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com';
+  const canonicalUrl = `${siteUrl}${basePath}/blog/${post.slug}`;
+
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: displayTitle,
+    description: post.localExcerpt ? localize(post.localExcerpt, cityConfig.cityName) : post.excerpt,
+    image: post.image,
+    author: {
+      '@type': 'Organization',
+      name: 'Golden State Flower Shop',
+      url: siteUrl,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Golden State Flower Shop',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${siteUrl}/images/logo.png`,
+      },
+    },
+    datePublished: post.publishedAt,
+    dateModified: post.dateModified || post.publishedAt,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': canonicalUrl,
+    },
+  };
+
   return (
     <div className="bg-cream-50">
+      {/* Article JSON-LD Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+
       {/* Breadcrumb */}
       <nav className="bg-white py-3 border-b border-cream-200">
         <div className="container-wide">
@@ -193,7 +285,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
               </Link>
             </li>
             <li className="text-forest-800/30">/</li>
-            <li className="text-forest-900 font-medium line-clamp-1">{post.title}</li>
+            <li className="text-forest-900 font-medium line-clamp-1">{displayTitle}</li>
           </ol>
         </div>
       </nav>
@@ -208,7 +300,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                 {post.category}
               </span>
               <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-semibold text-forest-900 mt-3 mb-6">
-                {post.title}
+                {displayTitle}
               </h1>
               <div className="flex flex-wrap items-center gap-4 text-forest-800/60">
                 <span>{new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
@@ -221,14 +313,32 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
             <div className="aspect-[16/9] rounded-2xl overflow-hidden mb-10 border border-cream-200">
               <img
                 src={post.image}
-                alt={post.title}
+                alt={displayTitle}
                 className="w-full h-full object-cover"
               />
             </div>
 
             {/* Content */}
             <div className="prose-forest">
+              {/* Local intro for city-specific content */}
+              {localIntro && (
+                <div className="bg-sage-50 border-l-4 border-sage-400 p-6 rounded-r-xl mb-8">
+                  <p className="text-forest-800 leading-relaxed m-0">
+                    {localIntro}
+                  </p>
+                </div>
+              )}
+
               {formatContent(post.content)}
+
+              {/* Local outro for city-specific CTA */}
+              {localOutro && (
+                <div className="bg-cream-100 border border-cream-300 p-6 rounded-xl mt-10">
+                  <p className="text-forest-800 leading-relaxed m-0 font-medium">
+                    {localOutro}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Tags */}
