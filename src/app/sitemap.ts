@@ -148,6 +148,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: 0.6,
       });
     }
+
+    // Funeral home delivery pages (~6 funeral homes × 11 cities = ~66 pages)
+    for (const funeralHome of city.funeralHomes) {
+      const funeralHomeSlug = funeralHome
+        .toLowerCase()
+        .replace(/['']/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+      urls.push({
+        url: `${siteUrl}${cityPath}/funeral-home/${funeralHomeSlug}/`,
+        lastModified: currentDate,
+        changeFrequency: 'monthly',
+        priority: 0.6,
+      });
+    }
   }
 
   return urls;
