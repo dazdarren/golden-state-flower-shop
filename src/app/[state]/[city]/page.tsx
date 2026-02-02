@@ -165,6 +165,90 @@ export default function CityHomePage({ params }: CityPageProps) {
         }}
       />
 
+      {/* JSON-LD Structured Data - FAQPage */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: [
+              {
+                '@type': 'Question',
+                name: 'What is the cutoff time for same-day delivery?',
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: `Order by ${cityConfig.deliveryInfo.sameDay.cutoffTime} for same-day delivery to ${cityConfig.cityName} addresses. Orders placed after the cutoff will be delivered the next business day.`,
+                },
+              },
+              {
+                '@type': 'Question',
+                name: `Do you deliver to hospitals in ${cityConfig.cityName}?`,
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: `Yes! We deliver to all major ${cityConfig.cityName} hospitals including ${cityConfig.hospitals.slice(0, 3).join(', ')}, and more. Please include the patient's room number if available.`,
+                },
+              },
+              {
+                '@type': 'Question',
+                name: 'What if a flower is out of stock?',
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: cityConfig.deliveryInfo.substitutionPolicy,
+                },
+              },
+              {
+                '@type': 'Question',
+                name: `What areas do you deliver to in ${cityConfig.cityName}?`,
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: `We deliver throughout ${cityConfig.cityName} including ${cityConfig.neighborhoods.slice(0, 5).join(', ')}, and all surrounding neighborhoods. ZIP codes served include ${cityConfig.primaryZipCodes.slice(0, 5).join(', ')}.`,
+                },
+              },
+              {
+                '@type': 'Question',
+                name: 'How much does delivery cost?',
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: `Delivery fees in ${cityConfig.cityName} start at $14.99 for standard delivery. Same-day delivery is available for orders placed before ${cityConfig.deliveryInfo.sameDay.cutoffTime}.`,
+                },
+              },
+            ],
+          }),
+        }}
+      />
+
+      {/* JSON-LD Structured Data - BreadcrumbList */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com'}/`,
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: cityConfig.stateName,
+                item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com'}/${cityConfig.stateSlug}/`,
+              },
+              {
+                '@type': 'ListItem',
+                position: 3,
+                name: `${cityConfig.cityName} Flower Delivery`,
+                item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com'}${basePath}/`,
+              },
+            ],
+          }),
+        }}
+      />
+
       {/* Hero Section - Compact, Centered */}
       <section className="relative py-16 lg:py-24 overflow-hidden">
         {/* Background - Simple gradient */}

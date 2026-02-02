@@ -261,12 +261,49 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
     },
   };
 
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: siteUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: cityConfig.cityName,
+        item: `${siteUrl}${basePath}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: 'Blog',
+        item: `${siteUrl}${basePath}/blog`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 4,
+        name: displayTitle,
+        item: canonicalUrl,
+      },
+    ],
+  };
+
   return (
     <div className="bg-cream-50">
       {/* Article JSON-LD Schema */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+
+      {/* BreadcrumbList JSON-LD Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
       {/* Breadcrumb */}
