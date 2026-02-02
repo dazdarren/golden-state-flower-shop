@@ -35,12 +35,69 @@ export default function BlogPage({ params }: BlogPageProps) {
   }
 
   const basePath = `/${cityConfig.stateSlug}/${cityConfig.citySlug}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com';
   const categories = getAllCategories();
   const featuredPost = blogPosts[0];
   const otherPosts = blogPosts.slice(1);
 
+  // BreadcrumbList Schema
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: siteUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: cityConfig.cityName,
+        item: `${siteUrl}${basePath}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: 'Blog',
+        item: `${siteUrl}${basePath}/blog`,
+      },
+    ],
+  };
+
+  // Blog CollectionPage Schema
+  const collectionSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `Flower Blog & Tips - ${cityConfig.cityName}`,
+    description: `Expert flower care tips, gift guides, and floral inspiration from ${cityConfig.cityName}'s trusted florists.`,
+    url: `${siteUrl}${basePath}/blog`,
+    mainEntity: {
+      '@type': 'ItemList',
+      name: 'Blog Posts',
+      numberOfItems: blogPosts.length,
+      itemListElement: blogPosts.map((post, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: post.title,
+        url: `${siteUrl}${basePath}/blog/${post.slug}`,
+      })),
+    },
+  };
+
   return (
     <div className="bg-cream-50">
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+      />
+
       {/* Hero */}
       <section className="py-12 md:py-16 bg-white border-b border-cream-200">
         <div className="container-wide">
