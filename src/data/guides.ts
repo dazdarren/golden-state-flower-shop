@@ -33,6 +33,9 @@ export interface GuideConfig {
   sections: GuideSection[];
   faqs?: GuideFAQ[];
   steps?: GuideStep[];
+  // Internal linking
+  relatedBlogPosts?: string[]; // Blog post slugs
+  contextPages?: string[]; // Page types this guide relates to (e.g., 'hospital', 'product', 'funeral-home')
 }
 
 export const GUIDES: GuideConfig[] = [
@@ -101,6 +104,8 @@ export const GUIDES: GuideConfig[] = [
         answer: 'Drooping usually indicates an air bubble in the stem blocking water uptake. Re-cut the stems underwater and they should perk up within a few hours.',
       },
     ],
+    relatedBlogPosts: ['how-to-keep-flowers-fresh-longer'],
+    contextPages: ['product'],
   },
   {
     slug: 'sympathy-etiquette',
@@ -149,6 +154,8 @@ export const GUIDES: GuideConfig[] = [
         answer: 'Respect the family\'s wishes by making a donation to the specified charity. You can still send a small plant or card to the family\'s home after the service.',
       },
     ],
+    relatedBlogPosts: ['sympathy-flowers-etiquette'],
+    contextPages: ['funeral-home'],
   },
   {
     slug: 'hospital-delivery',
@@ -196,6 +203,8 @@ export const GUIDES: GuideConfig[] = [
         answer: 'Call the hospital\'s main line and ask for the patient information desk. They can confirm the patient is admitted and may provide the room number if the patient has not requested privacy.',
       },
     ],
+    relatedBlogPosts: ['get-well-flowers-hospital-delivery'],
+    contextPages: ['hospital'],
   },
   {
     slug: 'flower-meanings',
@@ -244,6 +253,8 @@ export const GUIDES: GuideConfig[] = [
         answer: 'Mixed arrangements generally convey joy and celebration without specific symbolism. They\'re a safe choice when you want to brighten someone\'s day without sending a particular message.',
       },
     ],
+    relatedBlogPosts: ['meaning-of-flower-colors', 'thank-you-flowers-when-how'],
+    contextPages: ['product'],
   },
   {
     slug: 'valentines-guide',
@@ -295,6 +306,7 @@ export const GUIDES: GuideConfig[] = [
         answer: 'Many florists deliver on weekends, especially around Valentine\'s Day. Book early and confirm delivery availability. Consider Friday delivery for maximum workplace impact.',
       },
     ],
+    relatedBlogPosts: ['valentines-day-flower-guide'],
   },
   {
     slug: 'wedding-flowers',
@@ -346,6 +358,8 @@ export const GUIDES: GuideConfig[] = [
         answer: 'Avoid delicate flowers like sweet peas and gardenias in hot weather—they wilt quickly. Roses, orchids, and succulents handle heat better. Discuss your venue\'s conditions with your florist.',
       },
     ],
+    relatedBlogPosts: ['wedding-flowers-complete-guide'],
+    contextPages: ['venue'],
   },
   {
     slug: 'corporate-flowers',
@@ -397,6 +411,7 @@ export const GUIDES: GuideConfig[] = [
         answer: 'When sending to offices, consider low-allergen options like orchids, roses (minimal pollen), or plants. Avoid lilies, which have heavy pollen, and strongly scented flowers.',
       },
     ],
+    relatedBlogPosts: ['office-flowers-corporate-gifting', 'graduation-flowers-gift-ideas'],
   },
   {
     slug: 'anniversary-flowers-by-year',
@@ -448,6 +463,7 @@ export const GUIDES: GuideConfig[] = [
         answer: 'Business partnership or friendship anniversaries call for professional arrangements. Yellow flowers (friendship), green arrangements (growth), or white flowers (respect) work well.',
       },
     ],
+    relatedBlogPosts: ['anniversary-flowers-by-year'],
   },
   {
     slug: 'mothers-day-guide',
@@ -499,6 +515,7 @@ export const GUIDES: GuideConfig[] = [
         answer: 'Respect her wishes. Some mothers genuinely prefer experiences or practical gifts. Consider alternatives like a plant she can enjoy long-term, a donation in her name, or a brunch date instead.',
       },
     ],
+    relatedBlogPosts: ['best-flowers-for-mothers-day'],
   },
   {
     slug: 'seasonal-flower-calendar',
@@ -550,6 +567,7 @@ export const GUIDES: GuideConfig[] = [
         answer: 'Ask local florists what\'s freshest this week. Visit farmers markets for locally grown options. In {cityName}, seasonal availability may differ from national trends due to local climate.',
       },
     ],
+    relatedBlogPosts: ['seasonal-flowers-guide'],
   },
 ];
 
@@ -557,8 +575,51 @@ export function getGuideBySlug(slug: string): GuideConfig | undefined {
   return GUIDES.find((g) => g.slug === slug);
 }
 
+/**
+ * Get related guides using score-based matching
+ * Scores guides based on shared occasions, categories, and context pages
+ */
 export function getRelatedGuides(currentSlug: string, limit: number = 3): GuideConfig[] {
-  return GUIDES.filter((g) => g.slug !== currentSlug).slice(0, limit);
+  const currentGuide = getGuideBySlug(currentSlug);
+  if (!currentGuide) {
+    return GUIDES.slice(0, limit);
+  }
+
+  const scores = GUIDES
+    .filter((guide) => guide.slug !== currentSlug)
+    .map((guide) => {
+      let score = 0;
+
+      // Same category: +3 points
+      if (guide.category === currentGuide.category) {
+        score += 3;
+      }
+
+      // Shared occasions: +2 points each
+      const sharedOccasions = guide.relatedOccasions.filter(
+        (occ) => currentGuide.relatedOccasions.includes(occ)
+      );
+      score += sharedOccasions.length * 2;
+
+      // Shared context pages: +2 points each
+      if (currentGuide.contextPages && guide.contextPages) {
+        const sharedPages = guide.contextPages.filter(
+          (page) => currentGuide.contextPages?.includes(page)
+        );
+        score += sharedPages.length * 2;
+      }
+
+      // Featured bonus: +1 point
+      if (guide.featured) {
+        score += 1;
+      }
+
+      return { guide, score };
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit);
+
+  return scores.map(({ guide }) => guide);
 }
 
 export function getFeaturedGuides(limit: number = 3): GuideConfig[] {
@@ -576,4 +637,11 @@ export function getGuidesByOccasion(occasion: string): GuideConfig[] {
 export function getAllCategories(): string[] {
   const categories = new Set(GUIDES.map((g) => g.category));
   return Array.from(categories);
+}
+
+/**
+ * Get guides that are relevant for a specific context page type
+ */
+export function getGuidesByContextPage(contextPage: string): GuideConfig[] {
+  return GUIDES.filter((g) => g.contextPages?.includes(contextPage));
 }

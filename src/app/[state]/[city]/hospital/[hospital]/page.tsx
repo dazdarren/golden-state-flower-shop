@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCityConfig, getCityPath, getAllCities } from '@/data/cities';
+import { getGuideBySlug } from '@/data/guides';
 import DynamicProductGrid from '@/components/DynamicProductGrid';
 
 interface HospitalPageProps {
@@ -88,6 +89,9 @@ export default function HospitalPage({ params }: HospitalPageProps) {
 
   const basePath = getCityPath(cityConfig);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com';
+
+  // Get the hospital delivery guide
+  const hospitalGuide = getGuideBySlug('hospital-delivery');
 
   // Breadcrumb Schema
   const breadcrumbSchema = {
@@ -274,6 +278,32 @@ export default function HospitalPage({ params }: HospitalPageProps) {
               so you can order with confidence knowing your gift will reach them.
             </p>
           </div>
+
+          {/* Hospital Delivery Guide Link */}
+          {hospitalGuide && (
+            <Link
+              href={`${basePath}/guides/${hospitalGuide.slug}`}
+              className="mt-8 flex items-center gap-4 p-5 bg-white rounded-xl border border-sky-200 hover:border-sky-300 hover:shadow-soft transition-all group"
+            >
+              <div className="w-12 h-12 rounded-xl bg-sky-100 flex items-center justify-center flex-shrink-0 group-hover:bg-sky-200 transition-colors">
+                <svg className="w-6 h-6 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <span className="text-xs font-medium text-sky-600 uppercase tracking-wider">Complete Guide</span>
+                <h3 className="font-display text-lg font-semibold text-forest-900 group-hover:text-sky-700 transition-colors">
+                  {hospitalGuide.title}
+                </h3>
+                <p className="text-sm text-forest-800/60 mt-0.5">
+                  Learn more about hospital policies, best flowers, and delivery timing
+                </p>
+              </div>
+              <svg className="w-5 h-5 text-sky-400 group-hover:text-sky-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          )}
         </div>
       </section>
 

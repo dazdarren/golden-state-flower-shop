@@ -14,6 +14,9 @@ export interface BlogPost {
   localExcerpt?: string;
   localIntro?: string;
   localOutro?: string;
+  // Internal linking
+  relatedGuides?: string[]; // Guide slugs
+  relatedOccasions?: string[]; // Occasion slugs for product links
 }
 
 export const blogPosts: BlogPost[] = [
@@ -61,6 +64,8 @@ For the best selection and guaranteed delivery, we recommend ordering your Mothe
     localExcerpt: "Find the perfect Mother's Day flowers for delivery in {cityName}. Discover which blooms convey love, gratitude, and appreciation for Mom.",
     localIntro: "Looking for the perfect Mother's Day flowers in {cityName}? You're in the right place. We deliver beautiful arrangements to moms throughout the {cityName} area, with same-day delivery available for last-minute orders.",
     localOutro: "Ready to order Mother's Day flowers in {cityName}? Browse our Mother's Day collection and schedule delivery to any address in the {cityName} area. Order early to guarantee delivery on Mom's special day!",
+    relatedGuides: ['mothers-day-guide'],
+    relatedOccasions: ['thank-you', 'birthday'],
   },
   {
     slug: 'how-to-keep-flowers-fresh-longer',
@@ -116,6 +121,8 @@ Some flowers naturally have longer vase lives:
     localExcerpt: "Learn professional florist secrets to extend the life of your cut flowers in {cityName}'s climate and enjoy your beautiful arrangement longer.",
     localIntro: "When you receive fresh flowers delivered in {cityName}, you want them to last as long as possible. The local climate can affect how long your blooms stay fresh, but with these professional tips, you can enjoy your arrangement for weeks.",
     localOutro: "Order fresh flowers for delivery anywhere in {cityName} and put these tips to use! Our arrangements arrive with care instructions and flower food to help your blooms last longer in your home.",
+    relatedGuides: ['flower-care'],
+    relatedOccasions: ['birthday', 'anniversary', 'just-because'],
   },
   {
     slug: 'meaning-of-flower-colors',
@@ -179,6 +186,8 @@ Don't be afraid to mix colors for a more nuanced message:
     publishedAt: '2024-02-28',
     readTime: 7,
     tags: ['Flower Meanings', 'Color Guide', 'Gift Ideas', 'Symbolism'],
+    relatedGuides: ['flower-meanings'],
+    relatedOccasions: ['birthday', 'love-romance', 'thank-you'],
   },
   {
     slug: 'sympathy-flowers-etiquette',
@@ -247,6 +256,8 @@ Consider sending flowers or a plant to the family's home a few weeks after the f
     localExcerpt: 'Navigate sending sympathy flowers in {cityName} with grace. Learn what to send, when, and how to express condolences with thoughtful flower delivery.',
     localIntro: "Sending sympathy flowers in {cityName} is a meaningful way to show support during difficult times. We deliver to all {cityName} funeral homes, churches, and private residences with same-day service available.",
     localOutro: "We understand how important it is to send your condolences with care. Our {cityName} sympathy flower delivery includes a personal card message and delivery confirmation. We're here to help you through this difficult time.",
+    relatedGuides: ['sympathy-etiquette'],
+    relatedOccasions: ['sympathy'],
   },
   {
     slug: 'seasonal-flowers-guide',
@@ -338,6 +349,8 @@ When you order from us, we prioritize seasonal and locally-grown flowers wheneve
     publishedAt: '2024-01-15',
     readTime: 6,
     tags: ['Seasonal', 'California', 'Fresh Flowers', 'Guide'],
+    relatedGuides: ['seasonal-flower-calendar'],
+    relatedOccasions: ['birthday', 'just-because'],
   },
   {
     slug: 'valentines-day-flower-guide',
@@ -406,6 +419,8 @@ Avoid generic messages. A few heartfelt words you actually mean beat a lengthy q
     localExcerpt: "Find the perfect Valentine's Day flowers for delivery in {cityName}. Our complete guide to romantic blooms, color meanings, and ordering tips.",
     localIntro: "Valentine's Day is the biggest flower-giving holiday of the year, and {cityName} is no exception. Whether you're sending roses to a downtown office or surprising someone at home, we deliver romantic arrangements throughout the {cityName} area.",
     localOutro: "Order your Valentine's Day flowers for {cityName} delivery now. We recommend ordering at least a week in advance to secure your preferred arrangement and delivery time slot. Same-day delivery available for orders placed before 2pm.",
+    relatedGuides: ['valentines-guide'],
+    relatedOccasions: ['love-romance', 'anniversary'],
   },
   {
     slug: 'anniversary-flowers-by-year',
@@ -486,6 +501,8 @@ Reference your journey:
     publishedAt: '2024-05-10',
     readTime: 8,
     tags: ['Anniversary', 'Wedding', 'Traditions', 'Gift Ideas'],
+    relatedGuides: ['anniversary-flowers-by-year'],
+    relatedOccasions: ['anniversary', 'love-romance'],
   },
   {
     slug: 'get-well-flowers-hospital-delivery',
@@ -586,6 +603,8 @@ For extended recoveries, consider a flower subscription or follow-up delivery a 
     localExcerpt: "Learn which flowers are appropriate for hospital visits in {cityName}, delivery tips, and how to brighten someone's recovery.",
     localIntro: "Sending get-well flowers to someone recovering in {cityName}? We deliver to all major hospitals in the area and can help you choose the perfect arrangement. Here's what you need to know about hospital flower delivery.",
     localOutro: "Ready to send get-well wishes? We deliver to all {cityName} hospitals and medical centers. Our team calls ahead to confirm delivery policies and ensure your flowers arrive safely. Order before 2pm for same-day hospital delivery.",
+    relatedGuides: ['hospital-delivery'],
+    relatedOccasions: ['get-well'],
   },
   {
     slug: 'wedding-flowers-complete-guide',
@@ -705,6 +724,8 @@ Options for keeping your wedding flowers:
     publishedAt: '2024-07-15',
     readTime: 10,
     tags: ['Wedding', 'Planning', 'Bouquets', 'Centerpieces'],
+    relatedGuides: ['wedding-flowers'],
+    relatedOccasions: ['anniversary', 'love-romance'],
   },
   {
     slug: 'office-flowers-corporate-gifting',
@@ -825,6 +846,8 @@ Sign with your name and company, keeping the tone warm but professional.
     publishedAt: '2024-08-20',
     readTime: 8,
     tags: ['Corporate', 'Office', 'Business', 'Professional'],
+    relatedGuides: ['corporate-flowers'],
+    relatedOccasions: ['thank-you', 'congratulations'],
   },
   {
     slug: 'graduation-flowers-gift-ideas',
@@ -946,6 +969,8 @@ Consider pairing flowers with:
     localExcerpt: 'Find the perfect graduation flowers for delivery in {cityName}. From high school to PhD, tips for delivery, presentation, and school colors.',
     localIntro: "Graduation season in {cityName} is a time of celebration! Whether your graduate is finishing high school, college, or an advanced degree, flowers are a classic way to honor their achievement. We deliver to graduation venues and homes throughout {cityName}.",
     localOutro: "Celebrate your graduate with beautiful flowers delivered anywhere in {cityName}. We offer same-day delivery for last-minute orders and can coordinate delivery to graduation venues. Browse our congratulations collection to find the perfect arrangement!",
+    relatedGuides: ['corporate-flowers'],
+    relatedOccasions: ['congratulations', 'thank-you'],
   },
   {
     slug: 'thank-you-flowers-when-how',
@@ -1059,6 +1084,8 @@ The sooner you send thank you flowers, the more impactful they'll be. But genuin
     publishedAt: '2024-09-10',
     readTime: 7,
     tags: ['Thank You', 'Gratitude', 'Etiquette', 'Gift Ideas'],
+    relatedGuides: ['flower-meanings', 'corporate-flowers'],
+    relatedOccasions: ['thank-you', 'just-because'],
   },
 ];
 
@@ -1082,4 +1109,75 @@ export function getRecentPosts(count: number = 3): BlogPost[] {
 
 export function getAllCategories(): string[] {
   return Array.from(new Set(blogPosts.map((post) => post.category)));
+}
+
+/**
+ * Get related blog posts using score-based matching
+ * Scores posts based on shared tags, categories, and occasions
+ */
+export function getRelatedBlogPosts(slug: string, limit: number = 3): BlogPost[] {
+  const currentPost = getBlogPost(slug);
+  if (!currentPost) {
+    return getRecentPosts(limit);
+  }
+
+  const scores = blogPosts
+    .filter((post) => post.slug !== slug)
+    .map((post) => {
+      let score = 0;
+
+      // Same category: +3 points
+      if (post.category === currentPost.category) {
+        score += 3;
+      }
+
+      // Shared tags: +2 points each
+      const sharedTags = post.tags.filter((tag) => currentPost.tags.includes(tag));
+      score += sharedTags.length * 2;
+
+      // Shared occasions: +2 points each
+      if (currentPost.relatedOccasions && post.relatedOccasions) {
+        const sharedOccasions = post.relatedOccasions.filter(
+          (occ) => currentPost.relatedOccasions?.includes(occ)
+        );
+        score += sharedOccasions.length * 2;
+      }
+
+      // Same related guide: +3 points
+      if (currentPost.relatedGuides && post.relatedGuides) {
+        const sharedGuides = post.relatedGuides.filter(
+          (guide) => currentPost.relatedGuides?.includes(guide)
+        );
+        score += sharedGuides.length * 3;
+      }
+
+      return { post, score };
+    })
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit);
+
+  // If we don't have enough scored posts, fill with recent posts
+  if (scores.length < limit) {
+    const scoredSlugs = new Set(scores.map(({ post }) => post.slug));
+    scoredSlugs.add(slug);
+
+    const fillers = blogPosts
+      .filter((post) => !scoredSlugs.has(post.slug))
+      .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+      .slice(0, limit - scores.length);
+
+    return [...scores.map(({ post }) => post), ...fillers];
+  }
+
+  return scores.map(({ post }) => post);
+}
+
+/**
+ * Get blog posts related to a specific guide
+ */
+export function getBlogPostsByGuide(guideSlug: string): BlogPost[] {
+  return blogPosts.filter(
+    (post) => post.relatedGuides?.includes(guideSlug)
+  );
 }

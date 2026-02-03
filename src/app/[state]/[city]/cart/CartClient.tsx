@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import CartZipChecker from '@/components/CartZipChecker';
 import CartEmailCapture from '@/components/CartEmailCapture';
+import DeliveryCountdown from '@/components/DeliveryCountdown';
 
 interface CartItem {
   itemId: string;
@@ -29,9 +30,10 @@ interface CartClientProps {
   basePath: string;
   cityName: string;
   primaryZipCodes?: string[];
+  cutoffTime?: string;
 }
 
-export default function CartClient({ basePath, cityName, primaryZipCodes = [] }: CartClientProps) {
+export default function CartClient({ basePath, cityName, primaryZipCodes = [], cutoffTime = '2:00 PM' }: CartClientProps) {
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -344,6 +346,13 @@ export default function CartClient({ basePath, cityName, primaryZipCodes = [] }:
       {/* Order Summary */}
       <div className="lg:col-span-1">
         <div className="card p-6 sticky top-20 lg:top-24 space-y-6">
+          {/* Same-Day Delivery Countdown */}
+          <DeliveryCountdown
+            cutoffTime={cutoffTime}
+            cityName={cityName}
+            variant="inline"
+          />
+
           {/* ZIP Validation */}
           <CartZipChecker
             basePath={basePath}

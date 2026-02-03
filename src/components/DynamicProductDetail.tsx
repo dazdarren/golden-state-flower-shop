@@ -6,6 +6,7 @@ import AddToCartButton from '@/app/[state]/[city]/product/[sku]/AddToCartButton'
 import TrustBadges from '@/components/TrustBadges';
 import RecentlyViewed from '@/components/RecentlyViewed';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
+import { getGuideBySlug } from '@/data/guides';
 
 interface ApiProduct {
   sku: string;
@@ -52,6 +53,9 @@ export default function DynamicProductDetail({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { addProduct: trackRecentlyViewed } = useRecentlyViewed();
+
+  // Get flower care guide
+  const careGuide = getGuideBySlug('flower-care');
 
   // Track product view
   useEffect(() => {
@@ -279,6 +283,38 @@ export default function DynamicProductDetail({
           </div>
         </div>
       </section>
+
+      {/* Keep Your Flowers Fresh Guide Link */}
+      {careGuide && (
+        <section className="py-10 bg-cream-50 border-t border-cream-200">
+          <div className="container-wide">
+            <Link
+              href={`${basePath}/guides/${careGuide.slug}`}
+              className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-6 bg-white rounded-2xl border border-sage-200 hover:border-sage-300 hover:shadow-soft transition-all group"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-sage-100 flex items-center justify-center flex-shrink-0 group-hover:bg-sage-200 transition-colors">
+                <svg className="w-7 h-7 text-sage-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="font-display text-xl font-semibold text-forest-900 group-hover:text-sage-700 transition-colors">
+                  Keep Your Flowers Fresh Longer
+                </h3>
+                <p className="text-forest-800/60 mt-1">
+                  Learn professional florist tips to extend the life of your arrangement and enjoy beautiful blooms for weeks.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 text-sage-600 font-medium text-sm group-hover:text-sage-700 transition-colors">
+                <span>Read Guide</span>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* Recently Viewed */}
       <RecentlyViewed

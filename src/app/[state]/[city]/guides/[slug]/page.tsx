@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCityConfig, getCityPath, getAllCityPaths } from '@/data/cities';
 import { GUIDES, getGuideBySlug, getRelatedGuides } from '@/data/guides';
+import { getBlogPostsByGuide } from '@/data/blogPosts';
 import GuideCard from '@/components/GuideCard';
 
 interface GuidePageProps {
@@ -81,6 +82,9 @@ export default function GuidePage({ params }: GuidePageProps) {
   const basePath = getCityPath(cityConfig);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://goldenstateflowershop.com';
   const relatedGuides = getRelatedGuides(params.slug, 3);
+
+  // Get blog posts that link to this guide
+  const relatedBlogPosts = getBlogPostsByGuide(params.slug);
 
   // Breadcrumb Schema
   const breadcrumbSchema = {
@@ -321,6 +325,52 @@ export default function GuidePage({ params }: GuidePageProps) {
           </section>
         </div>
       </article>
+
+      {/* Related Articles */}
+      {relatedBlogPosts.length > 0 && (
+        <section className="py-12 lg:py-16 bg-white border-t border-cream-200">
+          <div className="container-wide">
+            <h2 className="font-display text-2xl font-semibold text-forest-900 mb-8">
+              Related Articles
+            </h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {relatedBlogPosts.slice(0, 3).map((post) => (
+                <Link
+                  key={post.slug}
+                  href={`${basePath}/blog/${post.slug}`}
+                  className="group bg-cream-50 rounded-xl border border-cream-200 hover:border-sage-300 overflow-hidden transition-colors"
+                >
+                  <div className="aspect-[16/10] overflow-hidden">
+                    <img
+                      src={post.image}
+                      alt={post.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div className="p-5">
+                    <span className="text-sage-600 text-xs font-medium uppercase tracking-wider">
+                      {post.category}
+                    </span>
+                    <h3 className="font-display text-lg font-semibold text-forest-900 mt-2 mb-2 group-hover:text-sage-700 transition-colors line-clamp-2">
+                      {post.localTitle
+                        ? post.localTitle.replace(/{cityName}/g, cityConfig.cityName)
+                        : post.title}
+                    </h3>
+                    <p className="text-sm text-forest-800/60 line-clamp-2">
+                      {post.localExcerpt
+                        ? post.localExcerpt.replace(/{cityName}/g, cityConfig.cityName)
+                        : post.excerpt}
+                    </p>
+                    <div className="mt-3 flex items-center gap-2 text-sm text-forest-800/50">
+                      <span>{post.readTime} min read</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Related Guides */}
       {relatedGuides.length > 0 && (

@@ -54,6 +54,7 @@ export default function CartPage({ params }: CartPageProps) {
             basePath={basePath}
             cityName={cityConfig.cityName}
             primaryZipCodes={cityConfig.primaryZipCodes}
+            cutoffTime={cityConfig.deliveryInfo.sameDay.cutoffTime}
           />
         </div>
       </section>

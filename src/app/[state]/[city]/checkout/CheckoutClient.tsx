@@ -388,8 +388,29 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
 
   return (
     <>
-      {/* Mobile Progress Indicator */}
-      <div className="lg:hidden sticky top-0 z-10 bg-white border-b border-cream-200 -mx-5 px-5 mb-6">
+      {/* Social Proof Banner */}
+      <div className="bg-cream-50 border border-cream-200 rounded-xl p-4 mb-6 flex items-center justify-center gap-4 text-sm">
+        <div className="flex items-center gap-2">
+          <div className="flex -space-x-2">
+            <div className="w-8 h-8 rounded-full bg-sage-200 border-2 border-white flex items-center justify-center text-sage-700 text-xs font-medium">JM</div>
+            <div className="w-8 h-8 rounded-full bg-rose-200 border-2 border-white flex items-center justify-center text-rose-700 text-xs font-medium">SK</div>
+            <div className="w-8 h-8 rounded-full bg-sky-200 border-2 border-white flex items-center justify-center text-sky-700 text-xs font-medium">RL</div>
+          </div>
+          <span className="text-forest-800/70">
+            Join <span className="font-semibold text-forest-900">50,000+</span> happy customers
+          </span>
+        </div>
+        <div className="hidden sm:flex items-center gap-1.5 text-forest-800/60">
+          <svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+          </svg>
+          <span className="font-medium">4.9/5</span>
+          <span>rating</span>
+        </div>
+      </div>
+
+      {/* Progress Indicator - Now visible on all screens */}
+      <div className="sticky top-0 z-10 bg-white border-b border-cream-200 -mx-5 px-5 mb-6">
         <div className="flex items-center justify-between py-3">
           {CHECKOUT_STEPS.map((step, index) => {
             const stepIndex = CHECKOUT_STEPS.findIndex(s => s.id === currentStep);
@@ -400,26 +421,27 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
               <div key={step.id} className="flex items-center flex-1">
                 <div className="flex flex-col items-center flex-1">
                   <div
-                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium transition-colors
+                    className={`w-6 h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center text-xs lg:text-sm font-medium transition-colors
                       ${isCompleted ? 'bg-sage-600 text-white' :
                         isActive ? 'bg-sage-600 text-white' :
                         'bg-cream-200 text-forest-800/40'}`}
                   >
                     {isCompleted ? (
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-3.5 h-3.5 lg:w-4 lg:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                       </svg>
                     ) : (
                       index + 1
                     )}
                   </div>
-                  <span className={`mt-1 text-[10px] font-medium
+                  <span className={`mt-1 text-[10px] lg:text-xs font-medium
                     ${isActive ? 'text-sage-600' : 'text-forest-800/40'}`}>
-                    {step.shortLabel}
+                    <span className="lg:hidden">{step.shortLabel}</span>
+                    <span className="hidden lg:inline">{step.label}</span>
                   </span>
                 </div>
                 {index < CHECKOUT_STEPS.length - 1 && (
-                  <div className={`w-full h-0.5 mx-1 -mt-4
+                  <div className={`w-full h-0.5 mx-1 lg:mx-2 -mt-4
                     ${index < stepIndex ? 'bg-sage-600' : 'bg-cream-200'}`} />
                 )}
               </div>
@@ -733,15 +755,40 @@ export default function CheckoutClient({ basePath, cityConfig }: CheckoutClientP
 
           {/* Payment */}
           <div className="bg-white rounded-2xl border border-cream-200 p-6">
-            <h2 className="font-display text-xl font-semibold text-forest-900 mb-6">
-              Payment
-            </h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-display text-xl font-semibold text-forest-900">
+                Payment
+              </h2>
+              <div className="flex items-center gap-1.5 text-xs text-forest-800/60">
+                <svg className="w-4 h-4 text-sage-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <span>Secure & Encrypted</span>
+              </div>
+            </div>
 
             <AuthorizeNetCardElement
               ref={paymentRef}
               basePath={basePath}
               onChange={setCardComplete}
             />
+
+            {/* Security assurance below payment fields */}
+            <div className="mt-4 p-3 bg-cream-50 rounded-xl border border-cream-200">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-sage-100 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-4 h-4 text-sage-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <div className="text-xs">
+                  <p className="font-medium text-forest-900">Your payment is protected</p>
+                  <p className="text-forest-800/60 mt-0.5">
+                    256-bit SSL encryption • PCI DSS compliant • No card data stored on our servers
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
